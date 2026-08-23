@@ -277,6 +277,10 @@ test.describe('Architex OS — OS rail navigation repair', () => {
     await expect(page.getByRole('button', { name: /Send to review/i })).toHaveCount(0);
     await expect(page.getByText(/MariaDB-backed/i)).toHaveCount(0);
     await expect(page.getByText(/controlled working record/i)).toHaveCount(0);
+    await page.screenshot({
+      path: 'docs/v8-remediation/screenshots/phase-0-containment.png',
+      fullPage: false,
+    });
   });
 
   test('rail -> tool -> back round-trip does not strand the user', async ({ page }) => {
