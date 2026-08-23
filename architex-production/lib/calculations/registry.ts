@@ -1,6 +1,7 @@
 import { CALC_REGISTRY as LEGACY_REGISTRY, type CalcDefinition } from '../engineering-calculations';
 import { dimensionForUnit } from './units';
 import { STRUCTURAL_DEFINITIONS } from './structural';
+import { CIVIL_DEFINITIONS } from './civil';
 import {
   CALCULATOR_IDS,
   type CalculatorId,
@@ -130,7 +131,12 @@ function definitionFromLegacy(id: CalculatorId): CalculatorDefinition {
 }
 
 export const CALC_REGISTRY: Readonly<Record<CalculatorId, CalculatorDefinition>> = Object.freeze(
-  Object.fromEntries(CALCULATOR_IDS.map((id) => [id, STRUCTURAL_DEFINITIONS[id as keyof typeof STRUCTURAL_DEFINITIONS] ?? definitionFromLegacy(id)])) as Record<CalculatorId, CalculatorDefinition>,
+  Object.fromEntries(CALCULATOR_IDS.map((id) => [
+    id,
+    STRUCTURAL_DEFINITIONS[id as keyof typeof STRUCTURAL_DEFINITIONS]
+      ?? CIVIL_DEFINITIONS[id as keyof typeof CIVIL_DEFINITIONS]
+      ?? definitionFromLegacy(id),
+  ])) as Record<CalculatorId, CalculatorDefinition>,
 );
 
 export function calculatorDefinition(id: string): CalculatorDefinition | undefined {
