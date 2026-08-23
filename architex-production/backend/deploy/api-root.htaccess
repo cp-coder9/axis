@@ -6,7 +6,7 @@
 
   # Phase 0 immutable containment API. Keep this rule before the legacy
   # gateway so /api/v1 requests execute the generated calculator policy.
-  RewriteRule ^api/v1(?:/.*)?$ phase0-backend/public/index.php [L,QSA]
+  RewriteRule ^api/v1(/.*)?$ phase0-backend/public/index.php [L,QSA]
 
   RewriteRule ^api/?$ index.php [L,QSA]
   RewriteRule ^api/(.*)$ index.php [L,QSA]
