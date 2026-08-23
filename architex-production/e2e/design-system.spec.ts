@@ -93,3 +93,9 @@ test('P5-A11Y-01 P5-MOT-01 has no serious catalog violations and suppresses none
   const transition = await page.locator('.ax-button').first().evaluate((element) => getComputedStyle(element).transitionDuration);
   expect(transition).toBe('0.001s');
 });
+
+test('P5-VIS-01 preserves the approved desktop catalog baseline', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/design-system');
+  await expect(page).toHaveScreenshot('catalog-desktop.png', { fullPage: true, animations: 'disabled', maxDiffPixelRatio: 0.02 });
+});
