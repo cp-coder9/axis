@@ -97,7 +97,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           </button>
           <button
             onClick={onOpenWingman}
-            className="px-3 py-1.5 bg-white hover:bg-purple-50 border border-[#8B5CF6]/30 text-[#8B5CF6] rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-sm"
+            className="px-3 py-1.5 bg-white hover:bg-purple-50 border border-[#8B5CF6]/30 text-[var(--ax-ref-violet-600)] rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-sm"
           >
             <OrigamiIcon name="wingman" size={16} />
             <span>Ask Wingman</span>
@@ -171,7 +171,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
                     ? 'border-[#19B7B0] bg-[#DFF5F2]/50 text-[#167E79] font-bold shadow-sm ring-2 ring-[#19B7B0]/20'
                     : isPast
                     ? 'border-[#102033]/10 bg-white text-[#102033] hover:border-[#19B7B0]/40'
-                    : 'border-[#102033]/5 bg-gray-50/50 text-[#96a0ad] hover:bg-white'
+                    : 'border-[#102033]/5 bg-gray-50/50 text-[var(--ax-text-muted)] hover:bg-white'
                 }`}
                 title={`Switch to ${s} stage`}
               >
@@ -181,7 +181,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
                       ? 'bg-[#19B7B0] text-white shadow-md'
                       : isPast
                       ? 'bg-[#167E79]/15 text-[#167E79]'
-                      : 'bg-[#102033]/5 text-[#96a0ad]'
+                      : 'bg-[#102033]/5 text-[var(--ax-text-muted)]'
                   }`}
                 >
                   {isPast ? '✓' : idx + 1}
@@ -310,6 +310,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           </button>
           <input
             type="range"
+            aria-label="Datum canvas zoom"
             min="0.65"
             max="1.35"
             step="0.05"

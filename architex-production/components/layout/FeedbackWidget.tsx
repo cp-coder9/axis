@@ -189,7 +189,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
                     placeholder="Describe the issue, idea, or compliance friction..."
                     className="w-full p-3 border border-[#102033]/15 rounded-xl text-[13px] text-[#102033] focus:outline-none focus:border-[#19B7B0] focus:ring-2 focus:ring-[#19B7B0]/15 resize-none bg-white"
                   />
-                  <div className="flex justify-between items-center text-[10.5px] text-[#96a0ad] mt-1">
+                  <div className="flex justify-between items-center text-[10.5px] text-[var(--ax-text-muted)] mt-1">
                     <span>Min 10 characters</span>
                     <span>{text.length} / 2,000</span>
                   </div>
@@ -236,7 +236,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
                     </div>
                     <div className="text-[12.5px] font-bold text-[#102033]">{rec.title}</div>
                     <div className="text-[11px] text-[#657287] truncate">{rec.context}</div>
-                    <div className="text-[10px] text-[#96a0ad]">{rec.date}</div>
+                    <div className="text-[10px] text-[var(--ax-text-muted)]">{rec.date}</div>
                   </div>
                 ))}
               </div>

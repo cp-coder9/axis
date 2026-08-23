@@ -14,8 +14,9 @@
     "test:e2e": "playwright test",
     "validate:design-system": "node scripts/validate-design-system.mjs",
     "test:e2e:design-system": "playwright test e2e/design-system.spec.ts --project=chromium",
-    "test:e2e:design-system:update": "playwright test e2e/design-system.spec.ts --project=chromium --update-snapshots"
-    ,"validate:v8-migration": "node scripts/validate-v8-migration.mjs"
+    "test:e2e:design-system:update": "playwright test e2e/design-system.spec.ts --project=chromium --update-snapshots",
+    "validate:v8-migration": "node scripts/validate-v8-migration.mjs",
+    "test:e2e:v8-shell": "playwright test e2e/v8-shell-visual.spec.ts --project=chromium"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

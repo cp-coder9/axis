@@ -118,18 +118,18 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
       {/* Header / Orientation & Project Selector */}
       <div className="p-3.5 border-b border-[#102033]/10">
         {compact ? (
-          <div className="w-10 h-10 mx-auto rounded-xl bg-[#DFF5F2] border border-[#19B7B0]/20 flex items-center justify-center text-[#167E79]">
+          <div className="w-10 h-10 mx-auto rounded-xl bg-[#DFF5F2] border border-[#19B7B0]/20 flex items-center justify-center text-[var(--ax-action-primary)]">
             <OrigamiIcon name={activeTool ? activeTool.icon : mode === 'project' ? 'projects' : 'tools'} size={22} />
           </div>
         ) : (
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[#19B7B0]">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-action-primary)]">
               {activeTool ? (mode === 'project' ? 'Project Tool' : 'Standalone Tool') : mode === 'project' ? 'Active Project' : 'Standalone Tools'}
             </div>
             <div className="text-[15px] font-bold text-[#102033] mt-0.5 truncate">
               {activeTool ? activeTool.name : mode === 'project' ? activeProject.name : 'Workspace Tool Registry'}
             </div>
-            <div className="text-[11px] text-[#657287] mt-0.5 truncate">
+            <div className="text-[11px] text-[var(--ax-text-muted)] mt-0.5 truncate">
               {activeTool
                 ? mode === 'project'
                   ? `${activeProject.name} · ${activeProject.stage} stage`
@@ -146,8 +146,8 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                 onClick={() => onNavigate({ type: 'set-mode', mode: 'project' })}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                   mode === 'project'
-                    ? 'bg-white text-[#167E79] shadow-sm'
-                    : 'text-[#657287] hover:text-[#102033]'
+                    ? 'bg-white text-[var(--ax-action-primary)] shadow-sm'
+                    : 'text-[var(--ax-text-muted)] hover:text-[#102033]'
                 }`}
               >
                 Project
@@ -157,8 +157,8 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                 onClick={() => onNavigate({ type: 'set-mode', mode: 'standalone' })}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                   mode === 'standalone'
-                    ? 'bg-white text-[#167E79] shadow-sm'
-                    : 'text-[#657287] hover:text-[#102033]'
+                    ? 'bg-white text-[var(--ax-action-primary)] shadow-sm'
+                    : 'text-[var(--ax-text-muted)] hover:text-[#102033]'
                 }`}
               >
                 Standalone
@@ -169,6 +169,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
             {mode === 'project' && (
               <div className="mt-2">
                 <select
+                  aria-label="Active project"
                   value={activeProject.id}
                   onChange={(e) => {
                     const p = projectList.find((proj) => proj.id === e.target.value);
@@ -188,7 +189,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                   <button
                     data-testid="add-project"
                     onClick={() => { setAddingProject(true); setProjectFormError(null); }}
-                    className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 border border-dashed border-[#19B7B0]/40 rounded-lg text-[11px] font-medium text-[#167E79] hover:bg-[#DFF5F2]/50 transition-colors"
+                    className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 border border-dashed border-[#19B7B0]/40 rounded-lg text-[11px] font-medium text-[var(--ax-action-primary)] hover:bg-[#DFF5F2]/50 transition-colors"
                   >
                     <OrigamiIcon name="projects" size={13} />
                     Add project
@@ -222,6 +223,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                       className="w-full px-2 py-1.5 bg-white border border-[#102033]/15 rounded-lg text-[11px] focus:outline-none focus:border-[#19B7B0]"
                     />
                     <select
+                      aria-label="Project stage"
                       value={projectForm.stage}
                       onChange={(e) => setProjectForm({ ...projectForm, stage: e.target.value as StageKey })}
                       className="w-full px-2 py-1.5 bg-white border border-[#102033]/15 rounded-lg text-[11px] text-[#102033] focus:outline-none focus:border-[#19B7B0]"
@@ -246,7 +248,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                       </button>
                       <button
                         onClick={() => { setAddingProject(false); setProjectFormError(null); }}
-                        className="px-2.5 py-1.5 bg-white border border-[#102033]/15 rounded-lg text-[11px] text-[#657287] hover:bg-[#f3f8f7] transition-colors"
+                      className="px-2.5 py-1.5 bg-white border border-[#102033]/15 rounded-lg text-[11px] text-[var(--ax-text-muted)] hover:bg-[#f3f8f7] transition-colors"
                       >
                         Cancel
                       </button>
@@ -263,7 +265,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
       {activeTool && (
         <button
           onClick={() => onNavigate({ type: 'back' })}
-          className="flex items-center gap-2 px-4 py-2 border-b border-[#102033]/10 text-[12px] text-[#167E79] hover:bg-[#DFF5F2]/40 font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border-b border-[#102033]/10 text-[12px] text-[var(--ax-action-primary)] hover:bg-[#DFF5F2]/40 font-medium transition-colors"
         >
           <OrigamiIcon name="projects" size={16} />
           {!compact && (
@@ -280,9 +282,9 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
 
       {/* Role Card Banner */}
       {!compact && !activeTool && mode === 'project' && (
-        <div className="mx-3 mt-2.5 p-2.5 bg-[#DFF5F2]/60 border border-[#19B7B0]/20 rounded-xl text-[11px] text-[#167E79] leading-relaxed">
+        <div className="mx-3 mt-2.5 p-2.5 bg-[#DFF5F2]/60 border border-[#19B7B0]/20 rounded-xl text-[11px] text-[var(--ax-text)] leading-relaxed">
           <strong>{currentProfile.label} view</strong>
-          <p className="text-[#657287] mt-0.5">{currentProfile.description}. The datum surface filters tools relevant to your role.</p>
+          <p className="text-[var(--ax-text-muted)] mt-0.5">{currentProfile.description}. The datum surface filters tools relevant to your role.</p>
         </div>
       )}
 
@@ -383,7 +385,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
             {groupTabsByGroup(activeTool.tabs).map(({ group, tabs }) => (
               <div key={group} className="space-y-0.5">
                 {!compact && group !== 'General' && (
-                  <div className="px-4 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-wider text-[#96a0ad]">
+                  <div className="px-4 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)]">
                     {group}
                   </div>
                 )}
@@ -511,7 +513,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
             {Object.entries(toolCategories).map(([groupName, groupTools]) => (
               <div key={groupName} className="space-y-0.5">
                 {!compact && (
-                  <div className="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-[#96a0ad]">
+                  <div className="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)]">
                     {groupName}
                   </div>
                 )}

@@ -47,13 +47,13 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
           <h3 className="text-[14px] font-bold text-[#102033]">
             {activeTool ? activeTool.name : mode === 'project' ? 'Project Context' : 'Standalone Inspector'}
           </h3>
-          <p className="text-[11px] text-[#657287] mt-0.5">
+          <p className="text-[11px] text-[var(--ax-text-muted)] mt-0.5">
             {mode === 'project' ? activeProject.name : 'Portfolio / Unassigned Context'}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="text-[#657287] hover:text-[#102033] text-lg font-bold p-1 leading-none"
+          className="text-[var(--ax-text-muted)] hover:text-[#102033] text-lg font-bold p-1 leading-none"
           title="Close Inspector"
         >
           ×
@@ -68,8 +68,8 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             onClick={() => setActiveTab(tab)}
             className={`py-2.5 text-[12px] font-bold capitalize border-b-2 transition-all ${
               activeTab === tab
-                ? 'border-[#19B7B0] text-[#167E79]'
-                : 'border-transparent text-[#657287] hover:text-[#102033]'
+                ? 'border-[#19B7B0] text-[var(--ax-action-primary)]'
+                : 'border-transparent text-[var(--ax-text-muted)] hover:text-[#102033]'
             }`}
           >
             {tab}
@@ -82,14 +82,14 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
         {godMode && (
           <div className="p-3 bg-[#8B5CF6]/10 border border-[#8B5CF6]/25 rounded-xl text-[12px] text-[#8B5CF6] leading-relaxed">
             <strong>God Mode active</strong>
-            <p className="text-[#657287] mt-1 text-[11px]">
+            <p className="text-[var(--ax-text-muted)] mt-1 text-[11px]">
               Full-system visibility is for exploration. Authority, professional responsibility and protected records remain governed.
             </p>
           </div>
         )}
         {activeTab === 'context' && (
           <>
-            <div className="p-3 bg-[#DFF5F2]/50 border border-[#19B7B0]/20 rounded-xl text-[12px] text-[#167E79] leading-relaxed">
+            <div className="p-3 bg-[#DFF5F2]/50 border border-[#19B7B0]/20 rounded-xl text-[12px] text-[var(--ax-text)] leading-relaxed">
               <strong>{mode === 'project' ? 'Project-Connected Datum' : 'Standalone Mode'}</strong>
               <p className="text-[#657287] mt-1 text-[11px]">
                 {mode === 'project'
@@ -108,7 +108,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             )}
 
             <div className="border-b border-[#102033]/10 pb-3">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-1.5">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)] mb-1.5">
                 Active Professional Persona
               </h4>
               <div className="flex items-center gap-2">
@@ -124,12 +124,12 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
 
             {activeTool && (
               <div className="border-b border-[#102033]/10 pb-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-1">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)] mb-1">
                   Module Summary & Lifecycle
                 </h4>
                 <p className="text-[#526074] text-[12px] leading-relaxed">{activeTool.summary}</p>
                 <div className="mt-2 flex gap-2 text-[11px]">
-                  <span className="px-2 py-0.5 rounded bg-[#f2f7f6] text-[#167E79] font-medium border border-[#19B7B0]/20">
+                  <span className="px-2 py-0.5 rounded bg-[#f2f7f6] text-[var(--ax-action-primary)] font-medium border border-[#19B7B0]/20">
                     Stage: {activeTool.stage}
                   </span>
                   <span className="px-2 py-0.5 rounded bg-[#f2f7f6] text-[#526074] font-medium border border-[#102033]/10">
@@ -141,7 +141,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
 
             {activeTool?.id === 'engineering_calc' && engineeringWorkflow && (
               <section className="border-b border-[#102033]/10 pb-3" aria-label="Engineering workflow state">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-1">Engineering workflow</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)] mb-1">Engineering workflow</h4>
                 <p className="text-[12px] font-bold text-[#102033]">{engineeringWorkflow.calcId}</p>
                 <p className="text-[11px] text-[#657287]">{engineeringWorkflow.phase} · {engineeringWorkflow.dirty ? 'Unsaved changes' : 'No unsaved changes'}</p>
                 <p className="text-[11px] text-[#657287]">{engineeringWorkflow.record ? `Record ${engineeringWorkflow.record.id}` : 'No controlled record'}</p>
@@ -149,7 +149,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             )}
 
             <div className="border-b border-[#102033]/10 pb-3">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-1">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)] mb-1">
                 South African Regulatory Governance
               </h4>
               <ul className="text-[11.5px] text-[#657287] space-y-1 list-disc pl-4">
@@ -172,7 +172,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             </div>
 
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-2">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)] mb-2">
                 Suggested Actions for {profile.label}
               </h4>
               <div className="space-y-2">
@@ -205,19 +205,19 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
 
         {activeTab === 'activity' && (
           <div className="space-y-3">
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad]">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-text-muted)]">
               Immutable Project Audit Stream
             </h4>
             <div className="space-y-2.5">
               {mockActivity.map((act, idx) => (
                 <div key={idx} className="flex gap-2.5 pb-2.5 border-b border-[#102033]/10 last:border-none">
-                  <div className="w-6 h-6 rounded-lg bg-[#DFF5F2] text-[#167E79] font-bold text-[10px] flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-lg bg-[#DFF5F2] text-[var(--ax-action-primary)] font-bold text-[10px] flex items-center justify-center flex-shrink-0">
                     {act.code}
                   </div>
                   <div>
                     <div className="text-[12px] font-bold text-[#102033] leading-snug">{act.user}</div>
                     <div className="text-[11.5px] text-[#657287] leading-snug">{act.action}</div>
-                    <div className="text-[10px] text-[#96a0ad] mt-0.5">{act.time}</div>
+                    <div className="text-[10px] text-[var(--ax-text-muted)] mt-0.5">{act.time}</div>
                   </div>
                 </div>
               ))}
