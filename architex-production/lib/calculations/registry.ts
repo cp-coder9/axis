@@ -4,6 +4,7 @@ import { STRUCTURAL_DEFINITIONS } from './structural';
 import { CIVIL_DEFINITIONS } from './civil';
 import { MECHANICAL_DEFINITIONS } from './mechanical';
 import { FIRE_DEFINITIONS } from './fire';
+import { ELECTRICAL_DEFINITIONS } from './electrical';
 import {
   CALCULATOR_IDS,
   type CalculatorId,
@@ -139,6 +140,7 @@ export const CALC_REGISTRY: Readonly<Record<CalculatorId, CalculatorDefinition>>
       ?? CIVIL_DEFINITIONS[id as keyof typeof CIVIL_DEFINITIONS]
       ?? MECHANICAL_DEFINITIONS[id as keyof typeof MECHANICAL_DEFINITIONS]
       ?? FIRE_DEFINITIONS[id as keyof typeof FIRE_DEFINITIONS]
+      ?? ELECTRICAL_DEFINITIONS[id as keyof typeof ELECTRICAL_DEFINITIONS]
       ?? definitionFromLegacy(id),
   ])) as Record<CalculatorId, CalculatorDefinition>,
 );
