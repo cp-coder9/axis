@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test('P5-TYP-01 loads the local typography specimen without external font requests', async ({ page }) => {
   const externalFontRequests: string[] = [];
@@ -82,4 +83,13 @@ test('P5-API-01 dialog empty workflow supports Escape and ordered workflow seman
   await expect(page.getByRole('heading', { name: 'No calculation record yet' })).toBeVisible();
   await expect(page.getByRole('list', { name: 'Engineering workflow' })).toHaveCount(1);
   await expect(page.getByRole('listitem')).toHaveCount(4);
+});
+
+test('P5-A11Y-01 P5-MOT-01 has no serious catalog violations and suppresses nonessential motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/design-system');
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+  const transition = await page.locator('.ax-button').first().evaluate((element) => getComputedStyle(element).transitionDuration);
+  expect(transition).toBe('0.001s');
 });

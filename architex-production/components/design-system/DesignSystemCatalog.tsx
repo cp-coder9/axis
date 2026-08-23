@@ -43,7 +43,7 @@ export function DesignSystemCatalog() {
       </section>
       <section id="ax-catalog-data-visualisation" aria-labelledby="ax-data-title" className="ax-catalog__section">
         <h2 id="ax-data-title">Data visualisation</h2>
-        <div className="ax-catalog__series" aria-label="Eight semantic data series">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ background: `var(--ax-data-${index + 1})` }} />)}</div>
+        <div className="ax-catalog__series" role="img" aria-label="Eight semantic data series">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ background: `var(--ax-data-${index + 1})` }} />)}</div>
       </section>
       <ActionSpecimens />
       <DataEntrySpecimens />
