@@ -62,6 +62,8 @@ The deployed access forms currently mount the V8 shell client-side and are not a
 
 Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision, SHA-256 values, deployment, observation, and rollback evidence, and remains explicitly `NO-GO` until the four independent signatures are completed.
 
+Independent reviewer packet: [`evidence/PHASE_0_SIGNOFF_PACKET.md`](evidence/PHASE_0_SIGNOFF_PACKET.md).
+
 ### Required external Phase 0 exit work
 
 - [x] `P0-T05` deploy the complete immutable revision to the staging/user-facing test environment.

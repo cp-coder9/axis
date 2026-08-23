@@ -87,6 +87,8 @@ Preferred rollback is a forward deployment of the all-contained manifest and bot
 
 No signer may approve work they authored where independence is required.
 
+Reviewer instructions and role-specific evidence are collected in [`PHASE_0_SIGNOFF_PACKET.md`](PHASE_0_SIGNOFF_PACKET.md).
+
 | Required role | Name | Competence/authority evidence | Conflict disclosure | Decision | Signed timestamp |
 |---|---|---|---|---|---|
 | Engineering safety owner |  |  |  | `PENDING` |  |
