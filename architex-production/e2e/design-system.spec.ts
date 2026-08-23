@@ -29,3 +29,15 @@ test('P5-TYP-01 loads the local typography specimen without external font reques
   expect(fonts.monoLoaded).toBe(true);
   expect(externalFontRequests).toEqual([]);
 });
+
+test('P5-ID-01 P5-DEN-01 P5-RSP-01 renders the deterministic design-system catalog without body overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/design-system');
+
+  for (const id of ['identity', 'colour-semantics', 'typography', 'density', 'breakpoints', 'statuses', 'data-visualisation']) {
+    await expect(page.locator(`#ax-catalog-${id}`)).toHaveCount(1);
+  }
+  await expect(page.locator('[data-density="comfortable"]')).toHaveCount(1);
+  await expect(page.locator('[data-density="compact"]')).toHaveCount(1);
+  expect(await page.evaluate(() => document.body.scrollWidth <= document.body.clientWidth)).toBe(true);
+});
