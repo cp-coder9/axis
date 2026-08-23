@@ -88,6 +88,7 @@ Preferred rollback is a forward deployment of the all-contained manifest and bot
 No signer may approve work they authored where independence is required.
 
 Reviewer instructions and role-specific evidence are collected in [`PHASE_0_SIGNOFF_PACKET.md`](PHASE_0_SIGNOFF_PACKET.md).
+Independent approvals are coordinated in [`cp-coder9/axis#1`](https://github.com/cp-coder9/axis/issues/1).
 
 | Required role | Name | Competence/authority evidence | Conflict disclosure | Decision | Signed timestamp |
 |---|---|---|---|---|---|

@@ -10,6 +10,8 @@ Manifest SHA-256: `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f
 
 This packet requests the four independent approvals required by `P0-T05`. It does not authorize a reviewer to approve work they authored or a role for which they lack authority. A rejection must identify the failed requirement and evidence needed to reconsider it.
 
+Review coordination: [`cp-coder9/axis#1`](https://github.com/cp-coder9/axis/issues/1)
+
 ## Common evidence
 
 - Exit contract: [`../PHASE_0_ENGINEERING_SAFETY_CONTAINMENT.md`](../PHASE_0_ENGINEERING_SAFETY_CONTAINMENT.md)
