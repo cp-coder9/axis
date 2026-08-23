@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { OrientationMode, ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ROLE_PROFILES } from '@/lib/data';
+import { useEngineeringWorkflow } from '@/components/providers/EngineeringWorkflowProvider';
 
 interface ContextInspectorProps {
   mode: OrientationMode;
@@ -27,6 +28,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
   godMode,
 }) => {
   const [activeTab, setActiveTab] = useState<'context' | 'wingman' | 'activity'>('context');
+  const engineeringWorkflow = useEngineeringWorkflow().state;
   const profile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
   const mockActivity = [
@@ -135,6 +137,15 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
                   </span>
                 </div>
               </div>
+            )}
+
+            {activeTool?.id === 'engineering_calc' && engineeringWorkflow && (
+              <section className="border-b border-[#102033]/10 pb-3" aria-label="Engineering workflow state">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#96a0ad] mb-1">Engineering workflow</h4>
+                <p className="text-[12px] font-bold text-[#102033]">{engineeringWorkflow.calcId}</p>
+                <p className="text-[11px] text-[#657287]">{engineeringWorkflow.phase} · {engineeringWorkflow.dirty ? 'Unsaved changes' : 'No unsaved changes'}</p>
+                <p className="text-[11px] text-[#657287]">{engineeringWorkflow.record ? `Record ${engineeringWorkflow.record.id}` : 'No controlled record'}</p>
+              </section>
             )}
 
             <div className="border-b border-[#102033]/10 pb-3">

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { calculatorIdForTab, runCalculation } from '@/lib/calculations/core';
 import { CALC_REGISTRY } from '@/lib/calculations/registry';
 import type { CalculationRun } from '@/lib/calculations/types';
 import { calculatorRelease } from '@/lib/engineering-safety';
-import { createEngineeringWorkflowState, engineeringWorkflowReducer } from '@/lib/engineering-workflow';
+import { useEngineeringWorkflow, workflowFallback } from '@/components/providers/EngineeringWorkflowProvider';
 
 interface EngineeringCalcModuleProps {
   activeProject: ProjectEntity;
@@ -22,17 +22,20 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
   const calcId = useMemo(() => calculatorIdForTab(activeTabKey), [activeTabKey]);
   const calcDef = CALC_REGISTRY[calcId];
   const release = useMemo(() => calculatorRelease(calcId), [calcId]);
-  const [workflow, dispatchWorkflow] = useReducer(engineeringWorkflowReducer, undefined, () => createEngineeringWorkflowState(calcId, isProjectMode ? activeProject.id : null));
+  const workflowContext = useEngineeringWorkflow();
+  const { activate } = workflowContext;
+  const workflow = workflowContext.state?.calcId === calcId ? workflowContext.state : workflowFallback(calcId, isProjectMode ? activeProject.id : null);
+  const dispatchWorkflow = workflowContext.dispatch;
   const inputs = workflow.inputs;
   const [output, setOutput] = useState<CalculationRun | null>(null);
   const [showDerivation, setShowDerivation] = useState(false);
 
   // Calculator-specific state is reset atomically on every navigator transition.
   useEffect(() => {
-    dispatchWorkflow({ type: 'activate', calcId, projectId: isProjectMode ? activeProject.id : null });
+    activate(calcId, isProjectMode ? activeProject.id : null);
     setOutput(null);
     setShowDerivation(false);
-  }, [calcId, activeProject.id, isProjectMode]);
+  }, [calcId, activeProject.id, isProjectMode, activate]);
 
   const updateInput = (key: string, rawValue: string) => {
     setOutput(null);

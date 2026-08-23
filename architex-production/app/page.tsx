@@ -24,6 +24,7 @@ import {
 } from '@/lib/navigation';
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
 import { AccessGateway } from '@/components/access/AccessGateway';
+import { EngineeringWorkflowProvider } from '@/components/providers/EngineeringWorkflowProvider';
 
 /** Map a MariaDB-backed API project row onto the frontend ProjectEntity shape. */
 function apiProjectToEntity(project: ApiProject): ProjectEntity {
@@ -234,8 +235,6 @@ function ArchitexOSPage() {
 
 export default function ArchitexEntryPage() {
   return (
-    <AccessGateway>
-      <ArchitexOSPage />
-    </AccessGateway>
+    <EngineeringWorkflowProvider><AccessGateway><ArchitexOSPage /></AccessGateway></EngineeringWorkflowProvider>
   );
 }
