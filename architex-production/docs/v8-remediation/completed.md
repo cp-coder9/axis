@@ -41,6 +41,24 @@ npm run test:e2e -- e2e/rail.spec.ts --grep "V8-C01 V8-C02"
 
 Screenshot: [`screenshots/phase-0-containment.png`](screenshots/phase-0-containment.png)
 
+## Public access and staging deployment
+
+- [x] Cloned the existing `test.architex.co.za` landing page and six-role registration entry.
+- [x] Upgraded the direct sign-in screen to the V8 access-console visual language.
+- [x] Added a static-export deployment mode for the cPanel/LiteSpeed frontend target while retaining standalone mode for local/server builds.
+- [x] Verified landing, role gate, registration form, V8 sign-in, and V8 OS mount with Chrome DevTools MCP on the public host.
+- [x] Deployed revision `9aaafe06455ae78cf877bba18c041592d6f11735` to `https://test.architex.co.za` on 2026-08-23.
+- [x] Preserved the pre-deployment frontend as `/public_html/test.architex.co.za.backup-20260823-2117` for rollback.
+
+Release screenshots:
+
+- [`screenshots/v8-access-landing.png`](screenshots/v8-access-landing.png)
+- [`screenshots/v8-access-sign-in.png`](screenshots/v8-access-sign-in.png)
+
+Verification: static build passed; access plus all 47 module browser tests passed (`54/54`); public browser console was clean. The deployed frontend calls the confirmed gateway mount at `https://api.architex.co.za/api`.
+
+The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The existing PHP gateway rejects the frontend project hydration request because it requires a Firebase bearer token and does not accept the candidate's local identity headers. Backend communication/persistence and the P0 containment PHP deployment therefore remain `NO-GO` gates.
+
 Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision and SHA-256 values and remains explicitly `NO-GO` until the deployment, observation, rollback, and signature fields are completed.
 
 ### Required external Phase 0 exit work
@@ -63,5 +81,6 @@ Phase 0 has not exited until all `P0-T05` evidence is attached and signed. Per t
 - `npm install` reported three high-severity dependency audit findings; no breaking `npm audit fix --force` was applied.
 - Vitest/Next development output reports Node `DEP0205` (`module.register()` deprecation).
 - Chrome DevTools reported unlabeled/form-field accessibility issues in the current engineering form; these remain in scope for Phases 4–8.
-- A read-only Chrome DevTools probe found that `https://test.architex.co.za` does not serve the candidate build and the documented API health URL currently returns `API route not found`; P0-T05 therefore remains `NO-GO`.
-- Deployment discovery in `E:\arx-1` and `E:\arc-1` confirmed FTPS/GitHub Actions targets and cPanel paths, but the host is static/PHP-only while this candidate requires Next.js standalone Node. Credential values exist only as GitHub secrets, not in the local environment.
+- The frontend candidate is now live at `https://test.architex.co.za`; `build-info.json` confirms revision `9aaafe0`.
+- The confirmed gateway health endpoint is `https://api.architex.co.za/api/health` (HTTP 200). The previous `/api/v1/health` path is invalid on the currently deployed PHP gateway.
+- The current gateway still uses its older Firebase bearer-token contract, so the candidate's MariaDB/PHP containment backend has not been deployed or proven live.

@@ -35,7 +35,7 @@ Complete one row for staging and every user-facing environment. All rows must re
 
 | Environment | Target URL | Revision/build ID | Manifest SHA-256 | Operator | Started | Completed | Result |
 |---|---|---|---|---|---|---|---|
-| Staging | `https://test.architex.co.za` | Current target is not candidate build | Not available | Read-only Codex probe | `2026-08-23T20:16+02:00` | `2026-08-23T20:16+02:00` | `NOT-CANDIDATE` |
+| Staging frontend | `https://test.architex.co.za` | `9aaafe06455ae78cf877bba18c041592d6f11735` / static export | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` (source manifest; remote PHP digest not available) | Codex FTP operator | `2026-08-23T21:17+02:00` | `2026-08-23T21:25+02:00` | `FRONTEND-PASS / BACKEND-NOT-DEPLOYED` |
 | User-facing environment 1 |  |  |  |  |  |  | `NOT-RUN` |
 
 For every row, attach evidence proving:
@@ -54,7 +54,7 @@ For every row, attach evidence proving:
 |---|---|---|---|---|---|
 |  |  |  |  |  | `NOT-RUN` |
 
-Read-only Chrome DevTools evidence on 2026-08-23 established that the documented staging URL currently serves an Architex marketing/entry page, not candidate build `-FYCfrAo4lswcUhhGMTyG`. The documented API probe `https://api.architex.co.za/api/v1/health` returned `API route not found` for `/v1/health` from gateway `php-gateway-v0.1.2-20260714`. These observations do not constitute deployment evidence; they prove the candidate is not presently verifiable at the documented targets.
+Chrome DevTools evidence on 2026-08-23 established that the staging frontend now serves revision `9aaafe06455ae78cf877bba18c041592d6f11735`: landing, registration role gate, upgraded V8 sign-in, and V8 shell mount all passed. The valid existing gateway probe is `https://api.architex.co.za/api/health` (HTTP 200). Its project endpoint requires a Firebase bearer token and rejects the candidate's local identity headers, so this is frontend deployment evidence only and does not satisfy the PHP containment, persistence, observation, rollback-rehearsal, or signature gates.
 
 ### Hosting contract discovered in `E:\arx-1` / `E:\arc-1`
 
@@ -64,9 +64,9 @@ Read-only Chrome DevTools evidence on 2026-08-23 established that the documented
 - API deployment transport: FTPS to the separate `api.architex.co.za` document root.
 - Required GitHub environment secrets: `TEST_ARCHITEX_FTP_SERVER`, `TEST_ARCHITEX_FTP_USERNAME`, `TEST_ARCHITEX_FTP_PASSWORD`, `TEST_ARCHITEX_FTP_SERVER_DIR`, and `TEST_ARCHITEX_API_FTP_SERVER_DIR`.
 - The shared-host package has no Node/Passenger support; `api.architex.co.za` is served by a PHP gateway.
-- No usable FTPS/cPanel credential values are present in the local environment or deployment configuration; the workflow consumes GitHub secrets.
+- A historical local deployment record contained usable credentials; they were consumed without copying them into this repository or printing them in release evidence.
 
-The current candidate cannot be uploaded unchanged to this target: it uses Next.js `output:'standalone'`, contains dynamic server routes, and rewrites `/api/*` to `127.0.0.1:8080`. The documented test deployment expects a static Vite SPA plus a separately uploaded PHP gateway. Replacing the existing test site therefore requires an approved architecture/deployment decision and a compatible artifact, not a blind upload.
+The candidate now supports a conditional static export for the frontend host while retaining standalone development/server behavior. The static bundle omits Next-only dynamic API routes and targets the separately hosted PHP gateway at `/api`. The candidate PHP containment gateway itself remains undeployed.
 
 ## Rollback rehearsal
 
