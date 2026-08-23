@@ -4,40 +4,28 @@ import React from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { RoleKey } from '@/lib/types';
 import { ROLE_PROFILES } from '@/lib/data';
+import { visibleGlobalDestinations, type NavigationEvent, type NavigationState } from '@/lib/navigation';
 
 interface OsRailProps {
-  activeGlobal: string;
-  onSelectGlobal: (id: string) => void;
+  navigation: NavigationState;
+  onNavigate: (event: NavigationEvent) => void;
   railExpanded: boolean;
   onToggleRail: () => void;
   currentRole: RoleKey;
   totalToolsCount: number;
-  godMode?: boolean;
 }
 
 export const OsRail: React.FC<OsRailProps> = ({
-  activeGlobal,
-  onSelectGlobal,
+  navigation,
+  onNavigate,
   railExpanded,
   onToggleRail,
   currentRole,
   totalToolsCount,
-  godMode,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
-  const globalItems = [
-    { id: 'command', label: 'Command Centre', icon: 'dashboard', meta: 'Home', tone: '#19B7B0' },
-    { id: 'projects', label: 'Project Space', icon: 'projects', meta: 'Datum', tone: '#19B7B0' },
-    { id: 'tools', label: 'Workspace Tools', icon: 'tools', meta: String(totalToolsCount), tone: '#8B5CF6' },
-    { id: 'inbox', label: 'Inbox & Collaboration', icon: 'inbox', meta: '7', tone: '#FF6B6B' },
-    { id: 'documents', label: 'Documents', icon: 'document', meta: '128', tone: '#19B7B0' },
-    { id: 'finance', label: 'Finance & Payments', icon: 'finance', meta: '4', tone: '#FFB020' },
-    { id: 'knowledge', label: 'Knowledge & CPD', icon: 'knowledge', meta: '', tone: '#2563EB' },
-    { id: 'feedback', label: 'Feedback Intelligence', icon: 'feedback', meta: 'Loop', tone: '#8B5CF6' },
-    { id: 'settings', label: 'Settings', icon: 'settings', meta: '', tone: '#19B7B0' },
-    ...(godMode ? [{ id: 'god', label: 'God Mode Explorer', icon: 'god_mode', meta: 'ALL', tone: '#8B5CF6' }] : []),
-  ];
+  const globalItems = visibleGlobalDestinations(navigation, totalToolsCount);
 
   return (
     <aside
@@ -87,11 +75,12 @@ export const OsRail: React.FC<OsRailProps> = ({
       {/* Global Navigation Items */}
       <nav className="flex-1 py-2 px-1.5 space-y-1 overflow-y-auto">
         {globalItems.map((item) => {
-          const isActive = activeGlobal === item.id;
+          const isActive = navigation.globalId === item.id;
           return (
             <button
               key={item.id}
-              onClick={() => onSelectGlobal(item.id)}
+              onClick={() => onNavigate({ type: 'select-global', id: item.id })}
+              aria-current={isActive ? 'page' : undefined}
               className={`os-rail-btn group relative w-full h-[46px] px-2.5 flex items-center gap-3 rounded-xl transition-all ${
                 isActive
                   ? 'bg-white text-[#102033] shadow-md font-semibold'

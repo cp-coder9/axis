@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { OrientationMode, ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_PROJECTS, ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
-import { groupTabsByGroup } from '@/lib/navigation';
+import { groupTabsByGroup, tabKeyAt, type GlobalDestinationId, type NavigationEvent } from '@/lib/navigation';
 
 interface ContextNavigatorProps {
   mode: OrientationMode;
-  onSetMode: (mode: OrientationMode) => void;
+  onNavigate: (event: NavigationEvent) => void;
   activeProject: ProjectEntity;
   onSelectProject: (project: ProjectEntity) => void;
   /** Live project register (MariaDB-backed). Falls back to ALL_PROJECTS. */
@@ -25,15 +25,10 @@ interface ContextNavigatorProps {
   }) => Promise<unknown>;
   activeTool: ToolDefinition | null;
   activeToolTabKey: string;
-  onSelectToolTab: (key: string, index: number) => void;
-  onOpenTool: (toolId: string, opts?: { mode?: OrientationMode; global?: string }) => void;
-  onBackToProjectSpace: () => void;
-  onBackToStandaloneLibrary: () => void;
-  onBackToCollabHub?: () => void;
   currentRole: RoleKey;
   compact: boolean;
   roleFilteredToolIds: string[];
-  activeGlobal?: string;
+  activeGlobal: GlobalDestinationId;
 }
 
 /** Client-side RBAC parity for project creation (PRD §10.3; the API enforces it server-side). */
@@ -41,18 +36,13 @@ const PROJECT_CREATE_ROLES: RoleKey[] = ['architect', 'cpm', 'firm_admin', 'deve
 
 export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
   mode,
-  onSetMode,
+  onNavigate,
   activeProject,
   onSelectProject,
   projects,
   onCreateProject,
   activeTool,
   activeToolTabKey,
-  onSelectToolTab,
-  onOpenTool,
-  onBackToProjectSpace,
-  onBackToStandaloneLibrary,
-  onBackToCollabHub,
   currentRole,
   compact,
   roleFilteredToolIds,
@@ -153,7 +143,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
             <div className="flex bg-[#f2f7f6] p-1 rounded-xl border border-[#102033]/10 mt-2.5">
               <button
                 data-testid="mode-project"
-                onClick={() => onSetMode('project')}
+                onClick={() => onNavigate({ type: 'set-mode', mode: 'project' })}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                   mode === 'project'
                     ? 'bg-white text-[#167E79] shadow-sm'
@@ -164,7 +154,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               </button>
               <button
                 data-testid="mode-standalone"
-                onClick={() => onSetMode('standalone')}
+                onClick={() => onNavigate({ type: 'set-mode', mode: 'standalone' })}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold transition-all ${
                   mode === 'standalone'
                     ? 'bg-white text-[#167E79] shadow-sm'
@@ -272,13 +262,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
       {/* Back Button when inside a Tool */}
       {activeTool && (
         <button
-          onClick={
-            isCollabToolContext && onBackToCollabHub
-              ? onBackToCollabHub
-              : mode === 'project'
-              ? onBackToProjectSpace
-              : onBackToStandaloneLibrary
-          }
+          onClick={() => onNavigate({ type: 'back' })}
           className="flex items-center gap-2 px-4 py-2 border-b border-[#102033]/10 text-[12px] text-[#167E79] hover:bg-[#DFF5F2]/40 font-medium transition-colors"
         >
           <OrigamiIcon name="projects" size={16} />
@@ -319,7 +303,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">Ecosystem Explorer</span>}
             </button>
             <button
-              onClick={onBackToProjectSpace}
+              onClick={() => onNavigate({ type: 'open-god-stage', stage: activeProject.stage })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="Project datum"
             >
@@ -329,7 +313,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">Project datum</span>}
             </button>
             <button
-              onClick={onBackToStandaloneLibrary}
+              onClick={() => onNavigate({ type: 'select-global', id: 'tools' })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="All workspace tools"
             >
@@ -339,7 +323,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">All workspace tools</span>}
             </button>
             <button
-              onClick={() => onOpenTool('engineering_calc', { mode: 'standalone' })}
+              onClick={() => onNavigate({ type: 'open-tool', toolId: 'engineering_calc', mode: 'standalone', origin: 'god' })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="Engineer's Calculation Hub"
             >
@@ -349,7 +333,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">Engineering Hub</span>}
             </button>
             <button
-              onClick={() => onOpenTool('meetings', { mode: 'standalone' })}
+              onClick={() => onNavigate({ type: 'open-tool', toolId: 'meetings', mode: 'standalone', origin: 'god' })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="Architex Meetings"
             >
@@ -359,7 +343,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">Meetings</span>}
             </button>
             <button
-              onClick={() => onOpenTool('practice', { mode: 'standalone' })}
+              onClick={() => onNavigate({ type: 'open-tool', toolId: 'practice', mode: 'standalone', origin: 'god' })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="Practice & Project Management"
             >
@@ -369,7 +353,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {!compact && <span className="truncate flex-1 text-left">Practice & Project Management</span>}
             </button>
             <button
-              onClick={() => onOpenTool('wingman', { mode: 'standalone' })}
+              onClick={() => onNavigate({ type: 'open-tool', toolId: 'wingman', mode: 'standalone', origin: 'god' })}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
               title="Wingman"
             >
@@ -404,13 +388,13 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                   </div>
                 )}
                 {tabs.map(({ tab, index: idx }) => {
-                  const tabKey = tab.key || String(idx);
+                  const tabKey = tabKeyAt(tab, idx);
                   const isActive = activeToolTabKey === tabKey;
                   return (
                     <button
                       key={tab.label + idx}
                       aria-pressed={isActive}
-                      onClick={() => onSelectToolTab(tabKey, idx)}
+                      onClick={() => onNavigate({ type: 'select-tab', tabKey })}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 transition-all ${
                         isActive
                           ? 'border-[#19B7B0] bg-[#19B7B0]/10 text-[#102033] font-semibold'
@@ -446,7 +430,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               {mode === 'project' ? (
                 <>
                   <button
-                    onClick={onBackToProjectSpace}
+                    onClick={() => onNavigate({ type: 'select-global', id: 'projects' })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-[#19B7B0] bg-[#19B7B0]/10 text-[#102033] font-semibold"
                     title="Datum Workspace"
                   >
@@ -456,7 +440,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                     {!compact && <span>Datum Workspace</span>}
                   </button>
                   <button
-                    onClick={() => onOpenTool('meetings')}
+                    onClick={() => onNavigate({ type: 'open-tool', toolId: 'meetings' })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
                     title="Architex Meetings"
                   >
@@ -473,7 +457,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                     )}
                   </button>
                   <button
-                    onClick={() => onOpenTool('practice')}
+                    onClick={() => onNavigate({ type: 'open-tool', toolId: 'practice' })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
                     title="Command Centre"
                   >
@@ -486,7 +470,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
               ) : (
                 <>
                   <button
-                    onClick={onBackToStandaloneLibrary}
+                    onClick={() => onNavigate({ type: 'select-global', id: 'tools' })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-[#8B5CF6] bg-[#8B5CF6]/10 text-[#102033] font-semibold"
                     title="All Workspace Tools"
                   >
@@ -503,7 +487,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                     )}
                   </button>
                   <button
-                    onClick={() => onOpenTool('meetings')}
+                    onClick={() => onNavigate({ type: 'open-tool', toolId: 'meetings' })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033]"
                     title="Architex Meetings"
                   >
@@ -535,7 +519,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                   <button
                     key={tool.id}
                     data-testid={`tool-${tool.id}`}
-                    onClick={() => onOpenTool(tool.id)}
+                    onClick={() => onNavigate({ type: 'open-tool', toolId: tool.id })}
                     className="w-full flex items-center gap-2.5 px-3.5 py-1.5 text-[12.5px] border-l-2 border-transparent text-[#526074] hover:bg-[#19B7B0]/5 hover:text-[#102033] transition-colors"
                     title={tool.name}
                   >

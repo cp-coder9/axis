@@ -2,39 +2,38 @@
 
 import React from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
-import { OrientationMode, ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
+import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ROLES, ROLE_PROFILES } from '@/lib/data';
+import { type NavigationEvent, type NavigationState } from '@/lib/navigation';
 
 interface TopBarProps {
-  mode: OrientationMode;
+  navigation: NavigationState;
   activeProject: ProjectEntity;
   activeTool: ToolDefinition | null;
-  activeGlobal: string;
   currentRole: RoleKey;
   onSetRole: (role: RoleKey) => void;
   onToggleCompactNav: () => void;
   onToggleInspector: () => void;
   onOpenWingman: () => void;
-  onToggleGodMode?: () => void;
-  godMode?: boolean;
+  onNavigate: (event: NavigationEvent) => void;
   inspectorOpen: boolean;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
-  mode,
+  navigation,
   activeProject,
   activeTool,
-  activeGlobal,
   currentRole,
   onSetRole,
   onToggleCompactNav,
   onToggleInspector,
   onOpenWingman,
-  onToggleGodMode,
-  godMode,
+  onNavigate,
   inspectorOpen,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
+  const { mode, globalId: activeGlobal } = navigation;
+  const godMode = navigation.godSession !== null;
 
   return (
     <header className="h-[64px] bg-white/90 border-b border-[#102033]/10 backdrop-blur-md px-4 flex items-center gap-3 z-10">
@@ -86,9 +85,8 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* God Mode Toggle — between project chip and role switcher (plan 5B) */}
-      {onToggleGodMode && (
-        <button
-          onClick={onToggleGodMode}
+      <button
+          onClick={() => onNavigate(godMode ? { type: 'exit-god' } : { type: 'enter-god', initialLens: currentRole })}
           className={`flex items-center gap-1.5 px-3 h-9 rounded-xl border transition-colors shadow-sm ${
             godMode
               ? 'bg-[#8B5CF6]/15 text-[#8B5CF6] border-[#8B5CF6]/30'
@@ -102,7 +100,6 @@ export const TopBar: React.FC<TopBarProps> = ({
             {godMode ? 'On' : 'Explore'}
           </span>
         </button>
-      )}
 
       {/* 20 Role Personas Switcher */}
       <div className="flex items-center gap-1.5 bg-white border border-[#102033]/15 rounded-xl px-2 py-1 shadow-sm">

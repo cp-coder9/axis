@@ -72,6 +72,92 @@ export const GLOBAL_DESTINATIONS: Record<GlobalDestinationId, GlobalDestination>
   god: { id: 'god', label: 'God Mode Explorer', icon: 'god_mode', tone: '#8B5CF6', mode: 'standalone', view: 'god', defaultToolId: null, visibility: 'god-mode-only' },
 };
 
+export interface GlobalContentCard {
+  label: string;
+  icon: string;
+  description: string;
+  tone: string;
+  badge?: string;
+  action: Extract<NavigationEvent, { type: 'select-global' | 'open-tool' }>;
+}
+
+export interface GlobalContentAction {
+  label: string;
+  icon: string;
+  action: Extract<NavigationEvent, { type: 'select-global' | 'open-tool' }>;
+}
+
+export interface GlobalDestinationContent {
+  heading: string;
+  subheading: string;
+  cards: GlobalContentCard[];
+  primaryAction?: GlobalContentAction;
+  warning?: string;
+  tabs?: string[];
+}
+
+export const GLOBAL_DESTINATION_CONTENT: Record<
+  Exclude<GlobalDestinationId, 'projects' | 'tools' | 'feedback' | 'god'>,
+  GlobalDestinationContent
+> = {
+  command: {
+    heading: 'Architex OS Command Centre',
+    subheading: 'Platform-wide navigation, project datum, and workspace tools.',
+    cards: [
+      { label: 'Datum Project Space', icon: 'projects', description: 'Stage-driven single line of truth for the active project.', tone: '#19B7B0', action: { type: 'select-global', id: 'projects' } },
+      { label: 'Practice & Command Centre', icon: 'practice_management', description: 'Progress, programme, actions, resources, cost, risk.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'practice', mode: 'project', origin: 'command' } },
+      { label: 'Workspace Tool Registry', icon: 'tools', description: 'All workspace tools across 8 lifecycle stages.', tone: '#8B5CF6', action: { type: 'select-global', id: 'tools' } },
+      { label: 'Feedback Intelligence', icon: 'feedback', description: 'Track friction points, feature requests, and platform roadmap.', tone: '#FF6B6B', action: { type: 'open-tool', toolId: 'feedback', mode: 'standalone', origin: 'command' } },
+    ],
+  },
+  inbox: {
+    heading: 'Inbox & Collaboration',
+    subheading: 'Meetings, messages, action approvals and collaboration tools.',
+    cards: [
+      { label: 'Architex Meetings', icon: 'meetings', description: 'Schedule, host and govern project meetings. 3 upcoming demo meetings.', tone: '#FF6B6B', badge: '3 demo', action: { type: 'open-tool', toolId: 'meetings', mode: 'standalone', origin: 'inbox' } },
+      { label: 'Messages & Action Centre', icon: 'inbox', description: '7 demo unread messages, RFI responses, and drawing sign-off requests.', tone: '#FF6B6B', badge: '7 demo', action: { type: 'open-tool', toolId: 'inbox_action', mode: 'standalone', origin: 'inbox' } },
+      { label: 'Approvals Queue', icon: 'approvals_queue', description: '2 demo multi-party sign-off gates awaiting a decision.', tone: '#FFB020', badge: '2 demo', action: { type: 'open-tool', toolId: 'approvals_queue', mode: 'standalone', origin: 'inbox' } },
+    ],
+    primaryAction: { label: 'Schedule a meeting', icon: 'meeting_invite', action: { type: 'open-tool', toolId: 'meetings', mode: 'standalone', origin: 'inbox' } },
+  },
+  documents: {
+    heading: 'Documents & Drawings',
+    subheading: '128 demo drawings, statutory certificates, and specifications on file.',
+    cards: [
+      { label: 'Architectural Set A-101 to A-210', icon: 'document', description: 'Rev P03 · 24.5 MB · demo record', tone: '#19B7B0', action: { type: 'open-tool', toolId: 'documents_drawings', mode: 'project', origin: 'documents' } },
+      { label: 'Structural Footing Schedule S-201 to S-204', icon: 'document', description: 'Rev B · 14.2 MB · demo record', tone: '#19B7B0', action: { type: 'open-tool', toolId: 'documents_drawings', mode: 'project', origin: 'documents' } },
+      { label: 'SANS 10400-XA Prescriptive Report', icon: 'document', description: 'Final · 3.1 MB · demo record', tone: '#19B7B0', action: { type: 'open-tool', toolId: 'documents_drawings', mode: 'project', origin: 'documents' } },
+    ],
+    primaryAction: { label: 'Open Documents & Drawings', icon: 'document', action: { type: 'open-tool', toolId: 'documents_drawings', mode: 'project', origin: 'documents' } },
+  },
+  finance: {
+    heading: 'Finance & Payments',
+    subheading: 'Invoices, valuations, retention, and escrow workflow.',
+    cards: [
+      { label: 'Payments & Escrow', icon: 'payments_escrow', description: 'Invoice, milestone, approval, retention and release-status workflow.', tone: '#FFB020', action: { type: 'open-tool', toolId: 'payments_escrow', mode: 'project', origin: 'finance' } },
+      { label: 'Contract Admin', icon: 'contract_admin', description: 'JBCC/NEC payment certificates, variation orders, claims, and EoT records.', tone: '#FFB020', action: { type: 'open-tool', toolId: 'contract_admin', mode: 'project', origin: 'finance' } },
+      { label: 'Fee Proposal Builder', icon: 'fee_proposal', description: 'SACAP/tariff-based professional fee agreements and work-stage allocations.', tone: '#FFB020', action: { type: 'open-tool', toolId: 'fee_proposal', mode: 'project', origin: 'finance' } },
+    ],
+    warning: 'Fund holding and true escrow are disabled pending legal review and a licensed partner. All payment records shown are workflow-only.',
+  },
+  knowledge: {
+    heading: 'Knowledge & CPD',
+    subheading: 'Standards library, learning tracks, and CPD credit management.',
+    cards: [
+      { label: 'SANS Standards Library', icon: 'knowledge', description: 'SANS 10400 Parts A–XA, SANS 10160, SANS 10162, SANS 3001, and NBR references.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'cpd_learning', mode: 'project', origin: 'knowledge' } },
+      { label: 'CPD Credit Tracker', icon: 'cpd_learning', description: 'Voluntary and Category 1 CPD credits, accredited courses, and statutory validation records.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'cpd_learning', mode: 'project', origin: 'knowledge' } },
+      { label: 'Learning Tracks', icon: 'cpd_learning', description: 'Structured learning paths for built-environment professionals and platform onboarding.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'cpd_learning', mode: 'project', origin: 'knowledge' } },
+    ],
+    primaryAction: { label: 'Open CPD & Learning', icon: 'cpd_learning', action: { type: 'open-tool', toolId: 'cpd_learning', mode: 'project', origin: 'knowledge' } },
+  },
+  settings: {
+    heading: 'Settings',
+    subheading: 'Platform configuration, user access, security, and organisation management.',
+    cards: [],
+    tabs: ['User Management', 'Organisation', 'Security & RBAC', 'API Access', 'Data Retention'],
+  },
+};
+
 export const INITIAL_NAVIGATION_STATE: NavigationState = {
   mode: 'project',
   globalId: 'projects',

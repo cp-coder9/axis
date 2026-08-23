@@ -14,7 +14,14 @@ import { ModuleRouter } from '@/lib/module-registry';
 
 import { OrientationMode, ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_PROJECTS, ALL_TOOLS, ROLE_TOOL_MAP, STAGE_TOOL_MAP } from '@/lib/data';
-import { GLOBAL_DESTINATIONS, firstTabKey, type GlobalDestinationId } from '@/lib/navigation';
+import {
+  GLOBAL_DESTINATIONS,
+  INITIAL_NAVIGATION_STATE,
+  transitionNavigation,
+  type GlobalDestinationId,
+  type NavigationEvent,
+  type NavigationState,
+} from '@/lib/navigation';
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
 import { AccessGateway } from '@/components/access/AccessGateway';
 
@@ -37,13 +44,15 @@ function apiProjectToEntity(project: ApiProject): ProjectEntity {
 
 function ArchitexOSPage() {
   // Navigation & Spatial State
-  const [mode, setMode] = useState<OrientationMode>('project');
+  const [navigation, setNavigation] = useState<NavigationState>(INITIAL_NAVIGATION_STATE);
   const [projects, setProjects] = useState<ProjectEntity[]>(ALL_PROJECTS);
   const [activeProject, setActiveProject] = useState<ProjectEntity>(ALL_PROJECTS[0]);
-  const [activeGlobal, setActiveGlobal] = useState<string>('projects');
-  const [activeToolId, setActiveToolId] = useState<string | null>(null);
-  const [activeToolTabKey, setActiveToolTabKey] = useState<string>('0');
   const [currentRole, setCurrentRole] = useState<RoleKey>('architect');
+  const dispatchNavigation = useCallback((event: NavigationEvent) => {
+    setNavigation((state) => transitionNavigation(state, event, ALL_TOOLS));
+  }, []);
+  const { mode, globalId: activeGlobal, toolId: activeToolId, tabKey: activeToolTabKey } = navigation;
+  const godMode = navigation.godSession !== null;
 
   // Hydrate the project register from the MariaDB-backed API; the seeded
   // ALL_PROJECTS list renders immediately and is replaced as soon as the live
@@ -73,22 +82,16 @@ function ArchitexOSPage() {
       const entity = apiProjectToEntity(created);
       setProjects((prev) => [...prev.filter((p) => p.id !== entity.id), entity]);
       setActiveProject(entity);
-      setActiveGlobal('projects');
-      setActiveToolId(null);
-      setActiveToolTabKey('0');
-      setMode('project');
+      dispatchNavigation({ type: 'select-global', id: 'projects' });
       return entity;
     },
-    [currentRole],
+    [currentRole, dispatchNavigation],
   );
 
   // Layout Drawers & Sidebars
   const [railExpanded, setRailExpanded] = useState<boolean>(false);
   const [navCompact, setNavCompact] = useState<boolean>(false);
   const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
-
-  // God Mode (v8 ecosystem explorer)
-  const [godMode, setGodMode] = useState<boolean>(false);
 
   // Active Tool Resolution
   const activeTool: ToolDefinition | null = activeToolId ? ALL_TOOLS[activeToolId] || null : null;
@@ -97,54 +100,11 @@ function ArchitexOSPage() {
   const roleFilteredToolIds = ROLE_TOOL_MAP[currentRole] || [];
 
   // Handlers
-  const handleSelectGlobal = (id: string) => {
-    if (id === 'god') {
-      setGodMode(true);
-      setActiveGlobal('god');
-      setMode('standalone');
-      setActiveToolId(null);
-      setActiveToolTabKey('0');
-      return;
-    }
-    if (!(id in GLOBAL_DESTINATIONS)) return;
-    const dest = GLOBAL_DESTINATIONS[id as GlobalDestinationId];
-    setActiveGlobal(dest.id);
-    setMode(dest.mode);
-    if (dest.defaultToolId && ALL_TOOLS[dest.defaultToolId]) {
-      setActiveToolId(dest.defaultToolId);
-      setActiveToolTabKey(firstTabKey(ALL_TOOLS[dest.defaultToolId]));
-    } else {
-      setActiveToolId(null);
-      setActiveToolTabKey('0');
-    }
-  };
-
-  const handleToggleGodMode = () => {
-    setGodMode((prev) => {
-      const next = !prev;
-      if (next) {
-        setActiveGlobal('god');
-        setMode('standalone');
-        setActiveToolId(null);
-        setActiveToolTabKey('0');
-      } else if (activeGlobal === 'god') {
-        setActiveGlobal('projects');
-        setMode('project');
-        setActiveToolId(null);
-        setActiveToolTabKey('0');
-      }
-      return next;
-    });
-  };
-
   const handleOpenTool = (toolId: string, opts?: { mode?: OrientationMode; global?: string }) => {
-    const tool = ALL_TOOLS[toolId];
-    if (!tool) return;
-    const nextMode = opts?.mode ?? (activeGlobal === 'tools' ? 'standalone' : 'project');
-    setActiveToolId(toolId);
-    setMode(nextMode);
-    if (opts?.global) setActiveGlobal(opts.global);
-    setActiveToolTabKey(firstTabKey(tool));
+    const origin = opts?.global && opts.global in GLOBAL_DESTINATIONS
+      ? opts.global as GlobalDestinationId
+      : undefined;
+    dispatchNavigation({ type: 'open-tool', toolId, mode: opts?.mode, origin });
   };
 
   const handleSelectStage = (stage: StageKey) => {
@@ -154,55 +114,28 @@ function ArchitexOSPage() {
     }));
   };
 
-  const handleBackToProjectSpace = () => {
-    setActiveToolId(null);
-    setActiveGlobal('projects');
-    setMode('project');
-    setActiveToolTabKey('0');
-  };
-
-  const handleBackToStandaloneLibrary = () => {
-    setActiveToolId(null);
-    setActiveGlobal('tools');
-    setMode('standalone');
-    setActiveToolTabKey('0');
-  };
-
-  const handleBackToCollabHub = () => {
-    setActiveToolId(null);
-    setActiveGlobal('inbox');
-    setMode('standalone');
-    setActiveToolTabKey('0');
-  };
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f5faf9] text-[#102033] select-none font-sans">
       {/* Layer 1: Global OS Rail */}
       <OsRail
-        activeGlobal={activeGlobal}
-        onSelectGlobal={handleSelectGlobal}
+        navigation={navigation}
+        onNavigate={dispatchNavigation}
         railExpanded={railExpanded}
         onToggleRail={() => setRailExpanded(!railExpanded)}
         currentRole={currentRole}
         totalToolsCount={Object.keys(ALL_TOOLS).length}
-        godMode={godMode}
       />
 
       {/* Layer 2: Context Navigator */}
       <ContextNavigator
         mode={mode}
-        onSetMode={setMode}
+        onNavigate={dispatchNavigation}
         activeProject={activeProject}
         onSelectProject={setActiveProject}
         projects={projects}
         onCreateProject={handleCreateProject}
         activeTool={activeTool}
-        activeToolTabKey={activeToolTabKey}
-        onSelectToolTab={(key) => setActiveToolTabKey(key)}
-        onOpenTool={handleOpenTool}
-        onBackToProjectSpace={handleBackToProjectSpace}
-        onBackToStandaloneLibrary={handleBackToStandaloneLibrary}
-        onBackToCollabHub={handleBackToCollabHub}
+        activeToolTabKey={activeToolTabKey ?? '0'}
         currentRole={currentRole}
         compact={navCompact}
         roleFilteredToolIds={roleFilteredToolIds}
@@ -212,17 +145,15 @@ function ArchitexOSPage() {
       {/* Layer 3: Central Workspace */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         <TopBar
-          mode={mode}
+          navigation={navigation}
           activeProject={activeProject}
           activeTool={activeTool}
-          activeGlobal={activeGlobal}
           currentRole={currentRole}
           onSetRole={setCurrentRole}
           onToggleCompactNav={() => setNavCompact(!navCompact)}
           onToggleInspector={() => setInspectorOpen(!inspectorOpen)}
           onOpenWingman={() => handleOpenTool('wingman')}
-          onToggleGodMode={handleToggleGodMode}
-          godMode={godMode}
+          onNavigate={dispatchNavigation}
           inspectorOpen={inspectorOpen}
         />
 
@@ -235,11 +166,11 @@ function ArchitexOSPage() {
               tool={activeTool}
               activeProject={activeProject}
               currentRole={currentRole}
-              activeTabKey={activeToolTabKey}
+              activeTabKey={activeToolTabKey ?? '0'}
               isProjectMode={mode === 'project'}
               onNavigateTool={handleOpenTool}
               onOpenWingman={() => handleOpenTool('wingman')}
-              onTabChange={setActiveToolTabKey}
+              onTabChange={(tabKey) => dispatchNavigation({ type: 'select-tab', tabKey })}
             />
           ) : activeGlobal === 'projects' ? (
             <DatumCanvas
@@ -252,26 +183,20 @@ function ArchitexOSPage() {
             />
           ) : godMode && activeGlobal === 'god' && !activeToolId ? (
             <GodModeView
-              currentRole={currentRole}
-              onSelectStage={handleSelectStage}
-              onOpenTool={handleOpenTool}
-              onSetRole={setCurrentRole}
-              onOpenProjectSpace={handleBackToProjectSpace}
+              currentRole={navigation.godSession?.lens ?? currentRole}
+              onNavigate={dispatchNavigation}
             />
           ) : activeGlobal === 'tools' ? (
             <ToolRegistryView
               mode={mode}
               onOpenTool={handleOpenTool}
-              onSetMode={setMode}
+              onSetMode={(nextMode) => dispatchNavigation({ type: 'set-mode', mode: nextMode })}
             />
           ) : ['command', 'inbox', 'documents', 'finance', 'knowledge', 'settings'].includes(activeGlobal) ? (
             <GlobalDestinations
               view={activeGlobal}
-              mode={mode}
-              activeProject={activeProject}
               currentRole={currentRole}
-              onOpenTool={handleOpenTool}
-              onSelectGlobal={handleSelectGlobal}
+              onNavigate={dispatchNavigation}
             />
           ) : (
             <div className="bg-white border rounded-2xl p-6 shadow-sm text-xs text-[#526074]">
@@ -291,7 +216,7 @@ function ArchitexOSPage() {
           currentRole={currentRole}
           onClose={() => setInspectorOpen(false)}
           onOpenWingmanTool={() => handleOpenTool('wingman')}
-          onAttachProject={() => setMode('project')}
+          onAttachProject={() => dispatchNavigation({ type: 'set-mode', mode: 'project' })}
           godMode={godMode}
         />
       )}
@@ -301,7 +226,7 @@ function ArchitexOSPage() {
         currentRole={currentRole}
         activeProject={activeProject}
         activeToolName={activeTool ? activeTool.name : 'Project Datum'}
-        activeTabLabel={activeToolTabKey}
+        activeTabLabel={activeToolTabKey ?? '0'}
       />
     </div>
   );

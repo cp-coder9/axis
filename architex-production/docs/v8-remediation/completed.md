@@ -76,7 +76,21 @@ Phase 0 exited on 2026-08-23 after all technical evidence passed and the reposit
 
 ## Phases 1–8
 
-- [ ] Not started. Their Phase 0 dependency gate is now satisfied by approved `P0-E05`.
+### Phase 1 — Navigation Contract
+
+- [x] Replaced five writable shell navigation values and ad hoc God state with one `NavigationState` and pure typed reducer.
+- [x] Canonicalized ten destinations, all 47 tool/tab transitions, Back origins, exact God metadata, conditional visibility, and invalid-event identity preservation.
+- [x] Derived the rail and global destination copy/actions from canonical metadata, including `aria-current` and explicit demo/static labeling.
+- [x] Migrated shell, God, and global content consumers to typed navigation events and published Phase 4/7 compile-time handoffs.
+- [x] Passed 12 unit/static tests, 20 rail journeys, 94 access/app/role journeys, and TypeScript typecheck.
+
+Evidence: [`evidence/PHASE_1_NAVIGATION_EVIDENCE.md`](evidence/PHASE_1_NAVIGATION_EVIDENCE.md).
+
+Phase 1 exit: `GO`. `V8-H05` remains intentionally open for Phase 7 behavioral closure.
+
+### Phases 2–8
+
+- [ ] In progress. Phase 2 calculation-engine remediation is next in dependency order.
 
 ## Known verification observations
 

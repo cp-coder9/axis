@@ -3,22 +3,17 @@
 import React, { useMemo } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
-import { RoleKey, StageKey } from '@/lib/types';
+import { RoleKey } from '@/lib/types';
+import { type NavigationEvent } from '@/lib/navigation';
 
 interface GodModeViewProps {
   currentRole: RoleKey;
-  onSelectStage: (stage: StageKey) => void;
-  onOpenTool: (toolId: string, opts?: { mode?: 'project' | 'standalone'; global?: string }) => void;
-  onSetRole: (role: RoleKey) => void;
-  onOpenProjectSpace: () => void;
+  onNavigate: (event: NavigationEvent) => void;
 }
 
 export const GodModeView: React.FC<GodModeViewProps> = ({
   currentRole,
-  onSelectStage,
-  onOpenTool,
-  onSetRole,
-  onOpenProjectSpace,
+  onNavigate,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
@@ -87,7 +82,7 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
           {STAGES.map((stage, i) => (
             <button
               key={stage}
-              onClick={() => onSelectStage(stage)}
+              onClick={() => onNavigate({ type: 'open-god-stage', stage })}
               className="flex items-center gap-3 p-3 bg-white border border-[#102033]/10 rounded-xl text-left hover:border-[#19B7B0]/40 hover:shadow-sm transition-all"
             >
               <span className="w-7 h-7 rounded-full bg-[#DFF5F2] text-[#167E79] font-bold text-[11px] flex items-center justify-center flex-shrink-0">
@@ -109,7 +104,7 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
           {roleEntries.map(([key, profile]) => (
             <button
               key={key}
-              onClick={() => onSetRole(key as RoleKey)}
+              onClick={() => onNavigate({ type: 'set-god-lens', lens: key as RoleKey })}
               className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
                 currentRole === key
                   ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/5'
@@ -142,7 +137,7 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
                 {tools.map((tool) => (
                   <button
                     key={tool.id}
-                    onClick={() => onOpenTool(tool.id, { mode: 'standalone' })}
+                    onClick={() => onNavigate({ type: 'open-tool', toolId: tool.id, mode: 'standalone', origin: 'god' })}
                     className="flex items-center gap-3 p-2.5 bg-white border border-[#102033]/10 rounded-xl text-left hover:border-[#19B7B0]/40 hover:shadow-sm transition-all"
                   >
                     <span className="w-8 h-8 rounded-lg bg-[#DFF5F2]/60 text-[#167E79] flex items-center justify-center flex-shrink-0">
@@ -165,13 +160,13 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
       {/* CTA */}
       <div className="flex flex-wrap gap-3 pt-2">
         <button
-          onClick={onOpenProjectSpace}
+          onClick={() => onNavigate({ type: 'open-god-stage', stage: 'Brief' })}
           className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#102033]/15 text-[#102033] text-[12px] font-bold rounded-xl hover:bg-[#DFF5F2]/40 transition-colors"
         >
           <OrigamiIcon name="projects" size={16} /> Open project datum
         </button>
         <button
-          onClick={() => onOpenTool('engineering_calc', { mode: 'standalone' })}
+          onClick={() => onNavigate({ type: 'open-tool', toolId: 'engineering_calc', mode: 'standalone', origin: 'god' })}
           className="flex items-center gap-2 px-4 py-2.5 bg-[#167E79] text-white text-[12px] font-bold rounded-xl hover:bg-[#116d68] transition-colors"
         >
           <OrigamiIcon name="engineering_hub" size={16} /> Engineering hub

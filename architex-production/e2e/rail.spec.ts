@@ -291,8 +291,8 @@ test.describe('Architex OS — OS rail navigation repair', () => {
     await page.getByRole('button', { name: /Open Documents & Drawings/ }).click();
     await expect(page.getByText(/Inside Documents & Drawings/)).toBeVisible();
     await page.getByRole('button', { name: /Back to Datum Project Space/ }).click();
-    // Back to the project datum (h1 header; hero card has a matching h2).
-    await expect(page.getByRole('heading', { name: 'Faerie Glen Residential' }).first()).toBeVisible();
+    // Phase 1 Back restores the recorded Documents origin rather than a generic mode home.
+    await expect(page.getByRole('heading', { name: 'Documents & Drawings' })).toBeVisible();
 
     // Now the rail still works after the round-trip.
     await clickRailItem(page, 'Project Space');

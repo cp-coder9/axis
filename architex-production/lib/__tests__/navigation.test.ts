@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ALL_TOOLS } from '@/lib/data';
 import {
   GLOBAL_DESTINATIONS,
+  GLOBAL_DESTINATION_CONTENT,
   INITIAL_NAVIGATION_STATE,
   assertNavigationState,
   firstTabKey,
@@ -56,6 +57,28 @@ describe('Phase 1 navigation contract', () => {
     expect(visibleGlobalDestinations(INITIAL_NAVIGATION_STATE, 47).map((item) => item.id)).not.toContain('god');
     const entered = transitionNavigation(INITIAL_NAVIGATION_STATE, { type: 'enter-god', initialLens: 'architect' }, ALL_TOOLS);
     expect(visibleGlobalDestinations(entered, 47).filter((item) => item.id === 'god')).toHaveLength(1);
+  });
+
+  it('V8-M03 global destination content and action origins are canonical', () => {
+    expect(GLOBAL_DESTINATION_CONTENT.command.cards.map((card) => card.label)).toEqual([
+      'Datum Project Space', 'Practice & Command Centre', 'Workspace Tool Registry', 'Feedback Intelligence',
+    ]);
+    expect(GLOBAL_DESTINATION_CONTENT.command.cards.map((card) => card.action)).toEqual([
+      { type: 'select-global', id: 'projects' },
+      { type: 'open-tool', toolId: 'practice', mode: 'project', origin: 'command' },
+      { type: 'select-global', id: 'tools' },
+      { type: 'open-tool', toolId: 'feedback', mode: 'standalone', origin: 'command' },
+    ]);
+    expect(GLOBAL_DESTINATION_CONTENT.inbox.cards).toHaveLength(3);
+    expect(GLOBAL_DESTINATION_CONTENT.inbox.cards.every((card) => card.action.type === 'open-tool' && card.action.origin === 'inbox')).toBe(true);
+    expect(GLOBAL_DESTINATION_CONTENT.documents.primaryAction).toMatchObject({ action: { type: 'open-tool', toolId: 'documents_drawings', origin: 'documents' } });
+    expect(GLOBAL_DESTINATION_CONTENT.finance.warning).toContain('Fund holding');
+    expect(GLOBAL_DESTINATION_CONTENT.knowledge.cards.map((card) => card.label)).toEqual([
+      'SANS Standards Library', 'CPD Credit Tracker', 'Learning Tracks',
+    ]);
+    expect(GLOBAL_DESTINATION_CONTENT.settings.tabs).toEqual([
+      'User Management', 'Organisation', 'Security & RBAC', 'API Access', 'Data Retention',
+    ]);
   });
 
   it('V8-H07 selects every destination atomically and fails closed for disabled God', () => {
