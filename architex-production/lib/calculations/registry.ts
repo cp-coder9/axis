@@ -2,6 +2,7 @@ import { CALC_REGISTRY as LEGACY_REGISTRY, type CalcDefinition } from '../engine
 import { dimensionForUnit } from './units';
 import { STRUCTURAL_DEFINITIONS } from './structural';
 import { CIVIL_DEFINITIONS } from './civil';
+import { MECHANICAL_DEFINITIONS } from './mechanical';
 import {
   CALCULATOR_IDS,
   type CalculatorId,
@@ -135,6 +136,7 @@ export const CALC_REGISTRY: Readonly<Record<CalculatorId, CalculatorDefinition>>
     id,
     STRUCTURAL_DEFINITIONS[id as keyof typeof STRUCTURAL_DEFINITIONS]
       ?? CIVIL_DEFINITIONS[id as keyof typeof CIVIL_DEFINITIONS]
+      ?? MECHANICAL_DEFINITIONS[id as keyof typeof MECHANICAL_DEFINITIONS]
       ?? definitionFromLegacy(id),
   ])) as Record<CalculatorId, CalculatorDefinition>,
 );
