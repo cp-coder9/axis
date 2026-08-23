@@ -1,8 +1,11 @@
 # Phase 0 Independent Sign-off Packet
 
-Prepared: 2026-08-23 (Africa/Johannesburg)  
-Candidate revision: `94c6a5213bfd14eb51a77413b7edcf2ad91490c3`  
-Evidence commit: `75220148984e8862af0a737222b5198f499b040d`  
+Prepared: 2026-08-23 (Africa/Johannesburg)
+
+Candidate revision: `94c6a5213bfd14eb51a77413b7edcf2ad91490c3`
+
+Evidence commit: `75220148984e8862af0a737222b5198f499b040d`
+
 Manifest SHA-256: `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d`
 
 This packet requests the four independent approvals required by `P0-T05`. It does not authorize a reviewer to approve work they authored or a role for which they lack authority. A rejection must identify the failed requirement and evidence needed to reconsider it.
