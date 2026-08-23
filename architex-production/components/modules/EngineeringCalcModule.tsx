@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey } from '@/lib/types';
-import { calculatorIdForTab, defaultInputs, runCalculation } from '@/lib/calculations/core';
+import { calculatorIdForTab, runCalculation } from '@/lib/calculations/core';
 import { CALC_REGISTRY } from '@/lib/calculations/registry';
-import type { CalculationRun, Quantity } from '@/lib/calculations/types';
+import type { CalculationRun } from '@/lib/calculations/types';
 import { calculatorRelease } from '@/lib/engineering-safety';
+import { createEngineeringWorkflowState, engineeringWorkflowReducer } from '@/lib/engineering-workflow';
 
 interface EngineeringCalcModuleProps {
   activeProject: ProjectEntity;
@@ -21,29 +22,25 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
   const calcId = useMemo(() => calculatorIdForTab(activeTabKey), [activeTabKey]);
   const calcDef = CALC_REGISTRY[calcId];
   const release = useMemo(() => calculatorRelease(calcId), [calcId]);
-  const [inputs, setInputs] = useState<Record<string, Quantity>>(() => defaultInputs(calcId));
+  const [workflow, dispatchWorkflow] = useReducer(engineeringWorkflowReducer, undefined, () => createEngineeringWorkflowState(calcId, isProjectMode ? activeProject.id : null));
+  const inputs = workflow.inputs;
   const [output, setOutput] = useState<CalculationRun | null>(null);
   const [showDerivation, setShowDerivation] = useState(false);
 
   // Calculator-specific state is reset atomically on every navigator transition.
   useEffect(() => {
-    setInputs(defaultInputs(calcId));
+    dispatchWorkflow({ type: 'activate', calcId, projectId: isProjectMode ? activeProject.id : null });
     setOutput(null);
     setShowDerivation(false);
-  }, [calcId]);
+  }, [calcId, activeProject.id, isProjectMode]);
 
   const updateInput = (key: string, rawValue: string) => {
     setOutput(null);
     setShowDerivation(false);
     const field = calcDef.fields.find((candidate) => candidate.key === key);
     if (!field) return;
-    setInputs((previous) => {
-      if (rawValue === '') {
-        const { [key]: _missing, ...remaining } = previous;
-        return remaining;
-      }
-      return { ...previous, [key]: { value: Number(rawValue), unit: field.canonicalUnit } };
-    });
+    if (rawValue === '') { dispatchWorkflow({ type: 'input_cleared', key }); return; }
+    dispatchWorkflow({ type: 'input_changed', key, quantity: { value: Number(rawValue), unit: field.canonicalUnit } });
   };
 
   const payload = output?.ok ? output.payload : null;
@@ -69,8 +66,8 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
             </label>
           ))}
           <div className="flex gap-2">
-            <button onClick={() => setOutput(runCalculation(calcId, inputs))} className="flex-1 px-4 py-2.5 bg-[#167E79] text-white text-[12px] font-bold rounded-xl">Calculate</button>
-            <button onClick={() => { setInputs(defaultInputs(calcId)); setOutput(null); setShowDerivation(false); }} className="px-4 py-2.5 bg-white border border-[#102033]/15 text-[#657287] text-[12px] font-medium rounded-xl">Reset</button>
+            <button onClick={() => { const next = runCalculation(calcId, inputs); setOutput(next); if (next.ok) dispatchWorkflow({ type: 'calculated', output: next.payload }); }} className="flex-1 px-4 py-2.5 bg-[#167E79] text-white text-[12px] font-bold rounded-xl">Calculate</button>
+            <button onClick={() => { dispatchWorkflow({ type: 'activate', calcId, projectId: isProjectMode ? activeProject.id : null }); setOutput(null); setShowDerivation(false); }} className="px-4 py-2.5 bg-white border border-[#102033]/15 text-[#657287] text-[12px] font-medium rounded-xl">Reset</button>
           </div>
         </section>
 

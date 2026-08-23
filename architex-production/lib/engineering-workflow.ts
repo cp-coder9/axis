@@ -17,6 +17,7 @@ export type EngineeringWorkflowState = {
 export type EngineeringWorkflowEvent =
   | { type: 'activate'; calcId: CalculatorId; projectId: string | null }
   | { type: 'input_changed'; key: string; quantity: Quantity }
+  | { type: 'input_cleared'; key: string }
   | { type: 'calculated'; output: EngineeringCalculationPayloadV1 }
   | { type: 'saved'; record: WorkflowRecord }
   | { type: 'failed'; message: string };
@@ -29,6 +30,7 @@ export function engineeringWorkflowReducer(state: EngineeringWorkflowState, even
   switch (event.type) {
     case 'activate': return createEngineeringWorkflowState(event.calcId, event.projectId);
     case 'input_changed': return { ...state, inputs: { ...state.inputs, [event.key]: event.quantity }, output: null, dirty: true, phase: 'editing', message: null };
+    case 'input_cleared': { const { [event.key]: _cleared, ...inputs } = state.inputs; return { ...state, inputs, output: null, dirty: true, phase: 'editing', message: null }; }
     case 'calculated': return { ...state, output: event.output, phase: 'calculated', message: null };
     case 'saved': return { ...state, record: event.record, dirty: false, phase: event.record.status, message: null };
     case 'failed': return { ...state, phase: 'error', message: event.message };
