@@ -41,3 +41,19 @@ test('P5-ID-01 P5-DEN-01 P5-RSP-01 renders the deterministic design-system catal
   await expect(page.locator('[data-density="compact"]')).toHaveCount(1);
   expect(await page.evaluate(() => document.body.scrollWidth <= document.body.clientWidth)).toBe(true);
 });
+
+test('P5-API-01 actions expose native keyboard behavior and semantic status labels', async ({ page }) => {
+  await page.goto('/design-system');
+
+  const iconButton = page.getByRole('button', { name: 'Open project context' });
+  await expect(iconButton).toBeVisible();
+  await iconButton.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('action-count')).toHaveText('1');
+  await page.keyboard.press('Space');
+  await expect(page.getByTestId('action-count')).toHaveText('2');
+  await expect(page.getByRole('button', { name: 'Saving project record' })).toBeDisabled();
+  await expect(page.getByText('Engineering review required')).toBeVisible();
+  await expect(page.locator('[data-ui="page-header"]')).toHaveCount(1);
+  await expect(page.locator('[data-ui="surface"]')).toHaveCount(4);
+});

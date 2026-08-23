@@ -41,6 +41,8 @@ export function DesignSystemCatalog() {
         <h2 id="ax-data-title">Data visualisation</h2>
         <div className="ax-catalog__series" aria-label="Eight semantic data series">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ background: `var(--ax-data-${index + 1})` }} />)}</div>
       </section>
+      <ActionSpecimens />
     </main>
   );
 }
+import { ActionSpecimens } from './ActionSpecimens';
