@@ -72,3 +72,14 @@ test('P5-API-01 tabs fields table preserve controlled semantics and table relati
   await expect(page.getByRole('table', { name: 'Engineering review data' })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Revision' })).toBeVisible();
 });
+
+test('P5-API-01 dialog empty workflow supports Escape and ordered workflow semantics', async ({ page }) => {
+  await page.goto('/design-system');
+  await page.getByRole('button', { name: 'Open review dialog' }).click();
+  await expect(page.getByRole('dialog', { name: 'Review calculation' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Review calculation' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'No calculation record yet' })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Engineering workflow' })).toHaveCount(1);
+  await expect(page.getByRole('listitem')).toHaveCount(4);
+});

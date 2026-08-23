@@ -1,5 +1,6 @@
 import { ActionSpecimens } from './ActionSpecimens';
 import { DataEntrySpecimens } from './DataEntrySpecimens';
+import { WorkflowSpecimens } from './WorkflowSpecimens';
 
 export function DesignSystemCatalog() {
   return (
@@ -46,6 +47,7 @@ export function DesignSystemCatalog() {
       </section>
       <ActionSpecimens />
       <DataEntrySpecimens />
+      <WorkflowSpecimens />
     </main>
   );
 }

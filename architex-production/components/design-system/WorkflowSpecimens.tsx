@@ -1,0 +1,4 @@
+'use client';
+import { useState } from 'react';
+import { Button, Dialog, EmptyState, WorkflowRibbon } from '../ui';
+export function WorkflowSpecimens() { const [open, setOpen] = useState(false); return <section className="ax-catalog__section"><h2>Overlays and workflow</h2><Button onClick={() => setOpen(true)}>Open review dialog</Button><Dialog open={open} onOpenChange={setOpen} title="Review calculation" description="Confirm that the calculation remains contained pending qualified review."><Button onClick={() => setOpen(false)}>Close review</Button></Dialog><EmptyState title="No calculation record yet" guidance="Calculate and save a contained result before requesting review." /><WorkflowRibbon label="Engineering workflow" steps={[{ id: 'draft', label: 'Draft', state: 'complete' }, { id: 'calculated', label: 'Calculated', state: 'complete' }, { id: 'review', label: 'Review', state: 'current' }, { id: 'release', label: 'Release', state: 'blocked' }]} /></section>; }
