@@ -1,5 +1,7 @@
 import type {NextConfig} from 'next';
 
+const staticExport = process.env.ARCHITEX_STATIC_EXPORT === '1';
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -13,6 +15,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1', 'localhost', '100.86.64.121'],
   // Allow access to remote image placeholder.
   images: {
+    unoptimized: staticExport,
     remotePatterns: [
       {
         protocol: 'https',
@@ -25,13 +28,15 @@ const nextConfig: NextConfig = {
   // Tunnel/proxy: forward /api/* to the local PHP API so the app works
   // from any public hostname (Cloudflare tunnel) without CORS or
   // exposing the API port directly.
-  async rewrites() {
-    return [
-      { source: '/api/:path*', destination: 'http://127.0.0.1:8080/api/:path*' },
-    ];
-  },
+  ...(staticExport ? {} : {
+    async rewrites() {
+      return [
+        { source: '/api/:path*', destination: 'http://127.0.0.1:8080/api/:path*' },
+      ];
+    },
+  }),
 
-  output: 'standalone',
+  output: staticExport ? 'export' : 'standalone',
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.

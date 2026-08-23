@@ -25,14 +25,14 @@ async function openTool(page: Page, toolId: string) {
 
 test.describe('Architex OS — app shell', () => {
   test('loads with role switcher and project context', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await expect(page.getByTestId('role-switcher')).toBeVisible();
     // Default role is architect
     await expect(page.getByTestId('role-switcher')).toHaveValue('architect');
   });
 
   test('role switcher changes active role', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('role-switcher').selectOption('client');
     await expect(page.getByTestId('role-switcher')).toHaveValue('client');
   });
@@ -41,7 +41,7 @@ test.describe('Architex OS — app shell', () => {
 test.describe('Architex OS — all 47 modules open', () => {
   for (const toolId of ALL_TOOL_IDS) {
     test(`module opens: ${toolId}`, async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/?workspace=v8');
       await page.getByTestId('mode-standalone').click();
       const btn = page.getByTestId(`tool-${toolId}`);
       await btn.scrollIntoViewIfNeeded();
@@ -58,7 +58,7 @@ test.describe('Architex OS — all 47 modules open', () => {
 
 test.describe('Architex OS — Meetings governed workflow', () => {
   test('Meet Now opens pre-join screen', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await openTool(page, 'meetings');
     await page.getByTestId('meetings-meet-now').click();
     // Pre-join screen should show consent/recording governance language
@@ -67,7 +67,7 @@ test.describe('Architex OS — Meetings governed workflow', () => {
   });
 
   test('Schedule opens 5-step wizard', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await openTool(page, 'meetings');
     await page.getByTestId('meetings-schedule').click();
     const body = await page.locator('body').innerText();
@@ -78,7 +78,7 @@ test.describe('Architex OS — Meetings governed workflow', () => {
 
 test.describe('Architex OS — Approvals RBAC', () => {
   test('non-matching role cannot decide a gate', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await openTool(page, 'approvals_queue');
     // Switch to a role unlikely to own the first pending gate
     await page.getByTestId('role-switcher').selectOption('client');

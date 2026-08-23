@@ -147,7 +147,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   for (const tool of flagshipToolTabs) {
     test(`${tool.id} exposes a distinct synchronized panel for every configured tab`, async ({ page }) => {
       test.setTimeout(120_000);
-      await page.goto('/');
+      await page.goto('/?workspace=v8');
       await page.getByTestId('mode-standalone').click();
       await page.getByTestId(`tool-${tool.id}`).click();
 
@@ -177,7 +177,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   }
 
   test('meetings tab navigation does not restore an abandoned internal workflow', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('mode-standalone').click();
     await page.getByTestId('tool-meetings').click();
     await page.getByTestId('meetings-schedule').click();
@@ -198,7 +198,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
     ];
 
     for (const scenario of scenarios) {
-      await page.goto('/');
+      await page.goto('/?workspace=v8');
       await page.getByTestId('mode-standalone').click();
       await page.getByTestId(`tool-${scenario.tool}`).click();
       await page.locator('aside').getByRole('button', { name: startsWithAccessibleName(scenario.tab) }).click();
@@ -207,7 +207,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('rail items land on a real destination (no generic placeholder)', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     const destinations: { label: string; heading: string }[] = [
       { label: 'Command Centre', heading: 'Architex OS Command Centre' },
       { label: 'Project Space', heading: 'Faerie Glen Residential' },
@@ -229,7 +229,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('opening a tool highlights the rail context correctly', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     // Open practice from the project navigator: the tool view shows the
     // navigator header "Inside Practice Management — Command Centre".
     await page.getByTestId('mode-project').click();
@@ -246,7 +246,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('first tab is active on tool open', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('mode-standalone').click();
     await page.getByTestId('tool-practice').click();
     // First practice tab is "Dashboard"; it should be the active (highlighted) tab.
@@ -255,7 +255,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('engineering_calc tabs render grouped by discipline', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('mode-standalone').click();
     await page.getByTestId('tool-engineering_calc').click();
     await expect(page.getByText(/Inside Engineer's Calculation Hub/)).toBeVisible();
@@ -265,7 +265,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('V8-C01 V8-C02 contained calculator cannot create controlled evidence', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('mode-standalone').click();
     await page.getByTestId('tool-engineering_calc').click();
     await page.getByRole('button', { name: 'Calculate', exact: true }).click();
@@ -284,7 +284,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('rail -> tool -> back round-trip does not strand the user', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     // Documents global view -> open Documents & Drawings tool -> back.
     await clickRailItem(page, 'Documents');
     await expect(page.getByRole('heading', { name: 'Documents & Drawings' })).toBeVisible();
@@ -300,7 +300,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
   });
 
   test('stale-state guard: opening tool B after tool A + rail navigation opens B on its first tab', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByTestId('mode-standalone').click();
     await page.getByTestId('tool-forms').click();
     await expect(page.getByText(/Inside Integrated Form System/)).toBeVisible();
@@ -319,7 +319,7 @@ test.describe('Architex OS — OS rail navigation repair', () => {
 
 test.describe('Architex OS — God Mode (v8)', () => {
   test('toggle enables god mode and shows the ecosystem explorer', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByRole('button', { name: /God Mode/i }).first().click();
     await expect(page.getByText('God Mode · Ecosystem Explorer')).toBeVisible();
     // All tools remain visible via the role grid / tool groups.
@@ -328,7 +328,7 @@ test.describe('Architex OS — God Mode (v8)', () => {
   });
 
   test('god mode toggle appears in the rail as a global item', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/?workspace=v8');
     await page.getByRole('button', { name: /God Mode/i }).first().click();
     const rail = page.locator('aside').first();
     await expect(rail.getByRole('button', { name: /God Mode Explorer/i })).toBeVisible();

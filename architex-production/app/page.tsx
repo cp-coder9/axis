@@ -16,6 +16,7 @@ import { OrientationMode, ProjectEntity, RoleKey, StageKey, ToolDefinition } fro
 import { ALL_PROJECTS, ALL_TOOLS, ROLE_TOOL_MAP, STAGE_TOOL_MAP } from '@/lib/data';
 import { GLOBAL_DESTINATIONS, firstTabKey } from '@/lib/navigation';
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
+import { AccessGateway } from '@/components/access/AccessGateway';
 
 /** Map a MariaDB-backed API project row onto the frontend ProjectEntity shape. */
 function apiProjectToEntity(project: ApiProject): ProjectEntity {
@@ -34,7 +35,7 @@ function apiProjectToEntity(project: ApiProject): ProjectEntity {
   } as ProjectEntity;
 }
 
-export default function ArchitexOSPage() {
+function ArchitexOSPage() {
   // Navigation & Spatial State
   const [mode, setMode] = useState<OrientationMode>('project');
   const [projects, setProjects] = useState<ProjectEntity[]>(ALL_PROJECTS);
@@ -303,5 +304,13 @@ export default function ArchitexOSPage() {
         activeTabLabel={activeToolTabKey}
       />
     </div>
+  );
+}
+
+export default function ArchitexEntryPage() {
+  return (
+    <AccessGateway>
+      <ArchitexOSPage />
+    </AccessGateway>
   );
 }

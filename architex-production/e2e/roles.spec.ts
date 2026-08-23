@@ -49,7 +49,7 @@ function attachErrorCollectors(page: Page): CollectedErrors {
 test.describe('OS rail integrity across all 20 role dashboards', () => {
   for (const roleKey of ALL_ROLE_KEYS) {
     test(`role "${roleKey}": OS rail destinations render without errors`, async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/?workspace=v8');
       const errors = attachErrorCollectors(page);
 
       // Switch to the role under test
@@ -81,7 +81,7 @@ test.describe('OS rail integrity across all 20 role dashboards', () => {
 test.describe('Role dashboard — datum tool cards resolve for every role', () => {
   for (const roleKey of ALL_ROLE_KEYS) {
     test(`role "${roleKey}": datum cards open tools without errors`, async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/?workspace=v8');
       const errors = attachErrorCollectors(page);
       await page.getByTestId('role-switcher').selectOption(roleKey);
 

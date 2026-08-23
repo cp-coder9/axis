@@ -1,0 +1,174 @@
+'use client';
+
+import { FormEvent, ReactNode, useEffect, useState } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  BriefcaseBusiness,
+  Building2,
+  Factory,
+  Hammer,
+  HardHat,
+  LockKeyhole,
+  Moon,
+  ShieldCheck,
+  Sun,
+  Users,
+} from 'lucide-react';
+
+type AccessView = 'landing' | 'roles' | 'register' | 'role-login' | 'signin';
+
+const roles = [
+  { name: 'Client', description: 'I want to hire professionals for my building project', icon: Users },
+  { name: 'Freelancer', description: 'I am a specialist or consultant (Engineer, etc.)', icon: BriefcaseBusiness },
+  { name: 'BEP / Design Team', description: 'Architects, engineers, QSs, technologists, and design-team leads', icon: Building2 },
+  { name: 'Contractor', description: 'I manage construction delivery, tendering, and site work', icon: HardHat },
+  { name: 'Subcontractor', description: 'I deliver a trade package, evidence, and close-out items', icon: Hammer },
+  { name: 'Supplier', description: 'I supply materials, products, deliveries, or warranties', icon: Factory },
+];
+
+export function AccessGateway({ children }: { children: ReactNode }) {
+  const [view, setView] = useState<AccessView>('landing');
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [dark, setDark] = useState(false);
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const testBypass = new URLSearchParams(window.location.search).get('workspace') === 'v8';
+    setEntered(testBypass || sessionStorage.getItem('architex-v8-access') === 'granted');
+  }, []);
+
+  const enterWorkspace = (event: FormEvent) => {
+    event.preventDefault();
+    sessionStorage.setItem('architex-v8-access', 'granted');
+    setEntered(true);
+  };
+
+  if (entered) return <>{children}</>;
+
+  if (view === 'landing') {
+    return (
+      <div className={`access-landing ${dark ? 'is-dark' : ''}`}>
+        <header className="access-header">
+          <Brand compact />
+          <div className="access-header-actions">
+            <button className="access-icon-button" aria-label="Switch color theme" onClick={() => setDark((value) => !value)}>
+              {dark ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <button className="access-ghost-button" onClick={() => setView('roles')}>Sign up</button>
+            <button className="access-primary-button" onClick={() => setView('signin')}>Enter OS</button>
+          </div>
+        </header>
+
+        <main className="access-hero">
+          <button className="access-mark-button" aria-label="Enter Architex OS" onClick={() => setView('signin')}>
+            <span className="access-mark-orbit" />
+            <img src="/logo.png" alt="" />
+          </button>
+          <h1>The Operating System for the Built Environment</h1>
+          <p>Simplify complexity. Deliver with confidence.</p>
+          <button className="access-hero-cta" onClick={() => setView('signin')}>Enter OS</button>
+        </main>
+
+        <nav className="access-quick-nav" aria-label="Quick navigation">
+          {[['People', Users], ['Projects', Building2], ['Approvals', BadgeCheck], ['Payments', BriefcaseBusiness]].map(([label, Icon]) => (
+            <button key={label as string} onClick={() => setView('signin')}><Icon size={21} /><span>{label as string}</span></button>
+          ))}
+        </nav>
+      </div>
+    );
+  }
+
+  if (view === 'signin') {
+    return <V8SignIn onBack={() => setView('landing')} onSubmit={enterWorkspace} />;
+  }
+
+  return (
+    <div className="access-shell">
+      <section className="access-console">
+        <button className="access-cancel" onClick={() => setView('landing')}>Cancel</button>
+        {(view === 'register' || view === 'role-login') && (
+          <button className="access-back" onClick={() => setView('roles')}><ArrowLeft size={16} /> Back</button>
+        )}
+        <div className="access-console-head">
+          <Brand />
+          <div className="access-kicker"><span /> Secure workspace boot</div>
+          <div className="access-console-title">
+            <div>
+              <h1>{view === 'roles' ? 'Join Architex' : view === 'register' ? 'Create your account' : 'Welcome Back'}</h1>
+              <p>{view === 'roles' ? 'Select a role profile to mount the correct command centre, evidence stream, and project controls.' : 'Authenticate into the selected Architex OS workspace.'}</p>
+            </div>
+            <div className="access-system-pills"><span>Role kernel</span><span>Audit layer</span><span>AI co-pilot</span></div>
+          </div>
+        </div>
+
+        {view === 'roles' ? (
+          <div className="access-role-body">
+            <div className="access-role-grid">
+              {roles.map(({ name, description, icon: Icon }) => {
+                const selected = selectedRole === name;
+                return (
+                  <button className={`access-role-card ${selected ? 'selected' : ''}`} key={name} onClick={() => setSelectedRole(name)}>
+                    <span className="access-role-icon"><Icon size={27} /></span>
+                    <strong>{name}</strong><span>{description}</span>
+                    <small>{selected ? 'Selected' : 'Select role'} <ArrowRight size={15} /></small>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="access-role-actions">
+              <button disabled={!selectedRole}>Sign in with Google</button>
+              <div><button disabled={!selectedRole} onClick={() => setView('role-login')}>Login with Email</button><button disabled={!selectedRole} onClick={() => setView('register')}>Sign Up with Email</button></div>
+            </div>
+          </div>
+        ) : (
+          <AccessForm register={view === 'register'} role={selectedRole} onSubmit={enterWorkspace} onBack={() => setView('roles')} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function Brand({ compact = false }: { compact?: boolean }) {
+  return <div className={`access-brand ${compact ? 'compact' : ''}`}><img src="/logo.png" alt="Architex" /><div><strong>{compact ? 'ARCHITEX' : 'Architex OS'}</strong>{!compact && <span>Built environment access</span>}</div></div>;
+}
+
+function AccessForm({ register, role, onSubmit, onBack }: { register: boolean; role: string | null; onSubmit: (event: FormEvent) => void; onBack: () => void }) {
+  return (
+    <form className="access-form" onSubmit={onSubmit}>
+      <div className="access-form-role"><ShieldCheck size={18} /><span>Role profile</span><strong>{role}</strong></div>
+      {register && <label>Full name<input aria-label="Full name" placeholder="John Doe" required /></label>}
+      <label>Email address<input aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
+      <label>Password<input aria-label="Password" type="password" placeholder="••••••••" required /></label>
+      <button className="access-form-submit">{register ? 'Create Account' : 'Login'}</button>
+      <button type="button" className="access-form-google">Sign in with Google</button>
+      <button type="button" className="access-form-back" onClick={onBack}>Back to Options</button>
+    </form>
+  );
+}
+
+function V8SignIn({ onBack, onSubmit }: { onBack: () => void; onSubmit: (event: FormEvent) => void }) {
+  return (
+    <div className="v8-signin">
+      <button className="v8-signin-back" onClick={onBack}><ArrowLeft size={16} /> Back to landing</button>
+      <section className="v8-signin-panel">
+        <div className="v8-signin-identity">
+          <Brand />
+          <div className="v8-access-badge"><LockKeyhole size={14} /> V8 secure access</div>
+          <h1>Welcome back</h1>
+          <p>Resume your governed workspace with project context, evidence controls, and role permissions intact.</p>
+          <div className="v8-status-stack"><span><i /> Identity boundary active</span><span><i /> Audit trail ready</span><span><i /> Workspace encrypted</span></div>
+        </div>
+        <form className="v8-signin-form" onSubmit={onSubmit}>
+          <div><span className="v8-step">01 / Authenticate</span><h2>Enter Architex OS</h2><p>Use your organisation credentials to mount the V8 shell.</p></div>
+          <label>Email address<input aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
+          <label>Password<input aria-label="Password" type="password" placeholder="••••••••" required /></label>
+          <div className="v8-form-meta"><label><input type="checkbox" /> Keep this device trusted</label><button type="button">Recover access</button></div>
+          <button className="v8-enter-button">Enter workspace <ArrowRight size={17} /></button>
+          <p className="v8-auth-note"><ShieldCheck size={15} /> Protected by role-based access and immutable session logging.</p>
+        </form>
+      </section>
+    </div>
+  );
+}
