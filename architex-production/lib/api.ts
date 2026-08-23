@@ -1,3 +1,5 @@
+import type { CalculatorId, EngineeringCalculationPayloadV1 } from '@/lib/calculations/types';
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api/v1';
 
 /**
@@ -256,42 +258,43 @@ export type ApiMeeting = {
 
 /* ---------- Engineering Calculation Hub (v8) ---------- */
 
-export type ApiCalculationRecord = {
+export type ApiCalculationRecord = EngineeringCalculationPayloadV1 & {
   id: string;
+  organization_id: string;
   project_id: string | null;
-  calc_type: string;
-  inputs: Record<string, number>;
-  results: Record<string, string | number>;
-  derivation: string | null;
-  status: 'draft' | 'saved' | 'under_review' | 'approved';
+  calc_type: CalculatorId;
+  status: 'saved' | 'under_review' | 'approved';
   author_id: string;
   linked_drawing_ref: string | null;
   linked_meeting_id: string | null;
   linked_rfi_id: string | null;
+  lock_version: number;
   created_at: string;
   updated_at: string;
 };
 
-export type CreateCalculationPayload = {
-  project_id?: string | null;
-  calc_type: string;
-  inputs: Record<string, number>;
-  results: Record<string, string | number>;
-  derivation?: string;
+export type CreateCalculationPayload = EngineeringCalculationPayloadV1 & {
+  project_id: string | null;
   linked_drawing_ref?: string | null;
+  linked_meeting_id?: string | null;
+  linked_rfi_id?: string | null;
 };
 
 type ApiIdentity = { role: string; userId: string };
 
+async function engineeringRequest<T>(path: string, method: 'GET' | 'POST' | 'PATCH', identity: ApiIdentity, body?: unknown, headers: Record<string, string> = {}): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, { method, headers: { Accept: 'application/json', ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...localIdentityHeaders(identity.role, identity.userId), ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
+  if (!response.ok) throw new Error(`Architex API ${response.status}: ${await response.text()}`);
+  return response.json() as Promise<T>;
+}
+
 export const architexApiEngineering = {
-  list: (projectId: string | null, identity: ApiIdentity) =>
-    apiGet<{ calculations: ApiCalculationRecord[] }>(`/engineering/calculations${projectId ? `?project=${projectId}` : ''}`, identity).then((r) => r.calculations),
-  create: (body: CreateCalculationPayload, identity: ApiIdentity) =>
-    apiPost<{ calculation: ApiCalculationRecord }>('/engineering/calculations', body, identity).then((r) => r.calculation),
-  get: (id: string, identity: ApiIdentity) =>
-    apiGet<{ calculation: ApiCalculationRecord }>(`/engineering/calculations/${id}`, identity).then((r) => r.calculation),
-  sendToReview: (id: string, identity: ApiIdentity) =>
-    apiPost<{ calculation: ApiCalculationRecord }>(`/engineering/calculations/${id}/review`, {}, identity).then((r) => r.calculation),
+  list: (projectId: string | null, identity: ApiIdentity) => engineeringRequest<{ calculations: ApiCalculationRecord[] }>(`/engineering/calculations${projectId ? `?project_id=${encodeURIComponent(projectId)}` : ''}`, 'GET', identity).then((response) => response.calculations),
+  create: (body: CreateCalculationPayload, identity: ApiIdentity, idempotencyKey = crypto.randomUUID()) => engineeringRequest<{ calculation: ApiCalculationRecord }>('/engineering/calculations', 'POST', identity, body, { 'Idempotency-Key': idempotencyKey }).then((response) => response.calculation),
+  get: (id: string, identity: ApiIdentity) => engineeringRequest<{ calculation: ApiCalculationRecord }>(`/engineering/calculations/${id}`, 'GET', identity).then((response) => response.calculation),
+  update: (id: string, body: CreateCalculationPayload, lockVersion: number, identity: ApiIdentity) => engineeringRequest<{ calculation: ApiCalculationRecord }>(`/engineering/calculations/${id}`, 'PATCH', identity, body, { 'If-Match': String(lockVersion) }).then((response) => response.calculation),
+  derivation: (id: string, identity: ApiIdentity) => engineeringRequest<Pick<ApiCalculationRecord, 'id' | 'calc_type' | 'calculatorId' | 'formulaVersion' | 'results' | 'derivation' | 'assumptions' | 'limitations' | 'references' | 'lock_version' | 'updated_at'>>(`/engineering/calculations/${id}/derivation`, 'GET', identity),
+  review: (id: string, action: 'submit' | 'approve' | 'return', lockVersion: number, identity: ApiIdentity, note?: string, idempotencyKey = crypto.randomUUID()) => engineeringRequest<{ calculation: ApiCalculationRecord }>(`/engineering/calculations/${id}/review`, 'POST', identity, { action, ...(note ? { note } : {}) }, { 'If-Match': String(lockVersion), 'Idempotency-Key': idempotencyKey }).then((response) => response.calculation),
 };
 
 /* ---------- User management (admin & platform_admin) ---------- */

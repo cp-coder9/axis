@@ -140,20 +140,5 @@ export interface MeetingItem {
   retention?: string;
 }
 
-export type EngineeringCalcStatus = 'draft' | 'saved' | 'under_review' | 'approved';
-
-export interface EngineeringCalculation {
-  id: string;
-  project_id: string | null;
-  calc_type: string;
-  inputs: Record<string, number>;
-  results: Record<string, string | number>;
-  derivation: string;
-  status: EngineeringCalcStatus;
-  author_id: string;
-  linked_drawing_ref: string | null;
-  linked_meeting_id: string | null;
-  linked_rfi_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
+export type EngineeringCalcStatus = 'saved' | 'under_review' | 'approved';
+export type { EngineeringCalculationPayloadV1, Quantity, CalculationResultDto, StandardReferenceDto } from './calculations/types';
