@@ -14,7 +14,7 @@ import { ModuleRouter } from '@/lib/module-registry';
 
 import { OrientationMode, ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_PROJECTS, ALL_TOOLS, ROLE_TOOL_MAP, STAGE_TOOL_MAP } from '@/lib/data';
-import { GLOBAL_DESTINATIONS, firstTabKey } from '@/lib/navigation';
+import { GLOBAL_DESTINATIONS, firstTabKey, type GlobalDestinationId } from '@/lib/navigation';
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
 import { AccessGateway } from '@/components/access/AccessGateway';
 
@@ -106,8 +106,8 @@ function ArchitexOSPage() {
       setActiveToolTabKey('0');
       return;
     }
-    const dest = GLOBAL_DESTINATIONS[id];
-    if (!dest) return;
+    if (!(id in GLOBAL_DESTINATIONS)) return;
+    const dest = GLOBAL_DESTINATIONS[id as GlobalDestinationId];
     setActiveGlobal(dest.id);
     setMode(dest.mode);
     if (dest.defaultToolId && ALL_TOOLS[dest.defaultToolId]) {
