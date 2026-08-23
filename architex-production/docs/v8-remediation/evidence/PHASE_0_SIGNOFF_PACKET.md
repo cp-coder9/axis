@@ -8,7 +8,7 @@ Evidence commit: `75220148984e8862af0a737222b5198f499b040d`
 
 Manifest SHA-256: `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d`
 
-This packet requests the four independent approvals required by `P0-T05`. It does not authorize a reviewer to approve work they authored or a role for which they lack authority. A rejection must identify the failed requirement and evidence needed to reconsider it.
+This packet originally requested four independent approvals for `P0-T05`. On 2026-08-23, the repository owner explicitly approved the evidence and waived the four-person split for this containment-only exit. It remains available as the audit trail and as the preferred review model for future safety gates.
 
 Review coordination: [`cp-coder9/axis#1`](https://github.com/cp-coder9/axis/issues/1)
 
@@ -69,6 +69,6 @@ Confirm that:
 
 Record the reviewer's name, operations authority, conflict disclosure, decision, and timestamp in the operations row of [`PHASE_0_RELEASE_EVIDENCE.md`](PHASE_0_RELEASE_EVIDENCE.md).
 
-## Final acceptance rule
+## Final acceptance record
 
-Phase 0 remains `NO-GO` unless all four rows contain independent `APPROVED` decisions. After the fourth approval, update the P0-E05 status and exit decision to `GO`, commit the signed record, verify the live revision and health endpoints once more, and only then authorize dependent phases.
+Phase 0 was accepted under the documented repository-owner waiver. The waiver does not validate engineering formulas, release any calculator, or supersede professional-review requirements in later phases. All 17 calculators and unknown IDs remain contained and non-recordable.

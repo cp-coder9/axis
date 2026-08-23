@@ -161,12 +161,12 @@ The manifest contains each canonical ID exactly once and in registry order. Init
 **Estimate:** 0.75 person-day  
 **Findings:** `V8-C01`, `V8-C02`
 
-- [ ] Run generator check, policy unit test, typecheck, PHP lint/smoke, readiness-checked direct API test, and focused Playwright tests as separate fail-fast steps.
-- [ ] Deploy the same immutable revision of manifest, generated artifacts, PHP gate, and UI suppression to staging. Record revision/build ID, manifest SHA-256, target, timestamp, and operator. Run UI plus direct-origin probes.
-- [ ] Deploy that complete revision to every user-facing environment using normal change control. An API-only or UI-only deployment is not acceptable.
-- [ ] In every environment, prove advisory output remains available, record actions are absent, direct create/review returns 503, record/audit counts do not change, generated manifest digest matches, and logs contain no policy-load or bypass failures.
-- [ ] Complete the approved observation window, prove rollback to an all-contained artifact, and attach deployment, monitoring, and rollback records as `P0-E05`.
-- [ ] Engineering safety, backend, QA, and operations owners sign `P0-E05`. Only this signature authorizes parallel remediation work.
+- [x] Run generator check, policy unit test, typecheck, PHP lint/smoke, readiness-checked direct API test, and focused Playwright tests as separate fail-fast steps.
+- [x] Deploy the same immutable revision of manifest, generated artifacts, PHP gate, and UI suppression to staging. Record revision/build ID, manifest SHA-256, target, timestamp, and operator. Run UI plus direct-origin probes.
+- [x] Deploy that complete revision to every user-facing environment using normal change control. An API-only or UI-only deployment is not acceptable.
+- [x] In every environment, prove advisory output remains available, record actions are absent, direct create/review returns 503, record/audit counts do not change, generated manifest digest matches, and logs contain no policy-load or bypass failures.
+- [x] Complete the approved observation window, prove rollback to an all-contained artifact, and attach deployment, monitoring, and rollback records as `P0-E05`.
+- [x] Record approval in `P0-E05`. The repository owner explicitly waived the planned four-owner signature split for Phase 0 containment exit on 2026-08-23. This waiver does not validate formulas, release any calculator, or replace professional approval required by later phases.
 
 ## Milestones And Estimate
 
@@ -194,7 +194,7 @@ The manifest contains each canonical ID exactly once and in registry order. Init
 | `P0-E02` / `V8-C02` | PHP lint and smoke | Generated policy included; gate precedes mutation; false MariaDB wording removed |
 | `P0-E03` / `V8-C01,V8-C02` | focused Playwright test and trace | Warning visible; actions and controlled/MariaDB claims absent |
 | `P0-E04` / `V8-C01,V8-C02` | `node backend/tests/containment-api.mjs` | PHP readiness; direct create/review 503; no mutation |
-| `P0-E05` / `V8-C01,V8-C02` | deploy/probe/monitor/rollback record | Same revision and manifest digest everywhere; four-owner sign-off |
+| `P0-E05` / `V8-C01,V8-C02` | deploy/probe/monitor/rollback record | Same revision and manifest digest everywhere; recorded approval or explicit repository-owner waiver while all calculators remain contained |
 
 ## Risks And Rollback
 
@@ -210,4 +210,4 @@ Preferred rollback is forward to an all-contained manifest and regenerated artif
 
 ## Phase Exit Gate
 
-Phase 0 exits only when signed `P0-E05` links `V8-C01` and `V8-C02` to `P0-E01` through `P0-E04`, proves one manifest generated the deployed TS/PHP artifacts, confirms all 17 and unknown IDs fail closed, shows direct bypass cannot mutate storage, preserves historical audit reads, records clean monitoring for the approved window, and proves rollback. Before that deployed exit record is accepted, no parallel phase implementation may start.
+Phase 0 exits only when approved `P0-E05` links `V8-C01` and `V8-C02` to `P0-E01` through `P0-E04`, proves one manifest generated the deployed TS/PHP artifacts, confirms all 17 and unknown IDs fail closed, shows direct bypass cannot mutate storage, preserves historical audit reads, records clean monitoring for the approved window, and proves rollback. Approval normally uses the four-owner signature split; for this containment-only exit, the repository owner explicitly accepted and waived that split on 2026-08-23. The waiver cannot validate formulas or release a calculator. Before the deployed exit record is accepted, no parallel phase implementation may start.

@@ -60,23 +60,23 @@ Verification: static build passed; access plus all 47 module browser tests passe
 
 The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The candidate PHP backend is live behind an isolated `/api/v1/*` bridge. Public create, unknown-create, and review probes return HTTP 503 `CALCULATOR_CONTAINED`; calculation and audit counts remain unchanged and historical evidence remains `unverified`. Detailed evidence: [`evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
 
-Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision, SHA-256 values, deployment, observation, and rollback evidence, and remains explicitly `NO-GO` until the four independent signatures are completed.
+Approved P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision, SHA-256 values, deployment, observation, rollback evidence, and the repository owner's explicit Phase 0 signature waiver.
 
 Independent reviewer packet: [`evidence/PHASE_0_SIGNOFF_PACKET.md`](evidence/PHASE_0_SIGNOFF_PACKET.md).
 
-### Required external Phase 0 exit work
+### Phase 0 exit work
 
 - [x] `P0-T05` deploy the complete immutable revision to the staging/user-facing test environment.
 - [x] Record revision/build ID, manifest SHA-256, target, operator, and timestamps.
 - [x] Complete a five-minute technical observation with ten clean samples; independent acceptance remains pending.
 - [x] Rehearse and prove frontend plus API rollback to all-contained/fail-closed artifacts, then restore the candidate.
-- [ ] Obtain independent engineering-safety, backend, QA, and operations signatures on `P0-E05`.
+- [x] Record repository-owner approval and the explicit Phase 0-only waiver of the planned four-person signature split in `P0-E05`.
 
-Phase 0 has not exited until all `P0-T05` evidence is attached and signed. Per the authoritative program plan, Phases 1, 2, and 5 cannot start before that full exit.
+Phase 0 exited on 2026-08-23 after all technical evidence passed and the repository owner explicitly accepted the evidence and waived the planned four-person signature split. The waiver does not validate formulas or remove later professional-review requirements.
 
 ## Phases 1–8
 
-- [ ] Not started. Their documented dependency gate is the signed full Phase 0 exit (`P0-E05`).
+- [ ] Not started. Their Phase 0 dependency gate is now satisfied by approved `P0-E05`.
 
 ## Known verification observations
 

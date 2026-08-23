@@ -1,8 +1,8 @@
 # Phase 0 Release Evidence — P0-E05
 
-Status: `AWAITING-INDEPENDENT-SIGNATURES`
+Status: `APPROVED — OWNER WAIVER`
 
-This record fails closed. Local build evidence does not constitute the Phase 0 exit, and blank operator, environment, observation, rollback, or signature fields prohibit acceptance.
+This record fails closed. Local build evidence alone does not constitute the Phase 0 exit. The repository owner accepted the complete technical record and explicitly waived the planned four-person signature split for this containment-only exit; that exception is recorded below.
 
 ## Immutable candidate
 
@@ -81,24 +81,26 @@ Preferred rollback is a forward deployment of the all-contained manifest and bot
 
 | Rehearsal environment | Prior revision | Rollback revision | Operator 1 | Operator 2 | Started | Completed | Evidence link | Result |
 |---|---|---|---|---|---|---|---|---|
-| Staging frontend + API | `94c6a52` | `9aaafe0` frontend plus pre-bridge API front controller; both all-contained/fail-closed | Codex deployment operator | Pending independent operations witness | `2026-08-23T22:26+02:00` | `2026-08-23T22:36+02:00` | [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md) | `TECHNICAL-PASS` |
+| Staging frontend + API | `94c6a52` | `9aaafe0` frontend plus pre-bridge API front controller; both all-contained/fail-closed | Codex deployment operator | Repository owner accepted rehearsal evidence | `2026-08-23T22:26+02:00` | `2026-08-23T22:36+02:00` | [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md) | `PASS` |
 
-## Independent signatures
+## Approval record
 
-No signer may approve work they authored where independence is required.
+Independent signatures were planned. The repository owner explicitly waived the split for Phase 0 containment exit; the disclosure and scope limitation are recorded below.
 
 Reviewer instructions and role-specific evidence are collected in [`PHASE_0_SIGNOFF_PACKET.md`](PHASE_0_SIGNOFF_PACKET.md).
 Independent approvals are coordinated in [`cp-coder9/axis#1`](https://github.com/cp-coder9/axis/issues/1).
 
 | Required role | Name | Competence/authority evidence | Conflict disclosure | Decision | Signed timestamp |
 |---|---|---|---|---|---|
-| Engineering safety owner |  |  |  | `PENDING` |  |
-| Backend owner |  |  |  | `PENDING` |  |
-| QA owner |  |  |  | `PENDING` |  |
-| Operations owner |  |  |  | `PENDING` |  |
+| Engineering safety owner | Repository-owner waiver | Phase 0 containment only; no formula validation | Independence requirement explicitly waived by owner | `WAIVED` | `2026-08-23T23:01:17+02:00` |
+| Backend owner | Repository-owner waiver | Technical evidence accepted by repository owner | Independence requirement explicitly waived by owner | `WAIVED` | `2026-08-23T23:01:17+02:00` |
+| QA owner | Repository-owner waiver | Technical evidence accepted by repository owner | Independence requirement explicitly waived by owner | `WAIVED` | `2026-08-23T23:01:17+02:00` |
+| Operations owner | `cp-coder9` repository owner | Repository and deployment authority; explicit chat approval | Owner-directed governance exception; implementation assisted by Codex | `APPROVED` | `2026-08-23T23:01:17+02:00` |
+
+Owner authorization: the repository owner instructed, “Approve it and move on.” This approval accepts the deployment, observation, rollback, and containment evidence and waives the planned four-person signature split for Phase 0 only. All 17 calculators and unknown IDs remain contained and non-recordable. No engineering formula is professionally approved by this decision.
 
 ## Exit decision
 
-Decision: `NO-GO — deployment, direct containment probes, technical observation, and rollback rehearsal passed; independent acceptance of the evidence and all four required signatures are still missing.`
+Decision: `GO — Phase 0 containment is deployed, probed, observed, rollback-proven, and accepted under the repository owner's explicit Phase 0 signature waiver.`
 
-Only after every required field above has reproducible evidence and all four signatures approve may this decision change to `GO` and authorize Phases 1, 2, and 5.
+Phases 1, 2, and 5 may begin. This exit does not validate or release any calculator; later professional validation gates remain mandatory.
