@@ -8,14 +8,14 @@ This record fails closed. Local build evidence does not constitute the Phase 0 e
 
 | Field | Recorded value |
 |---|---|
-| Source revision | `ec5a24e47fedec9d05f9a53b1310179ae8ffed72` |
-| Next.js build ID | `-FYCfrAo4lswcUhhGMTyG` |
-| Build timestamp | `2026-08-23T20:15:00.6607632+02:00` |
+| Source revision | `94c6a5213bfd14eb51a77413b7edcf2ad91490c3` |
+| Frontend build identity | Static export; public `build-info.json` records revision and manifest digest |
+| Build timestamp | `2026-08-23T22:13:03.7319835+02:00` |
 | Manifest SHA-256 | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` |
 | Generated TypeScript SHA-256 | `cf5a82c74ffbcbf9f24c541c730b2b605b15b8e8210fa111aeb0e664e8fd8dc8` |
 | Generated PHP SHA-256 | `2797719c2c9fd89c2425a04c774b1879fa68a0621b5a7e35f076b0e0f8016a02` |
-| BUILD_ID file SHA-256 | `7311eef42edf52a35b20f9467f68423ae0b5f81d524c4eb5e7e2f1b15f21321f` |
-| Build command | `npm run build` |
+| BUILD_ID file SHA-256 | Not applicable to the cPanel static export |
+| Build command | `ARCHITEX_STATIC_EXPORT=1`, `NEXT_PUBLIC_API_BASE_URL=https://api.architex.co.za/api`, `npm run build` |
 | Build result | Exit `0`; Next.js `15.5.23`; six routes generated |
 
 The candidate was built from a complete tracked application baseline. Secrets, `.env.local`, dependencies, `.next`, test results, and TypeScript build-info files are excluded by `.gitignore`.
@@ -35,7 +35,7 @@ Complete one row for staging and every user-facing environment. All rows must re
 
 | Environment | Target URL | Revision/build ID | Manifest SHA-256 | Operator | Started | Completed | Result |
 |---|---|---|---|---|---|---|---|
-| Staging frontend | `https://test.architex.co.za` | `9aaafe06455ae78cf877bba18c041592d6f11735` / static export | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` (source manifest; remote PHP digest not available) | Codex FTP operator | `2026-08-23T21:17+02:00` | `2026-08-23T21:25+02:00` | `FRONTEND-PASS / BACKEND-NOT-DEPLOYED` |
+| Staging frontend | `https://test.architex.co.za` | `94c6a5213bfd14eb51a77413b7edcf2ad91490c3` / static export | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` | Codex FTP operator | `2026-08-23T22:13+02:00` | `2026-08-23T22:16+02:00` | `FRONTEND-PASS / BACKEND-NOT-DEPLOYED` |
 | User-facing environment 1 |  |  |  |  |  |  | `NOT-RUN` |
 
 For every row, attach evidence proving:
@@ -54,7 +54,7 @@ For every row, attach evidence proving:
 |---|---|---|---|---|---|
 |  |  |  |  |  | `NOT-RUN` |
 
-Chrome DevTools evidence on 2026-08-23 established that the staging frontend now serves revision `9aaafe06455ae78cf877bba18c041592d6f11735`: landing, registration role gate, upgraded V8 sign-in, and V8 shell mount all passed. The valid existing gateway probe is `https://api.architex.co.za/api/health` (HTTP 200). Its project endpoint requires a Firebase bearer token and rejects the candidate's local identity headers, so this is frontend deployment evidence only and does not satisfy the PHP containment, persistence, observation, rollback-rehearsal, or signature gates.
+Chrome DevTools and public Playwright evidence on 2026-08-23 established that the staging frontend serves revision `94c6a5213bfd14eb51a77413b7edcf2ad91490c3`, displays the containment warning, and omits controlled record actions. The valid legacy gateway probe remains HTTP 200. The prepared candidate API workflow failed closed because the required repository/environment secrets are unset, so this remains frontend deployment evidence only. See [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
 
 ### Hosting contract discovered in `E:\arx-1` / `E:\arc-1`
 
@@ -82,7 +82,7 @@ Preferred rollback is a forward deployment of the all-contained manifest and bot
 
 | Rehearsal environment | Prior revision | Rollback revision | Operator 1 | Operator 2 | Started | Completed | Evidence link | Result |
 |---|---|---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |  | `NOT-RUN` |
+| Staging frontend | `94c6a52` | `9aaafe0` (all-contained) | Codex FTP operator | Pending independent operations witness | `2026-08-23T22:14+02:00` | `2026-08-23T22:15+02:00` | [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md) | `FRONTEND-PASS / API-NOT-RUN` |
 
 ## Independent signatures
 
@@ -97,6 +97,6 @@ No signer may approve work they authored where independence is required.
 
 ## Exit decision
 
-Decision: `NO-GO — P0-T05 deployment, observation, rollback, and signatures are missing; the candidate runtime is incompatible with the discovered static/PHP host contract.`
+Decision: `NO-GO — staging frontend deployment and rollback passed, but the active API document root is unreachable with available credentials; complete API deployment/probes, approved observation, complete rollback, and four signatures are missing.`
 
 Only after every required field above has reproducible evidence and all four signatures approve may this decision change to `GO` and authorize Phases 1, 2, and 5.

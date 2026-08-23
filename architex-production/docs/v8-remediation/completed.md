@@ -47,8 +47,9 @@ Screenshot: [`screenshots/phase-0-containment.png`](screenshots/phase-0-containm
 - [x] Upgraded the direct sign-in screen to the V8 access-console visual language.
 - [x] Added a static-export deployment mode for the cPanel/LiteSpeed frontend target while retaining standalone mode for local/server builds.
 - [x] Verified landing, role gate, registration form, V8 sign-in, and V8 OS mount with Chrome DevTools MCP on the public host.
-- [x] Deployed revision `9aaafe06455ae78cf877bba18c041592d6f11735` to `https://test.architex.co.za` on 2026-08-23.
+- [x] Deployed immutable revision `94c6a5213bfd14eb51a77413b7edcf2ad91490c3` to `https://test.architex.co.za` on 2026-08-23.
 - [x] Preserved the pre-deployment frontend as `/public_html/test.architex.co.za.backup-20260823-2117` for rollback.
+- [x] Rehearsed frontend rollback to all-contained revision `9aaafe0`, reran the public containment test, and restored `94c6a52`.
 
 Release screenshots:
 
@@ -57,7 +58,7 @@ Release screenshots:
 
 Verification: static build passed; access plus all 47 module browser tests passed (`54/54`); public browser console was clean. The deployed frontend calls the confirmed gateway mount at `https://api.architex.co.za/api`.
 
-The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The existing PHP gateway rejects the frontend project hydration request because it requires a Firebase bearer token and does not accept the candidate's local identity headers. Backend communication/persistence and the P0 containment PHP deployment therefore remain `NO-GO` gates.
+The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The existing PHP gateway rejects the frontend project hydration request because it requires a Firebase bearer token and does not accept the candidate's local identity headers. The prepared candidate API workflow failed closed because the repository/environment FTPS secrets are unset and the active API build is outside the historical FTP jail. Backend communication/persistence and the P0 containment PHP deployment therefore remain `NO-GO` gates. Detailed evidence: [`evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
 
 Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision and SHA-256 values and remains explicitly `NO-GO` until the deployment, observation, rollback, and signature fields are completed.
 
