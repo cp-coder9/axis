@@ -35,7 +35,7 @@ Complete one row for staging and every user-facing environment. All rows must re
 
 | Environment | Target URL | Revision/build ID | Manifest SHA-256 | Operator | Started | Completed | Result |
 |---|---|---|---|---|---|---|---|
-| Staging |  |  |  |  |  |  | `NOT-RUN` |
+| Staging | `https://test.architex.co.za` | Current target is not candidate build | Not available | Read-only Codex probe | `2026-08-23T20:16+02:00` | `2026-08-23T20:16+02:00` | `NOT-CANDIDATE` |
 | User-facing environment 1 |  |  |  |  |  |  | `NOT-RUN` |
 
 For every row, attach evidence proving:
@@ -53,6 +53,8 @@ For every row, attach evidence proving:
 | Approved window | Monitoring owner | Start | End | Alert/log query links | Result |
 |---|---|---|---|---|---|
 |  |  |  |  |  | `NOT-RUN` |
+
+Read-only Chrome DevTools evidence on 2026-08-23 established that the documented staging URL currently serves an Architex marketing/entry page, not candidate build `-FYCfrAo4lswcUhhGMTyG`. The documented API probe `https://api.architex.co.za/api/v1/health` returned `API route not found` for `/v1/health` from gateway `php-gateway-v0.1.2-20260714`. These observations do not constitute deployment evidence; they prove the candidate is not presently verifiable at the documented targets.
 
 ## Rollback rehearsal
 
