@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "revision": "94c6a5213bfd14eb51a77413b7edcf2ad91490c3",
+  "manifestSha256": "0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d",
+  "startedAt": "2026-08-23T20:28:08.086Z",
+  "completedAt": "2026-08-23T20:33:08.104Z",
+  "durationSeconds": 300,
+  "intervalSeconds": 30,
+  "sampleCount": 10,
+  "result": "PASS",
+  "samples": [
+    {
+      "sampledAt": "2026-08-23T20:28:08.090Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 593
+    },
+    {
+      "sampledAt": "2026-08-23T20:28:39.235Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 140
+    },
+    {
+      "sampledAt": "2026-08-23T20:29:09.756Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 211
+    },
+    {
+      "sampledAt": "2026-08-23T20:29:40.169Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 454
+    },
+    {
+      "sampledAt": "2026-08-23T20:30:11.172Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 376
+    },
+    {
+      "sampledAt": "2026-08-23T20:30:42.097Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 178
+    },
+    {
+      "sampledAt": "2026-08-23T20:31:12.588Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 126
+    },
+    {
+      "sampledAt": "2026-08-23T20:31:42.958Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 140
+    },
+    {
+      "sampledAt": "2026-08-23T20:32:13.314Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 197
+    },
+    {
+      "sampledAt": "2026-08-23T20:32:44.103Z",
+      "legacyHealth": 200,
+      "candidateHealth": 200,
+      "containedCreate": 503,
+      "containmentCode": "CALCULATOR_CONTAINED",
+      "calculationCount": 1,
+      "auditCount": 21,
+      "maxElapsedMs": 336
+    }
+  ]
+}

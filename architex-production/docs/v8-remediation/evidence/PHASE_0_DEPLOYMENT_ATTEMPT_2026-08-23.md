@@ -14,7 +14,7 @@
 - Chrome DevTools MCP opened the public Engineering Calculation Hub and observed `Unvalidated advisory calculation — controlled record actions are unavailable until independent professional approval is recorded.`
 - The public landing, role gate, V8 sign-in, and V8 shell mount were verified previously on the same frontend line.
 
-## Frontend rollback rehearsal
+## Complete rollback rehearsal
 
 1. The active `94c6a52` directory was atomically held through FTP rename.
 2. The previous all-contained frontend revision `9aaafe06455ae78cf877bba18c041592d6f11735` was promoted.
@@ -22,19 +22,25 @@
 4. Revision `94c6a52` was restored atomically.
 5. Public `build-info.json` again returned `94c6a52`; `/api/health` remained HTTP 200.
 
-This proves frontend rollback mechanics and containment continuity. It is not the required complete frontend-plus-PHP rollback rehearsal.
+6. The active API front controller was restored to its pre-bridge digest, legacy health remained HTTP 200, and `/api/v1/health` became HTTP 404 as expected.
+7. The Phase 0 bridge was restored, both health routes returned HTTP 200, and the full direct mutation invariant passed again.
+8. During the frontend rollback to `9aaafe0`, the live authoritative API still rejected a contained create with HTTP 503 and the public focused containment test passed. The `94c6a52` frontend was then restored and the full public invariant passed.
 
-## API deployment evidence and blocker
+The pre-bridge rollback copy remains at `/home/archite4/public_html/api/.phase0-index.pre-94c6a52.php`. Its SHA-256 is `ef32cdc12296c0b4c140a3e9b7888a12275ac1c81ebdb2fb4a88bbea9255ff4f`; the restored bridged front controller is `12e615a3f2ef133f95226b5eff1130b95ab2e2a0638d2621ed82370dde1a3838`.
+
+## API deployment evidence
 
 - The live gateway remained healthy at `https://api.architex.co.za/api/health` throughout.
 - `https://api.architex.co.za/api/version` reports active gateway build `7fc3dcb33d7b9737de85acf30aa0412e2d9d7479`.
-- The active gateway build fingerprint is absent from every reachable historical FTP-jail candidate. Two probed historical paths contained older build `c8b52535...`; router experiments there had no public effect and were fully restored, including removal of inert candidate directories.
+- A short-lived token-protected diagnostic positively located the active front controller at `/home/archite4/public_html/api/index.php`. It and all temporary deployment utilities were removed after use.
+- The candidate backend was deployed under `/home/archite4/public_html/api/phase0-backend`; an atomic bridge routes only `/api/v1/*` into it, preserving legacy `/api/*` behavior.
 - A reproducible atomic packager and FTPS deployment script were added in revision `94c6a52`.
 - Repository `cp-coder9/axis` was created from the immutable candidate.
 - `cp-coder9/arx-1` workflow run `32663606214` checked out and verified the candidate package, then failed closed before connecting because all required `test` environment secrets were empty.
 - `gh secret list` confirmed the repository and `test` environment contain no deployment secrets.
-- Consequently `/api/v1/health` and `/api/v1/engineering/calculations` still reach the legacy gateway and return 404. No deployed direct-origin 503 or remote mutation invariant can be claimed.
+- `/api/health` and `/api/v1/health` both return HTTP 200. Direct public create, unknown-create, and review return HTTP 503 `CALCULATOR_CONTAINED`; calculation count remained `1`, audit count remained `21`, and historical evidence remained `unverified`.
+- A five-minute observation collected 10 passing samples in [`phase0-observation.json`](phase0-observation.json). No PHP error-log file was emitted at the configured relative error-log target during deployment and probes.
 
 ## Current exit disposition
 
-`NO-GO`: frontend containment and frontend rollback are proven, but the authoritative PHP gate is not mounted in the active API document root. An operations owner must provide the active API FTPS account/server directory (or populate the four documented GitHub environment secrets), then rerun the prepared workflow. Observation and four independent signatures remain required afterward.
+`NO-GO`: all technically executable Phase 0 deployment, observation, containment, persistence-invariant, and rollback checks pass. Exit still requires independent acceptance and signatures from the engineering-safety, backend, QA, and operations owners; Codex cannot self-approve those roles.

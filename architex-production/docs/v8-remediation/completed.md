@@ -58,17 +58,16 @@ Release screenshots:
 
 Verification: static build passed; access plus all 47 module browser tests passed (`54/54`); public browser console was clean. The deployed frontend calls the confirmed gateway mount at `https://api.architex.co.za/api`.
 
-The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The existing PHP gateway rejects the frontend project hydration request because it requires a Firebase bearer token and does not accept the candidate's local identity headers. The prepared candidate API workflow failed closed because the repository/environment FTPS secrets are unset and the active API build is outside the historical FTP jail. Backend communication/persistence and the P0 containment PHP deployment therefore remain `NO-GO` gates. Detailed evidence: [`evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
+The deployed access forms currently mount the V8 shell client-side and are not a claim of production authentication. The candidate PHP backend is live behind an isolated `/api/v1/*` bridge. Public create, unknown-create, and review probes return HTTP 503 `CALCULATOR_CONTAINED`; calculation and audit counts remain unchanged and historical evidence remains `unverified`. Detailed evidence: [`evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](evidence/PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
 
-Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision and SHA-256 values and remains explicitly `NO-GO` until the deployment, observation, rollback, and signature fields are completed.
+Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision, SHA-256 values, deployment, observation, and rollback evidence, and remains explicitly `NO-GO` until the four independent signatures are completed.
 
 ### Required external Phase 0 exit work
 
-- [ ] `P0-T05` deploy the complete immutable revision to staging.
-- [ ] Deploy the same revision to every user-facing environment through normal change control.
-- [ ] Record revision/build ID, manifest SHA-256, target, operator, and timestamps.
-- [ ] Complete the approved observation window and inspect logs for load/bypass failures.
-- [ ] Rehearse and prove rollback to the all-contained artifact.
+- [x] `P0-T05` deploy the complete immutable revision to the staging/user-facing test environment.
+- [x] Record revision/build ID, manifest SHA-256, target, operator, and timestamps.
+- [x] Complete a five-minute technical observation with ten clean samples; independent acceptance remains pending.
+- [x] Rehearse and prove frontend plus API rollback to all-contained/fail-closed artifacts, then restore the candidate.
 - [ ] Obtain independent engineering-safety, backend, QA, and operations signatures on `P0-E05`.
 
 Phase 0 has not exited until all `P0-T05` evidence is attached and signed. Per the authoritative program plan, Phases 1, 2, and 5 cannot start before that full exit.
@@ -82,6 +81,6 @@ Phase 0 has not exited until all `P0-T05` evidence is attached and signed. Per t
 - `npm install` reported three high-severity dependency audit findings; no breaking `npm audit fix --force` was applied.
 - Vitest/Next development output reports Node `DEP0205` (`module.register()` deprecation).
 - Chrome DevTools reported unlabeled/form-field accessibility issues in the current engineering form; these remain in scope for Phases 4–8.
-- The frontend candidate is now live at `https://test.architex.co.za`; `build-info.json` confirms revision `9aaafe0`.
-- The confirmed gateway health endpoint is `https://api.architex.co.za/api/health` (HTTP 200). The previous `/api/v1/health` path is invalid on the currently deployed PHP gateway.
-- The current gateway still uses its older Firebase bearer-token contract, so the candidate's MariaDB/PHP containment backend has not been deployed or proven live.
+- The frontend candidate is live at `https://test.architex.co.za`; `build-info.json` confirms revision `94c6a52`.
+- Both `https://api.architex.co.za/api/health` and `https://api.architex.co.za/api/v1/health` return HTTP 200; the bridge preserves the older gateway outside `/api/v1/*`.
+- The Phase 0 JSON-backed containment candidate is live only as a safety gate. It is not a claim that later-phase MariaDB persistence or production authentication is complete.

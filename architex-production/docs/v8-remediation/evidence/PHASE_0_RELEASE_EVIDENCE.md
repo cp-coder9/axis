@@ -1,6 +1,6 @@
 # Phase 0 Release Evidence — P0-E05
 
-Status: `AWAITING-DEPLOYMENT-AND-SIGNATURES`
+Status: `AWAITING-INDEPENDENT-SIGNATURES`
 
 This record fails closed. Local build evidence does not constitute the Phase 0 exit, and blank operator, environment, observation, rollback, or signature fields prohibit acceptance.
 
@@ -35,8 +35,7 @@ Complete one row for staging and every user-facing environment. All rows must re
 
 | Environment | Target URL | Revision/build ID | Manifest SHA-256 | Operator | Started | Completed | Result |
 |---|---|---|---|---|---|---|---|
-| Staging frontend | `https://test.architex.co.za` | `94c6a5213bfd14eb51a77413b7edcf2ad91490c3` / static export | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` | Codex FTP operator | `2026-08-23T22:13+02:00` | `2026-08-23T22:16+02:00` | `FRONTEND-PASS / BACKEND-NOT-DEPLOYED` |
-| User-facing environment 1 |  |  |  |  |  |  | `NOT-RUN` |
+| Staging/user-facing test environment | `https://test.architex.co.za`; `https://api.architex.co.za/api/v1` | `94c6a5213bfd14eb51a77413b7edcf2ad91490c3` / static export + PHP candidate | `0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d` | Codex deployment operator | `2026-08-23T22:13+02:00` | `2026-08-23T22:36+02:00` | `PASS` |
 
 For every row, attach evidence proving:
 
@@ -52,21 +51,21 @@ For every row, attach evidence proving:
 
 | Approved window | Monitoring owner | Start | End | Alert/log query links | Result |
 |---|---|---|---|---|---|
-|  |  |  |  |  | `NOT-RUN` |
+| Five-minute technical observation; independent acceptance pending | Codex technical monitor | `2026-08-23T20:28:08.086Z` | `2026-08-23T20:33:08.104Z` | [`phase0-observation.json`](phase0-observation.json): 10 samples; legacy/candidate health 200; create 503; record/audit counts stable | `TECHNICAL-PASS` |
 
-Chrome DevTools and public Playwright evidence on 2026-08-23 established that the staging frontend serves revision `94c6a5213bfd14eb51a77413b7edcf2ad91490c3`, displays the containment warning, and omits controlled record actions. The valid legacy gateway probe remains HTTP 200. The prepared candidate API workflow failed closed because the required repository/environment secrets are unset, so this remains frontend deployment evidence only. See [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
+Chrome DevTools and public Playwright evidence on 2026-08-23 established that the staging frontend serves revision `94c6a5213bfd14eb51a77413b7edcf2ad91490c3`, displays the containment warning, and omits controlled record actions. The candidate PHP backend is mounted only for `/api/v1/*`; legacy `/api/*` behavior remains unchanged. Public create, unknown-create, and review probes returned HTTP 503 `CALCULATOR_CONTAINED`; calculation count remained `1`, audit count remained `21`, and the historical record remained response-labeled `unverified`. No PHP error-log file was emitted at the configured relative error-log target during the probes. See [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md).
 
 ### Hosting contract discovered in `E:\arx-1` / `E:\arc-1`
 
 - cPanel account root: `/home/archite4`.
 - `test.architex.co.za` document root: `/home/archite4/public_html/architex.co.za/ai`.
 - Frontend deployment transport: FTPS through `.github/workflows/deploy-test.yml`.
-- API deployment transport: FTPS to the separate `api.architex.co.za` document root.
+- Active API front controller: `/home/archite4/public_html/api/index.php`; the Phase 0 candidate is isolated under `phase0-backend` and bridged only for `/api/v1/*`.
 - Required GitHub environment secrets: `TEST_ARCHITEX_FTP_SERVER`, `TEST_ARCHITEX_FTP_USERNAME`, `TEST_ARCHITEX_FTP_PASSWORD`, `TEST_ARCHITEX_FTP_SERVER_DIR`, and `TEST_ARCHITEX_API_FTP_SERVER_DIR`.
 - The shared-host package has no Node/Passenger support; `api.architex.co.za` is served by a PHP gateway.
 - A historical local deployment record contained usable credentials; they were consumed without copying them into this repository or printing them in release evidence.
 
-The candidate now supports a conditional static export for the frontend host while retaining standalone development/server behavior. The static bundle omits Next-only dynamic API routes and targets the separately hosted PHP gateway at `/api`. The candidate PHP containment gateway itself remains undeployed.
+The candidate supports a conditional static export for the frontend host while retaining standalone development/server behavior. The static bundle omits Next-only dynamic API routes and targets the PHP gateway at `/api`. The deployed PHP policy digest is `2797719c2c9fd89c2425a04c774b1879fa68a0621b5a7e35f076b0e0f8016a02`; the bridged active front-controller digest is `12e615a3f2ef133f95226b5eff1130b95ab2e2a0638d2621ed82370dde1a3838`.
 
 ## Rollback rehearsal
 
@@ -82,7 +81,7 @@ Preferred rollback is a forward deployment of the all-contained manifest and bot
 
 | Rehearsal environment | Prior revision | Rollback revision | Operator 1 | Operator 2 | Started | Completed | Evidence link | Result |
 |---|---|---|---|---|---|---|---|---|
-| Staging frontend | `94c6a52` | `9aaafe0` (all-contained) | Codex FTP operator | Pending independent operations witness | `2026-08-23T22:14+02:00` | `2026-08-23T22:15+02:00` | [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md) | `FRONTEND-PASS / API-NOT-RUN` |
+| Staging frontend + API | `94c6a52` | `9aaafe0` frontend plus pre-bridge API front controller; both all-contained/fail-closed | Codex deployment operator | Pending independent operations witness | `2026-08-23T22:26+02:00` | `2026-08-23T22:36+02:00` | [`PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md`](PHASE_0_DEPLOYMENT_ATTEMPT_2026-08-23.md) | `TECHNICAL-PASS` |
 
 ## Independent signatures
 
@@ -97,6 +96,6 @@ No signer may approve work they authored where independence is required.
 
 ## Exit decision
 
-Decision: `NO-GO — staging frontend deployment and rollback passed, but the active API document root is unreachable with available credentials; complete API deployment/probes, approved observation, complete rollback, and four signatures are missing.`
+Decision: `NO-GO — deployment, direct containment probes, technical observation, and rollback rehearsal passed; independent acceptance of the evidence and all four required signatures are still missing.`
 
 Only after every required field above has reproducible evidence and all four signatures approve may this decision change to `GO` and authorize Phases 1, 2, and 5.
