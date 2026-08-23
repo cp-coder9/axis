@@ -1,0 +1,58 @@
+@layer base {
+  :root {
+    --ax-rail-expanded: 264px;
+    --ax-rail-compact: 74px;
+    --ax-navigator-expanded: 306px;
+    --ax-navigator-compact: 78px;
+    --ax-inspector: 344px;
+    --ax-topbar: 64px;
+    --ax-control-comfortable: 40px;
+    --ax-control-compact: 32px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { background: var(--ax-canvas); color: var(--ax-text); font-family: var(--ax-font-body); scroll-behavior: smooth; }
+
+  body { min-height: 100vh; margin: 0; background: var(--ax-canvas); color: var(--ax-text); font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'; }
+
+  button, input, select, textarea { font: inherit; }
+  button:disabled, [aria-disabled='true'] { cursor: not-allowed; opacity: 0.62; }
+
+  ::selection { color: var(--ax-text); background: var(--ax-selection); }
+
+  :focus-visible { outline: 2px solid var(--ax-focus); outline-offset: 2px; box-shadow: 0 0 0 4px var(--ax-surface-1), 0 0 0 6px var(--ax-focus); }
+
+  [data-density="comfortable"] { --ax-control-height: var(--ax-control-comfortable); --ax-surface-padding: var(--ax-space-5); --ax-row-padding: var(--ax-space-3); }
+  [data-density="compact"] { --ax-control-height: var(--ax-control-compact); --ax-surface-padding: var(--ax-space-3); --ax-row-padding: var(--ax-space-2); }
+
+  .ax-icon { display: block; overflow: visible; }
+  .ax-icon .outline { fill: var(--ax-surface-1); stroke: var(--ax-text); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ax-icon .line { fill: none; stroke: var(--ax-text); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ax-icon .fold { fill: var(--ax-datum); stroke: var(--ax-action-primary); stroke-width: 0.8; transform-origin: center; transition: opacity var(--ax-motion-interaction) var(--ax-ease-exit), transform var(--ax-motion-interaction) var(--ax-ease-exit); }
+  .os-rail-btn.active .ax-icon .outline { fill: var(--ax-text); stroke: var(--ax-text); }
+  .os-rail-btn.active .ax-icon .line { stroke: var(--ax-surface-1); }
+  .os-rail-btn.active .ax-icon .fold { fill: var(--ax-datum); stroke: var(--ax-text); }
+
+  .datum-grid-pattern { background-image: radial-gradient(rgba(16, 32, 51, 0.08) 1px, transparent 1px); background-size: 24px 24px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(16, 32, 51, 0.15); border-radius: var(--ax-radius-pill); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(16, 32, 51, 0.3); }
+
+  @media (min-width: 1280px) { :root { --ax-rail: var(--ax-rail-compact); --ax-navigator: var(--ax-navigator-expanded); } }
+  @media (min-width: 768px) and (max-width: 1279px) { :root { --ax-rail: 64px; --ax-navigator: var(--ax-navigator-compact); } }
+  @media (max-width: 767px) { :root { --ax-rail: 0px; --ax-navigator: 0px; --ax-inspector: 0px; --ax-content-padding: var(--ax-space-3); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 1ms !important; transform: none !important; }
+  }
+
+  @media (forced-colors: active) {
+    :focus-visible { outline: 2px solid Highlight; outline-offset: 2px; box-shadow: none; }
+    .os-rail-btn.active { border: 1px solid Highlight; }
+    .ax-icon .outline, .ax-icon .line, .ax-icon .fold { stroke: CanvasText; forced-color-adjust: auto; }
+  }
+}
