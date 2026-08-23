@@ -3,6 +3,7 @@ import { dimensionForUnit } from './units';
 import { STRUCTURAL_DEFINITIONS } from './structural';
 import { CIVIL_DEFINITIONS } from './civil';
 import { MECHANICAL_DEFINITIONS } from './mechanical';
+import { FIRE_DEFINITIONS } from './fire';
 import {
   CALCULATOR_IDS,
   type CalculatorId,
@@ -137,6 +138,7 @@ export const CALC_REGISTRY: Readonly<Record<CalculatorId, CalculatorDefinition>>
     STRUCTURAL_DEFINITIONS[id as keyof typeof STRUCTURAL_DEFINITIONS]
       ?? CIVIL_DEFINITIONS[id as keyof typeof CIVIL_DEFINITIONS]
       ?? MECHANICAL_DEFINITIONS[id as keyof typeof MECHANICAL_DEFINITIONS]
+      ?? FIRE_DEFINITIONS[id as keyof typeof FIRE_DEFINITIONS]
       ?? definitionFromLegacy(id),
   ])) as Record<CalculatorId, CalculatorDefinition>,
 );
