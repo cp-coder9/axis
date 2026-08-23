@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 $config = require dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/calculation_validation.php';
+require_once dirname(__DIR__) . '/lib/calculation_repository.php';
 $calculatorReleasePolicy = require dirname(__DIR__) . '/generated/calculator_release.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -25,17 +27,18 @@ const ALLOWED_ROLES = [
 const PERMISSIONS = [
     'client' => ['passport.view', 'documents.view', 'actions.view', 'approvals.view'],
     'architect' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view'],
-    'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view'],
-    'engineer' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view'],
+    'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request'],
+    'engineer' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
     'quantity_surveyor' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view'],
     'town_planner' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'audit.view'],
-    'energy_professional' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view'],
-    'fire_engineer' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view'],
-    'cpm' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view'],
-    'contractor' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view'],
+    'energy_professional' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
+    'fire_engineer' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
+    'cpm' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request'],
+    'contractor' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view', 'engineering.view', 'engineering.save'],
     'firm_admin' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view'],
     'developer' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'approvals.view', 'audit.view'],
     'admin' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'users.view', 'users.manage'],
+    'site_manager' => ['engineering.view', 'engineering.save', 'engineering.review.request'],
     'platform_admin' => ['*']
 ];
 
@@ -208,6 +211,7 @@ function permissions_for_role(string $role): array {
         'wingman' => 'ai',
         'meetings' => 'meetings',
         'admin_review' => 'audit',
+        'engineering_calc' => 'engineering',
     ];
 
     $health = db_health();
@@ -1305,92 +1309,35 @@ function reject_contained_calculator(string $calculatorId): void {
     }
 }
 
+function engineering_repository(): MariaDbCalculationRepository { static $repository = null; return $repository ??= new MariaDbCalculationRepository(db()); }
+function engineering_error(Throwable $error): never { if ($error instanceof CalculationRepositoryError) json_response(['error'=>$error->getMessage()], $error->httpStatus); json_response(['error'=>'Engineering calculation store unavailable'], 503); }
+function idempotency_key(): string { return trim((string)($_SERVER['HTTP_IDEMPOTENCY_KEY'] ?? '')); }
+function if_match_version(): int { $value = trim((string)($_SERVER['HTTP_IF_MATCH'] ?? '')); if (!preg_match('/^"?(\d+)"?$/', $value, $match)) json_response(['error'=>'If-Match lock version is required'], 428); return (int)$match[1]; }
+
 if ($method === 'GET' && preg_match('#^/(api/)?v1/engineering/calculations$#', $path)) {
-    $projectId = query_param('project');
-    require_collection_scope($projectId);
-    $store = read_json_file('foundation.json');
-    $records = $store['calculations'] ?? [];
-    if ($projectId) $records = by_project($records, $projectId);
-    $records = array_map('annotate_unverified_calculation', $records);
-    json_response(['calculations'=>$records,'count'=>count($records)]);
+    require_permission('engineering.view'); $projectId = query_param('project_id'); if (query_param('project') !== null) json_response(['error'=>'Use project_id'], 400); if ($projectId !== null) require_project_access($projectId);
+    try { $records = engineering_repository()->list(current_identity(), $projectId, current_role() === 'platform_admin'); json_response(['calculations'=>$records,'count'=>count($records)]); } catch (Throwable $error) { engineering_error($error); }
 }
 
 if ($method === 'POST' && preg_match('#^/(api/)?v1/engineering/calculations$#', $path)) {
-    $body = json_body();
-    if (empty($body['calc_type']) || !is_string($body['calc_type'])) {
-        json_response(['error'=>'Missing or invalid calc_type'], 422);
-    }
-    // engineering-create-containment-gate
-    reject_contained_calculator($body['calc_type']);
-    $projectId = isset($body['project_id']) && is_string($body['project_id']) ? $body['project_id'] : null;
-    if ($projectId !== null) {
-        require_project($projectId);
-        require_project_access($projectId);
-    }
-    $inputs = is_array($body['inputs'] ?? null) ? $body['inputs'] : [];
-    $results = is_array($body['results'] ?? null) ? $body['results'] : [];
-    $status = (string)($body['status'] ?? 'saved');
-    if (!in_array($status, CALC_STATUSES, true)) json_response(['error'=>'Invalid calculation status'], 422);
-    $calculation = mutate_json_file('foundation.json', function (array &$store) use ($body, $projectId, $inputs, $results, $status) {
-        $calculation = [
-            'id' => 'calc-' . bin2hex(random_bytes(5)),
-            'project_id' => $projectId,
-            'calc_type' => $body['calc_type'],
-            'inputs' => $inputs,
-            'results' => $results,
-            'derivation' => is_string($body['derivation'] ?? null) ? $body['derivation'] : null,
-            'status' => $status,
-            'author_id' => current_user(),
-            'linked_drawing_ref' => isset($body['linked_drawing_ref']) && is_string($body['linked_drawing_ref']) ? $body['linked_drawing_ref'] : null,
-            'linked_meeting_id' => isset($body['linked_meeting_id']) && is_string($body['linked_meeting_id']) ? $body['linked_meeting_id'] : null,
-            'linked_rfi_id' => isset($body['linked_rfi_id']) && is_string($body['linked_rfi_id']) ? $body['linked_rfi_id'] : null,
-            'created_at' => date(DATE_ATOM),
-            'updated_at' => date(DATE_ATOM),
-        ];
-        $store['calculations'][] = $calculation;
-        audit($store, 'calculation.saved', 'calculation', $calculation['id'], ['calc_type'=>$calculation['calc_type'],'status'=>$status,'project_id'=>$projectId]);
-        return $calculation;
-    });
-    json_response(['calculation'=>$calculation,'message'=>'Calculation saved as a controlled working record.'], 201);
+    require_permission('engineering.save'); $body=json_body(); $errors=validate_engineering_payload($body); if ($errors) json_response(['error'=>'Invalid calculation payload','field_errors'=>$errors],422); if ($body['project_id'] !== null) require_project_access($body['project_id']); reject_contained_calculator($body['calc_type']);
+    try { $result=engineering_repository()->create(current_identity(),$body,idempotency_key()); header('Location: /api/v1/engineering/calculations/'.$result['record']['id']); header('ETag: "'.$result['record']['lock_version'].'"'); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['calculation'=>$result['record'],'idempotent'=>$result['idempotent']],$result['idempotent']?200:201); } catch (Throwable $error) { engineering_error($error); }
+}
+
+if ($method === 'GET' && preg_match('#^/(api/)?v1/engineering/calculations/([^/]+)/derivation$#', $path, $m)) {
+    require_permission('engineering.view'); try { $record=engineering_repository()->derivation(current_identity(),$m[2]); if ($record===null) json_response(['error'=>'Calculation not found'],404); header('ETag: "'.$record['lock_version'].'"'); json_response($record); } catch (Throwable $error) { engineering_error($error); }
 }
 
 if ($method === 'GET' && preg_match('#^/(api/)?v1/engineering/calculations/([^/]+)$#', $path, $m)) {
-    $store = read_json_file('foundation.json');
-    foreach ($store['calculations'] ?? [] as $calculation) {
-        if ($calculation['id'] !== $m[2]) continue;
-        if (!empty($calculation['project_id'])) require_project_access((string)$calculation['project_id']);
-        json_response(['calculation'=>annotate_unverified_calculation($calculation)]);
-    }
-    json_response(['error'=>'Calculation not found'], 404);
+    require_permission('engineering.view'); try { $record=engineering_repository()->find(current_identity(),$m[2]); if ($record===null) json_response(['error'=>'Calculation not found'],404); header('ETag: "'.$record['lock_version'].'"'); json_response(['calculation'=>$record]); } catch (Throwable $error) { engineering_error($error); }
+}
+
+if ($method === 'PATCH' && preg_match('#^/(api/)?v1/engineering/calculations/([^/]+)$#', $path, $m)) {
+    require_permission('engineering.save'); $body=json_body(); $errors=validate_engineering_payload($body); if ($errors) json_response(['error'=>'Invalid calculation payload','field_errors'=>$errors],422); try { $record=engineering_repository()->updateSaved(current_identity(),$m[2],$body,if_match_version()); header('ETag: "'.$record['lock_version'].'"'); json_response(['calculation'=>$record]); } catch (Throwable $error) { engineering_error($error); }
 }
 
 if ($method === 'POST' && preg_match('#^/(api/)?v1/engineering/calculations/([^/]+)/review$#', $path, $m)) {
-    $store = read_json_file('foundation.json');
-    $reviewCandidate = null;
-    foreach ($store['calculations'] ?? [] as $calculation) {
-        if ($calculation['id'] !== $m[2]) continue;
-        if (!empty($calculation['project_id'])) require_project_access((string)$calculation['project_id']);
-        $reviewCandidate = $calculation;
-        break;
-    }
-    if ($reviewCandidate === null) json_response(['error'=>'Calculation not found'], 404);
-    // engineering-review-containment-gate
-    reject_contained_calculator((string)($reviewCandidate['calc_type'] ?? ''));
-    $updated = mutate_json_file('foundation.json', function (array &$store) use ($m) {
-        foreach ($store['calculations'] as &$calculation) {
-            if ($calculation['id'] !== $m[2]) continue;
-            if (!empty($calculation['project_id'])) require_project_access((string)$calculation['project_id']);
-            $calculation['status'] = 'under_review';
-            $calculation['review_requested_by'] = current_user();
-            $calculation['review_requested_at'] = date(DATE_ATOM);
-            $calculation['updated_at'] = date(DATE_ATOM);
-            audit($store, 'calculation.review_requested', 'calculation', $m[2], ['calc_type'=>$calculation['calc_type']]);
-            return $calculation;
-        }
-        unset($calculation);
-        json_response(['error'=>'Calculation not found'], 404);
-    });
-    json_response(['calculation'=>$updated,'message'=>'Calculation record sent to professional review.']);
+    $body=json_body(); $action=(string)($body['action'] ?? 'submit'); require_permission($action === 'submit' ? 'engineering.review.request' : 'engineering.review.decide'); try { $existing=engineering_repository()->find(current_identity(),$m[2]); if ($existing===null) json_response(['error'=>'Calculation not found'],404); reject_contained_calculator($existing['calc_type']); $result=engineering_repository()->transitionReview(current_identity(),$m[2],$action,is_string($body['note']??null)?$body['note']:null,if_match_version(),idempotency_key()); header('ETag: "'.$result['record']['lock_version'].'"'); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['calculation'=>$result['record'],'idempotent'=>$result['idempotent']]); } catch (Throwable $error) { engineering_error($error); }
 }
 
 /* ---------- User management (admin & platform_admin) ---------- */

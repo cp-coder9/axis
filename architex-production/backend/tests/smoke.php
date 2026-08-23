@@ -66,13 +66,26 @@ if (!is_array($releasePolicy) || count($releasePolicy) !== 17) {
     exit(1);
 }
 
-$createMarker = strpos($apiSource, 'engineering-create-containment-gate');
-$reviewMarker = strpos($apiSource, 'engineering-review-containment-gate');
-$createMutation = $createMarker === false ? false : strpos($apiSource, "mutate_json_file('foundation.json'", $createMarker);
-$reviewMutation = $reviewMarker === false ? false : strpos($apiSource, "mutate_json_file('foundation.json'", $reviewMarker);
-if ($createMarker === false || $reviewMarker === false || $createMutation === false || $reviewMutation === false
-    || $createMarker >= $createMutation || $reviewMarker >= $reviewMutation) {
-    fwrite(STDERR, "Engineering containment gates must precede create and review mutations\n");
+$repository = $root . '/lib/calculation_repository.php';
+$validation = $root . '/lib/calculation_validation.php';
+$hardeningMigration = $root . '/database/migrations/010_engineering_calculation_hardening.sql';
+foreach ([$repository, $validation, $hardeningMigration] as $file) {
+    if (!is_file($file)) {
+        fwrite(STDERR, "Phase 3 engineering persistence artifact missing: {$file}\n");
+        exit(1);
+    }
+}
+$engineeringStart = strpos($apiSource, "if (\$method === 'GET' && preg_match('#^/(api/)?v1/engineering/calculations\$#'");
+$engineeringEnd = strpos($apiSource, '/* ---------- User management', $engineeringStart);
+$engineeringRoutes = $engineeringStart === false || $engineeringEnd === false ? '' : substr($apiSource, $engineeringStart, $engineeringEnd - $engineeringStart);
+foreach (['engineering_repository()', 'validate_engineering_payload', 'project_id', 'if_match_version()', '/derivation'] as $required) {
+    if (!str_contains($engineeringRoutes, $required)) {
+        fwrite(STDERR, "Engineering routes missing Phase 3 repository contract: {$required}\n");
+        exit(1);
+    }
+}
+if (str_contains($engineeringRoutes, "read_json_file('foundation.json'") || str_contains($engineeringRoutes, "mutate_json_file('foundation.json'")) {
+    fwrite(STDERR, "Engineering routes must not read or mutate foundation.json\n");
     exit(1);
 }
 
