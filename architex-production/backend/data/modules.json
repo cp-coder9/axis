@@ -1,0 +1,1923 @@
+[
+  {
+    "id": "meetings",
+    "name": "Architex Meetings",
+    "icon": "meetings",
+    "tone": "coral",
+    "group": "Communication & Collaboration",
+    "stage": "All stages",
+    "summary": "Governed project and practice meetings with scheduling, consent, live rooms, cited AI-assisted minutes, human review, revisioned issue, and idempotent project write-back.",
+    "tabs": [
+      {
+        "label": "My Day",
+        "kind": "native",
+        "icon": "meeting_day"
+      },
+      {
+        "label": "Schedule",
+        "kind": "native",
+        "icon": "calendar"
+      },
+      {
+        "label": "Pre-join",
+        "kind": "native",
+        "icon": "meeting_invite"
+      },
+      {
+        "label": "Live Room",
+        "kind": "native",
+        "icon": "meetings"
+      },
+      {
+        "label": "Minutes Review",
+        "kind": "native",
+        "icon": "meeting_decision"
+      },
+      {
+        "label": "Issued Minutes",
+        "kind": "native",
+        "icon": "document"
+      }
+    ],
+    "source": "Architex Meetings Native Engine",
+    "status": "live",
+    "governance": {
+      "human_publish_required": true,
+      "consent_required": true,
+      "audit_required": true
+    },
+    "implementation_status": "native"
+  },
+  {
+    "id": "practice",
+    "name": "Practice Management — Project Command Centre",
+    "icon": "practice_management",
+    "tone": "cobalt",
+    "group": "Practice & Project Management",
+    "stage": "All stages",
+    "summary": "Operational practice and project command centre covering progress, programme, actions, resources, cost, risk, AI advice and milestones.",
+    "tabs": [
+      {
+        "label": "Dashboard",
+        "kind": "top",
+        "icon": "dashboard"
+      },
+      {
+        "label": "Overall Progress",
+        "kind": "scroll",
+        "text": "Overall Progress",
+        "icon": "progress"
+      },
+      {
+        "label": "Budget & Cost",
+        "kind": "scroll",
+        "text": "Budget Spent",
+        "icon": "budget"
+      },
+      {
+        "label": "Open Actions",
+        "kind": "scroll",
+        "text": "Open Actions",
+        "icon": "action"
+      },
+      {
+        "label": "RFIs & Instructions",
+        "kind": "scroll",
+        "text": "Active RFIs",
+        "icon": "rfi"
+      },
+      {
+        "label": "Stage Programme",
+        "kind": "scroll",
+        "text": "BUILD",
+        "icon": "programme"
+      },
+      {
+        "label": "AI Advisor",
+        "kind": "scroll",
+        "text": "AI Advisor",
+        "icon": "advisor"
+      },
+      {
+        "label": "Upcoming Milestones",
+        "kind": "scroll",
+        "text": "Upcoming Milestones",
+        "icon": "milestone"
+      }
+    ],
+    "source": "PROJECT_COMMAND_CENTRE_SAMPLE(1).html",
+    "status": "live",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "wingman",
+    "name": "Wingman AI Workspace",
+    "icon": "wingman",
+    "tone": "lavender",
+    "group": "Intelligence & Improvement",
+    "stage": "All stages",
+    "summary": "Project-aware AI conversations, provenance, drafting and structured outputs.",
+    "tabs": [
+      {
+        "label": "Conversations",
+        "kind": "top"
+      },
+      {
+        "label": "Import BYOAI",
+        "kind": "scroll",
+        "text": "Import External AI Content"
+      },
+      {
+        "label": "Provenance Audit",
+        "kind": "scroll",
+        "text": "Provenance"
+      },
+      {
+        "label": "Draft RFI",
+        "kind": "scroll",
+        "text": "RFI Draft"
+      },
+      {
+        "label": "Empty State",
+        "kind": "scroll",
+        "text": "No Conversations Yet"
+      },
+      {
+        "label": "Wingman Identity",
+        "kind": "scroll",
+        "text": "Wingman Identity"
+      }
+    ],
+    "status": "live",
+    "source": "AI_COPILOT_WORKSPACE_WINGMAN_SAMPLE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "engineering_calc",
+    "name": "Engineer's Calculation Hub",
+    "icon": "engineering_hub",
+    "tone": "cobalt",
+    "group": "Engineering & Technical",
+    "stage": "Design / Comply / Build",
+    "summary": "Multi-discipline engineering calculation workspace covering structural, civil, mechanical/HVAC, fire, electrical and wet-services checks with derivations and SANS-referenced guidance.",
+    "tabs": [
+      { "key": "steel", "label": "Steel Design", "group": "Structural", "icon": "eng_steel", "kind": "call", "fn": "showCalc", "arg": "steel-beam" },
+      { "key": "concrete", "label": "Concrete Design", "group": "Structural", "icon": "eng_concrete", "kind": "call", "fn": "showCalc", "arg": "concrete-beam" },
+      { "key": "timber", "label": "Timber Design", "group": "Structural", "icon": "eng_timber", "kind": "call", "fn": "showCalc", "arg": "timber-beam" },
+      { "key": "geotechnical", "label": "Geotechnical", "group": "Structural", "icon": "eng_geo", "kind": "call", "fn": "showCalc", "arg": "geo-bearing" },
+      { "key": "wind", "label": "Loading & Wind", "group": "Civil", "icon": "eng_wind", "kind": "call", "fn": "showCalc", "arg": "wind-load" },
+      { "key": "stormwater", "label": "Stormwater & Drainage", "group": "Civil", "icon": "eng_storm", "kind": "call", "fn": "showCalc", "arg": "stormwater-rational" },
+      { "key": "duct", "label": "Duct & Pipe Sizing", "group": "Mechanical / HVAC", "icon": "eng_duct", "kind": "call", "fn": "showCalc", "arg": "duct-sizing" },
+      { "key": "heat", "label": "Heating & Cooling Loads", "group": "Mechanical / HVAC", "icon": "eng_heat", "kind": "call", "fn": "showCalc", "arg": "heat-gain" },
+      { "key": "escape", "label": "Escape & Travel Distance", "group": "Fire Engineering", "icon": "eng_escape", "kind": "call", "fn": "showCalc", "arg": "travel-distance" },
+      { "key": "fire_resistance", "label": "Fire Resistance Rating", "group": "Fire Engineering", "icon": "eng_fire", "kind": "call", "fn": "showCalc", "arg": "fire-resistance" },
+      { "key": "hydrant", "label": "Fire Water / Hydrants", "group": "Fire Engineering", "icon": "eng_hydrant", "kind": "call", "fn": "showCalc", "arg": "fire-water" },
+      { "key": "cable", "label": "Cable Sizing & Voltage Drop", "group": "Electrical", "icon": "eng_cable", "kind": "call", "fn": "showCalc", "arg": "cable-sizing" },
+      { "key": "db", "label": "Max Demand & DB Sizing", "group": "Electrical", "icon": "eng_db", "kind": "call", "fn": "showCalc", "arg": "max-demand" },
+      { "key": "water", "label": "Water Pipe Sizing", "group": "Wet Services", "icon": "eng_water", "kind": "call", "fn": "showCalc", "arg": "cold-water" },
+      { "key": "drainage", "label": "Drainage & Fixture Units", "group": "Wet Services", "icon": "eng_drain", "kind": "call", "fn": "showCalc", "arg": "drainage-fu" },
+      { "key": "hotwater", "label": "Hot Water System Sizing", "group": "Wet Services", "icon": "eng_hotwater", "kind": "call", "fn": "showCalc", "arg": "geyser-sizing" },
+      { "key": "converter", "label": "Unit Converter & Reference", "group": "Utilities", "icon": "eng_units", "kind": "call", "fn": "showCalc", "arg": "unit-converter" }
+    ],
+    "status": "live",
+    "source": "Engineers' Calculation Hub",
+    "implementation_status": "native"
+  },
+  {
+    "id": "planning",
+    "name": "Town Planning Tracker",
+    "icon": "planning",
+    "tone": "cobalt",
+    "group": "Planning & Approvals",
+    "stage": "Brief / Comply",
+    "summary": "Applications, deadlines, public participation, conditions, hearings, reports and fees.",
+    "tabs": [
+      {
+        "label": "Dashboard",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "dashboard"
+      },
+      {
+        "label": "Applications",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "applications"
+      },
+      {
+        "label": "Deadlines & Timelines",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "deadlines"
+      },
+      {
+        "label": "Public Participation",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "participation"
+      },
+      {
+        "label": "Conditions Register",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "conditions"
+      },
+      {
+        "label": "Hearings & Appeals",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "hearings"
+      },
+      {
+        "label": "Municipality Profiles",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "municipalities"
+      },
+      {
+        "label": "Reports & Analytics",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "reports"
+      },
+      {
+        "label": "Payments & Fees",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "payments"
+      },
+      {
+        "label": "Messages",
+        "kind": "call",
+        "fn": "navigateTo",
+        "arg": "messages"
+      }
+    ],
+    "status": "live",
+    "source": "TOWN_PLANNING_PROTOTYPE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "municipal",
+    "name": "Municipal Approval Readiness",
+    "icon": "municipal",
+    "tone": "coral",
+    "group": "Planning & Approvals",
+    "stage": "Comply",
+    "summary": "Submission readiness, land-use checks, departmental circulation, pack validation and outcomes.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "overview"
+      },
+      {
+        "label": "Land Use",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "landuse"
+      },
+      {
+        "label": "Circulation",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "simulation"
+      },
+      {
+        "label": "Submission Pack",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "pack"
+      },
+      {
+        "label": "Certificate",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "certificate"
+      },
+      {
+        "label": "Outcomes",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "outcomes"
+      }
+    ],
+    "status": "live",
+    "source": "MUNICIPAL_APPROVAL_WORKSPACE_SAMPLE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "xa",
+    "name": "SANS 10400-XA Energy",
+    "icon": "xa",
+    "tone": "coral",
+    "group": "Compliance & Environment",
+    "stage": "Design / Comply",
+    "summary": "Fenestration, walls, roof, floors, hot water, lighting, air-conditioning and results.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "overview"
+      },
+      {
+        "label": "Basics",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "basics"
+      },
+      {
+        "label": "Shading",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "shading"
+      },
+      {
+        "label": "Fenestration",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "fenestration"
+      },
+      {
+        "label": "Walls",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "walls"
+      },
+      {
+        "label": "Roof",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "roof"
+      },
+      {
+        "label": "Floors",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "floors"
+      },
+      {
+        "label": "Hot Water",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "hotwater"
+      },
+      {
+        "label": "Lighting",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "lighting"
+      },
+      {
+        "label": "Air Con",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "aircon"
+      },
+      {
+        "label": "Results",
+        "kind": "call",
+        "fn": "switchTab",
+        "arg": "results"
+      }
+    ],
+    "status": "live",
+    "source": "XA_COMPLIANCE_TOOL.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "forms",
+    "name": "Integrated Form System",
+    "icon": "forms",
+    "tone": "core",
+    "group": "Design & Documentation",
+    "stage": "All stages",
+    "summary": "Template library, project auto-fill, editable forms, exports, signatures and audit trail.",
+    "tabs": [
+      {
+        "label": "Template Library",
+        "kind": "call",
+        "fn": "renderLibrary"
+      },
+      {
+        "label": "Form Editor",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "editor"
+      },
+      {
+        "label": "My Drafts",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "drafts",
+        "badge": "3"
+      },
+      {
+        "label": "Export Queue",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "export"
+      },
+      {
+        "label": "Audit Trail",
+        "kind": "call",
+        "fn": "showTab",
+        "arg": "audit"
+      }
+    ],
+    "status": "live",
+    "source": "Integrated Form System sample",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "specforge",
+    "name": "SpecForge",
+    "icon": "specification",
+    "tone": "core",
+    "group": "Design & Documentation",
+    "stage": "Design / Procure",
+    "summary": "Pictorial specifications, sections, products, approvals, budget, BoM/BoQ, procurement and issue.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "overview"
+      },
+      {
+        "label": "Pictorial Board",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "pictorial"
+      },
+      {
+        "label": "Sections",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "sections"
+      },
+      {
+        "label": "Products",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "products"
+      },
+      {
+        "label": "Document Preview",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "docpreview"
+      },
+      {
+        "label": "Approvals",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "approvals"
+      },
+      {
+        "label": "Budget & Risk",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "budget"
+      },
+      {
+        "label": "BoM / BoQ",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "bomboq"
+      },
+      {
+        "label": "Planning",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "planning"
+      },
+      {
+        "label": "Procurement",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "procurement"
+      },
+      {
+        "label": "Issue & Distribute",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "issue"
+      },
+      {
+        "label": "Drawing Intelligence",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "drawings"
+      },
+      {
+        "label": "Closeout",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "closeout"
+      },
+      {
+        "label": "Integration",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "integration"
+      }
+    ],
+    "status": "live",
+    "source": "specforge-v2-review.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "bom",
+    "name": "BoM / BoQ & Tender Builder",
+    "icon": "bom",
+    "tone": "amber",
+    "group": "Commercial & Procurement",
+    "stage": "Design / Procure / Build",
+    "summary": "Drawing take-off, material lines, QS review, procurement, programme and document export.",
+    "tabs": [
+      {
+        "label": "Drawing Takeoff",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "takeoff"
+      },
+      {
+        "label": "BoM Lines",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "bomlines",
+        "badge": "47"
+      },
+      {
+        "label": "Flagged",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "flagged",
+        "badge": "4"
+      },
+      {
+        "label": "Procurement",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "procurement"
+      },
+      {
+        "label": "Programme Link",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "programme"
+      },
+      {
+        "label": "SpecForge Link",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "specforge"
+      },
+      {
+        "label": "QS Review",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "qs-review"
+      },
+      {
+        "label": "Tender Generation",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "tender"
+      },
+      {
+        "label": "Document Export",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "export"
+      },
+      {
+        "label": "AI Agents",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "agents"
+      },
+      {
+        "label": "Audit Trail",
+        "kind": "call",
+        "fn": "switchView",
+        "arg": "audit"
+      }
+    ],
+    "status": "live",
+    "source": "BOM_TOOL_SAMPLE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "itp",
+    "name": "Inspection Test Plans",
+    "icon": "itp",
+    "tone": "cobalt",
+    "group": "Site Execution & Quality",
+    "stage": "Build",
+    "summary": "Inspection items, hold points, material testing, lab results, NCR linkage and sign-off.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "top"
+      },
+      {
+        "label": "Inspection Items",
+        "kind": "scroll",
+        "text": "Inspection Test Plans"
+      },
+      {
+        "label": "Material Testing",
+        "kind": "scroll",
+        "text": "Material Testing"
+      },
+      {
+        "label": "Hold Points",
+        "kind": "scroll",
+        "text": "Hold Points Requiring Attention"
+      },
+      {
+        "label": "Lab Results",
+        "kind": "scroll",
+        "text": "Recent Lab Results"
+      },
+      {
+        "label": "NCR Linkage",
+        "kind": "scroll",
+        "text": "Linked Non-Conformance Reports"
+      },
+      {
+        "label": "Inspector Sign-Off",
+        "kind": "scroll",
+        "text": "Inspector Sign-Off"
+      }
+    ],
+    "status": "live",
+    "source": "ITP_WORKSPACE_SAMPLE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "safety",
+    "name": "Health & Safety",
+    "icon": "safety",
+    "tone": "coral",
+    "group": "Site Execution & Quality",
+    "stage": "Build",
+    "summary": "Safety file, permits, HIRA, incidents, inductions, plans and fall protection evidence.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "hs",
+        "arg": "tab-overview"
+      },
+      {
+        "label": "Safety File",
+        "kind": "hs",
+        "arg": "tab-safety-file"
+      },
+      {
+        "label": "Permits",
+        "kind": "hs",
+        "arg": "tab-permits"
+      },
+      {
+        "label": "HIRA Register",
+        "kind": "hs",
+        "arg": "tab-hira"
+      },
+      {
+        "label": "Incidents",
+        "kind": "hs",
+        "arg": "tab-incidents"
+      },
+      {
+        "label": "Inductions",
+        "kind": "hs",
+        "arg": "tab-inductions"
+      },
+      {
+        "label": "H&S Plans",
+        "kind": "hs",
+        "arg": "tab-plans"
+      },
+      {
+        "label": "Fall Protection",
+        "kind": "hs",
+        "arg": "tab-fall"
+      }
+    ],
+    "status": "live",
+    "source": "HEALTH_SAFETY_MODULE_SAMPLE.html",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "feedback",
+    "name": "Feedback Intelligence & Product Roadmap",
+    "icon": "feedback",
+    "tone": "lavender",
+    "group": "Intelligence & Improvement",
+    "stage": "Platform-wide",
+    "summary": "Context-aware feedback capture, clustering, severity scoring, AI feature briefs, roadmap decisions and closed-loop release communication.",
+    "tabs": [
+      {
+        "label": "Overview",
+        "kind": "top",
+        "icon": "dashboard"
+      },
+      {
+        "label": "Feedback Clusters",
+        "kind": "scroll",
+        "text": "Top Feedback Clusters",
+        "icon": "clusters"
+      },
+      {
+        "label": "Trend Chart",
+        "kind": "scroll",
+        "text": "Feedback Volume",
+        "icon": "trends"
+      },
+      {
+        "label": "Cluster Detail",
+        "kind": "scroll",
+        "text": "Export BoQ to Excel",
+        "icon": "detail"
+      },
+      {
+        "label": "AI Feature Brief",
+        "kind": "scroll",
+        "text": "AI-Generated Feature Brief",
+        "icon": "advisor"
+      },
+      {
+        "label": "Roadmap Status",
+        "kind": "scroll",
+        "text": "Status Flow",
+        "icon": "workflow"
+      }
+    ],
+    "source": "FEEDBACK_LOOP_SAMPLE.html",
+    "status": "live",
+    "implementation_status": "sample"
+  },
+  {
+    "id": "project_passport",
+    "name": "Project Passport",
+    "icon": "project_passport",
+    "tone": "core",
+    "group": "Project & Collaboration",
+    "stage": "All stages",
+    "summary": "Canonical project identity, health, team, decisions, records, risk and commercial snapshot.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "project_explorer",
+    "name": "Project Explorer",
+    "icon": "project_explorer",
+    "tone": "cobalt",
+    "group": "Project & Collaboration",
+    "stage": "All stages",
+    "summary": "Search and browse project records, assets, participants, properties and linked workspaces.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "professional_directory",
+    "name": "Professional Directory",
+    "icon": "professional_directory",
+    "tone": "coral",
+    "group": "Project & Collaboration",
+    "stage": "Appoint",
+    "summary": "Role-aware discovery, verification, invitations, appointments and professional team records.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "team_workspace",
+    "name": "Team Workspace",
+    "icon": "team_workspace",
+    "tone": "coral",
+    "group": "Project & Collaboration",
+    "stage": "All stages",
+    "summary": "Team matrix, role assignments, invitations, responsibilities, availability and participant activity.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "inbox_action",
+    "name": "Inbox / Action Centre",
+    "icon": "action_centre",
+    "tone": "coral",
+    "group": "Project & Collaboration",
+    "stage": "All stages",
+    "summary": "Consolidated notifications, approvals, assigned actions, escalations and pending decisions.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "issues_rfis",
+    "name": "Issues / RFIs",
+    "icon": "issues_rfis",
+    "tone": "coral",
+    "group": "Project & Collaboration",
+    "stage": "Design / Build",
+    "summary": "Structured requests for information, responses, decisions, due dates and audit history.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "documents_drawings",
+    "name": "Documents & Drawings",
+    "icon": "documents_drawings",
+    "tone": "core",
+    "group": "Design & Documentation",
+    "stage": "All stages",
+    "summary": "Drawing register, revisions, transmittals, current-set controls, markups and document intelligence.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "fee_proposal",
+    "name": "Fee Proposal Builder",
+    "icon": "fee_proposal",
+    "tone": "amber",
+    "group": "Commercial & Procurement",
+    "stage": "Appoint",
+    "summary": "Professional fee scopes, work-stage allocations, assumptions, approvals and appointment conversion.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "council_navigator",
+    "name": "Council Drawing Navigator",
+    "icon": "council_navigator",
+    "tone": "cobalt",
+    "group": "Planning & Approvals",
+    "stage": "Comply",
+    "summary": "Submission drawing navigation, municipal comments, revision comparison and response coordination.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "compliance_hub",
+    "name": "Compliance Hub",
+    "icon": "compliance_hub",
+    "tone": "coral",
+    "group": "Compliance & Environment",
+    "stage": "Design / Comply",
+    "summary": "Cross-standard compliance readiness, evidence, professional sign-off and advisory gap management.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "municipal_tracker",
+    "name": "Municipal Tracker",
+    "icon": "municipal_tracker",
+    "tone": "cobalt",
+    "group": "Planning & Approvals",
+    "stage": "Comply",
+    "summary": "Authority submission status, circulation, comments, evidence and approval milestone tracking.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "environmental_heritage",
+    "name": "Environmental & Heritage",
+    "icon": "environmental_heritage",
+    "tone": "coral",
+    "group": "Compliance & Environment",
+    "stage": "Brief / Comply",
+    "summary": "Heritage screening, environmental constraints, specialist appointments and authorisation evidence.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "eia_workspace",
+    "name": "EIA Workspace",
+    "icon": "eia_workspace",
+    "tone": "coral",
+    "group": "Compliance & Environment",
+    "stage": "Brief / Comply",
+    "summary": "Environmental screening, basic assessment, full EIA, participation, EMPr monitoring and audits.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "refuse_calculator",
+    "name": "Refuse Area Calculator",
+    "icon": "refuse_calculator",
+    "tone": "cobalt",
+    "group": "Compliance & Environment",
+    "stage": "Design / Comply",
+    "summary": "Municipal refuse generation, storage area, bin allocation, access, ventilation and report export.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "survey_geomatics",
+    "name": "Survey & Geomatics",
+    "icon": "survey_geomatics",
+    "tone": "cobalt",
+    "group": "Design & Documentation",
+    "stage": "Brief / Design",
+    "summary": "Survey appointments, cadastral information, control points, survey outputs and geomatics coordination.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "nhbrc_enrolment",
+    "name": "NHBRC Enrolment",
+    "icon": "nhbrc_enrolment",
+    "tone": "coral",
+    "group": "Compliance & Environment",
+    "stage": "Comply / Build",
+    "summary": "NHBRC enrolment, stage inspections, certificates, evidence and exception management.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "insurance_register",
+    "name": "Insurance Register",
+    "icon": "insurance_register",
+    "tone": "coral",
+    "group": "Commercial & Procurement",
+    "stage": "Appoint / Build",
+    "summary": "Project and participant insurance policies, expiry alerts, evidence and coverage checks.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "bim_ifc",
+    "name": "BIM / IFC Extraction",
+    "icon": "bim_ifc",
+    "tone": "cobalt",
+    "group": "Design & Documentation",
+    "stage": "Design / Procure",
+    "summary": "IFC upload, model validation, mapping, quantity extraction, comparison and downstream synchronisation.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "rfq_marketplace",
+    "name": "RFQ Marketplace",
+    "icon": "rfq_marketplace",
+    "tone": "amber",
+    "group": "Commercial & Procurement",
+    "stage": "Procure",
+    "summary": "RFQ packages, supplier invitations, returnables, comparisons, compliance and awards.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "supplier_catalog",
+    "name": "Supplier Catalogue",
+    "icon": "supplier_catalog",
+    "tone": "amber",
+    "group": "Commercial & Procurement",
+    "stage": "Design / Procure",
+    "summary": "Products, materials, technical data, pricing, availability and specification links.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "market_insights",
+    "name": "Market Insights",
+    "icon": "market_insights",
+    "tone": "cobalt",
+    "group": "Commercial & Procurement",
+    "stage": "All stages",
+    "summary": "Cost benchmarks, supplier trends, project analytics, forecasts and market intelligence.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "contract_admin",
+    "name": "Contract Administration",
+    "icon": "contract_admin",
+    "tone": "coral",
+    "group": "Commercial & Procurement",
+    "stage": "Build / Pay",
+    "summary": "Instructions, variations, claims, extensions of time, certificates and contractual communications.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "contractor_compliance",
+    "name": "Contractor Compliance",
+    "icon": "contractor_compliance",
+    "tone": "coral",
+    "group": "Site Execution & Quality",
+    "stage": "Build",
+    "summary": "Contractor submissions, statutory evidence, insurances, appointments and compliance status.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "approvals_queue",
+    "name": "Approvals Queue",
+    "icon": "approvals_queue",
+    "tone": "coral",
+    "group": "Project & Collaboration",
+    "stage": "All stages",
+    "summary": "Multi-party approvals, review sequence, due dates, decision context and immutable audit trail.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "payments_escrow",
+    "name": "Payments & Escrow (Workflow Only)",
+    "icon": "payments_escrow",
+    "tone": "amber",
+    "group": "Commercial & Procurement",
+    "stage": "Pay",
+    "summary": "Invoice, milestone, approval, retention and release-status workflow only. Fund holding and true escrow are disabled pending legal review and a licensed partner.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "fund_holding_enabled": false,
+    "legal_review_required": true,
+    "implementation_status": "native"
+  },
+  {
+    "id": "dispute_resolution",
+    "name": "Dispute Resolution",
+    "icon": "dispute_resolution",
+    "tone": "coral",
+    "group": "Commercial & Procurement",
+    "stage": "Build / Pay",
+    "summary": "Dispute notices, evidence, negotiation, adjudication, outcomes and close-out.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "site_instructions",
+    "name": "Site Instructions",
+    "icon": "site_instructions",
+    "tone": "coral",
+    "group": "Site Execution & Quality",
+    "stage": "Build",
+    "summary": "Architect and engineer instructions, recipients, acknowledgement, attachments and impact tracking.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "ncr_manager",
+    "name": "NCR Manager",
+    "icon": "ncr_manager",
+    "tone": "coral",
+    "group": "Site Execution & Quality",
+    "stage": "Build",
+    "summary": "Non-conformance capture, root cause, corrective action, verification and closure.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "snag_manager",
+    "name": "Snag Manager",
+    "icon": "snag_manager",
+    "tone": "amber",
+    "group": "Site Execution & Quality",
+    "stage": "Build / Close-out",
+    "summary": "Defect capture, assignment, evidence, due dates, inspections and close-out.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "fm_bridge",
+    "name": "FM Bridge",
+    "icon": "fm_bridge",
+    "tone": "cobalt",
+    "group": "Site Execution & Quality",
+    "stage": "Handover / Close-out",
+    "summary": "Handover data, asset records, warranties, maintenance schedules and facilities-management export.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "remote_desktop",
+    "name": "Remote Desktop",
+    "icon": "remote_desktop",
+    "tone": "cobalt",
+    "group": "Platform Services",
+    "stage": "All stages",
+    "summary": "Secure hosted work sessions, browser viewer, file handoff, session retention and billing.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "cpd_learning",
+    "name": "CPD & Learning",
+    "icon": "cpd_learning",
+    "tone": "amber",
+    "group": "Platform Services",
+    "stage": "Platform-wide",
+    "summary": "Courses, assessments, certificates, CPD credits, resources and accreditation records.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "admin_review",
+    "name": "Admin Review",
+    "icon": "admin_review",
+    "tone": "coral",
+    "group": "Platform Services",
+    "stage": "Platform-wide",
+    "summary": "Platform administration, role review, moderation, exceptions, audit and operational oversight.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  },
+  {
+    "id": "iconography_registry",
+    "name": "Iconography Registry",
+    "icon": "iconography_registry",
+    "tone": "core",
+    "group": "Platform Services",
+    "stage": "Platform-wide",
+    "summary": "Central branded icon registry, semantic mapping, tone metadata and implementation governance.",
+    "status": "live",
+    "source": "Awaiting functional HTML sample",
+    "tabs": [
+      {
+        "label": "Workspace Brief",
+        "kind": "scaffold",
+        "icon": "brief"
+      },
+      {
+        "label": "Project Orientation",
+        "kind": "scaffold",
+        "icon": "projects"
+      },
+      {
+        "label": "Standalone Orientation",
+        "kind": "scaffold",
+        "icon": "standalone"
+      },
+      {
+        "label": "Integration Contract",
+        "kind": "scaffold",
+        "icon": "integration"
+      }
+    ],
+    "implementation_status": "native"
+  }
+]

@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Brand Teal Palette */
+    --teal: #19B7B0;
+    --deep: #167E79;
+    --jade: #58C8BC;
+    --mint: #BFE9E2;
+    --aqua: #DFF5F2;
+
+    /* Neutrals & Surfaces */
+    --ink: #102033;
+    --muted: #657287;
+    --border: rgba(16, 32, 51, 0.09);
+    --border-light: rgba(16, 32, 51, 0.05);
+    --white: #ffffff;
+    --surface-bg: #f5faf9;
+    --surface-card: rgba(255, 255, 255, 0.95);
+
+    /* Functional Accents */
+    --cobalt: #2563EB;
+    --lavender: #8B5CF6;
+    --coral: #FF6B6B;
+    --amber: #FFB020;
+    --green: #28a86b;
+    --red: #d95747;
+
+    /* Elevation Shadows */
+    --shadow-lg: 0 20px 64px rgba(16, 32, 51, 0.09);
+    --shadow-soft: 0 10px 28px rgba(16, 32, 51, 0.055);
+
+    /* Dimensional Layout Tokens */
+    --rail: 74px;
+    --nav: 306px;
+    --inspector: 344px;
+    --top: 64px;
+  }
+
+  body {
+    background-color: var(--surface-bg);
+    color: var(--ink);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Architex Origami SVG Icon Styling */
+.ax-icon {
+  display: block;
+  overflow: visible;
+}
+.ax-icon .outline {
+  fill: #ffffff;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ax-icon .line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ax-icon .fold {
+  fill: var(--teal);
+  stroke: var(--deep);
+  stroke-width: 0.8;
+  transform-origin: center;
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+/* Global OS Rail specific active fold */
+.os-rail-btn.active .ax-icon .outline {
+  fill: #102033;
+  stroke: #102033;
+}
+.os-rail-btn.active .ax-icon .line {
+  stroke: #ffffff;
+}
+.os-rail-btn.active .ax-icon .fold {
+  fill: var(--teal);
+  stroke: #102033;
+}
+
+/* Glass & Canvas textures */
+.datum-grid-pattern {
+  background-image: radial-gradient(rgba(16, 32, 51, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 32, 51, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 32, 51, 0.3);
+}

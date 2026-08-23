@@ -1,0 +1,550 @@
+{
+    "passports": {
+        "proj-faerie-glen": {
+            "project_id": "proj-faerie-glen",
+            "version": 3,
+            "project_type": "Multi-unit residential development",
+            "brief_summary": "A phased residential development requiring coordinated architectural, structural, fire, energy and municipal approval work.",
+            "site_description": "Faerie Glen, Pretoria — urban infill site with established municipal services.",
+            "statutory_route": "SPLUMA confirmation and building-plan submission to City of Tshwane",
+            "constraints": [
+                "Municipal servitude confirmation",
+                "Fire escape-width coordination",
+                "SANS 10400-XA fenestration review"
+            ],
+            "required_professionals": [
+                "Architect",
+                "Structural Engineer",
+                "Fire Engineer",
+                "Energy Professional",
+                "Quantity Surveyor"
+            ],
+            "approval_requirements": [
+                "Client brief approval",
+                "Professional coordination sign-off",
+                "Municipal building-plan approval"
+            ],
+            "updated_by": "user-demo-architect",
+            "updated_at": "2026-08-21T14:56:53+00:00",
+            "status": "published",
+            "published_by": "user-demo-architect",
+            "published_at": "2026-08-20T13:30:00+02:00"
+        }
+    },
+    "documents": [
+        {
+            "id": "doc-arch-set",
+            "project_id": "proj-faerie-glen",
+            "number": "A-SET-001",
+            "title": "Architectural Drawing Set",
+            "type": "Drawing Set",
+            "discipline": "Architecture",
+            "revision": "P03",
+            "status": "review",
+            "issue_purpose": "Coordination",
+            "updated_at": "2026-08-22T00:33:08+00:00"
+        },
+        {
+            "id": "doc-fire-report",
+            "project_id": "proj-faerie-glen",
+            "number": "FIRE-RPT-001",
+            "title": "Fire Strategy Report",
+            "type": "Report",
+            "discipline": "Fire",
+            "revision": "B",
+            "status": "approved",
+            "issue_purpose": "Municipal submission",
+            "updated_at": "2026-08-19T15:45:00+02:00"
+        },
+        {
+            "id": "doc-xa",
+            "project_id": "proj-faerie-glen",
+            "number": "XA-RPT-001",
+            "title": "SANS 10400-XA Assessment",
+            "type": "Compliance",
+            "discipline": "Energy",
+            "revision": "P02",
+            "status": "review",
+            "issue_purpose": "Professional review",
+            "updated_at": "2026-08-20T08:20:00+02:00"
+        }
+    ],
+    "actions": [
+        {
+            "id": "act-001",
+            "project_id": "proj-faerie-glen",
+            "title": "Confirm fire escape width on A-204",
+            "owner": "Architect",
+            "due": "2026-08-24",
+            "priority": "high",
+            "status": "open",
+            "source": "Meetings"
+        },
+        {
+            "id": "act-002",
+            "project_id": "proj-faerie-glen",
+            "title": "Upload municipal servitude confirmation",
+            "owner": "Town Planner",
+            "due": "2026-08-26",
+            "priority": "medium",
+            "status": "open",
+            "source": "Project Passport"
+        },
+        {
+            "id": "act-003",
+            "project_id": "proj-faerie-glen",
+            "title": "Review XA fenestration candidate values",
+            "owner": "Energy Professional",
+            "due": "2026-08-23",
+            "priority": "high",
+            "status": "blocked",
+            "source": "Drawing Intelligence"
+        }
+    ],
+    "approvals": [
+        {
+            "id": "apr-001",
+            "project_id": "proj-faerie-glen",
+            "title": "Issue Architectural Set P03 for coordination",
+            "entity_type": "document_revision",
+            "entity_id": "doc-arch-set",
+            "status": "pending",
+            "requested_by": "BEP Coordinator",
+            "requested_at": "2026-08-20T11:12:00+02:00",
+            "current_step": 1,
+            "steps": [
+                {
+                    "role": "architect",
+                    "status": "pending"
+                }
+            ]
+        },
+        {
+            "id": "apr-002",
+            "project_id": "proj-faerie-glen",
+            "title": "Accept Meeting Decision: fire engineer markup",
+            "entity_type": "meeting_outcome",
+            "entity_id": "outcome-fire-001",
+            "status": "pending",
+            "requested_by": "Architex Meetings",
+            "requested_at": "2026-08-20T14:05:00+02:00",
+            "current_step": 1,
+            "steps": [
+                {
+                    "role": "architect",
+                    "status": "pending"
+                }
+            ]
+        }
+    ],
+    "ai_candidates": [
+        {
+            "id": "ai-001",
+            "project_id": "proj-faerie-glen",
+            "source_module": "drawing-intelligence",
+            "consumer": "xa",
+            "candidate_type": "fenestration_ratio",
+            "summary": "Suggested north façade fenestration ratio: 31.8%",
+            "confidence": 0.84,
+            "status": "draft",
+            "provenance": [
+                "A-204 Rev P03",
+                "Extraction region N-04"
+            ]
+        }
+    ],
+    "drawing_jobs": [],
+    "audit": [
+        {
+            "id": "audit-001",
+            "actor": "user-demo-architect",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-20T13:32:00+02:00",
+            "details": {
+                "version": 3
+            }
+        },
+        {
+            "id": "audit-7767dcd6e271",
+            "actor": "user-demo-architect",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-21T00:27:25+00:00",
+            "details": {
+                "version": 3
+            }
+        },
+        {
+            "id": "audit-37f921f82f52",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-21T00:35:01+00:00",
+            "details": {
+                "version": 3
+            }
+        },
+        {
+            "id": "audit-ea2d1cfaaa6b",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.drafted",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-21T14:56:53+00:00",
+            "details": {
+                "version": 3,
+                "fields": [
+                    "brief_summary"
+                ]
+            }
+        },
+        {
+            "id": "audit-5e08fcd78b6d",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-21T23:52:41+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-02e155c6e595",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "action.updated",
+            "entity_type": "action_item",
+            "entity_id": "act-002",
+            "at": "2026-08-22T00:26:53+00:00",
+            "details": {
+                "status": "done",
+                "priority": null
+            }
+        },
+        {
+            "id": "audit-05b4ab8a24c1",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-22T00:27:32+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-152a9eace553",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "document.updated",
+            "entity_type": "document",
+            "entity_id": "doc-arch-set",
+            "at": "2026-08-22T00:33:08+00:00",
+            "details": {
+                "status": "approved",
+                "revision": "P03"
+            }
+        },
+        {
+            "id": "audit-e03a7d5b3ab9",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "meeting.consent_recorded",
+            "entity_type": "meeting",
+            "entity_id": "mtg-design-001",
+            "at": "2026-08-22T00:55:39+00:00",
+            "details": {
+                "channels": []
+            }
+        },
+        {
+            "id": "audit-0cdf2170be41",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "wingman.rfi_drafted",
+            "entity_type": "ai_candidate",
+            "entity_id": "rfi-415604c5e7",
+            "at": "2026-08-22T00:56:17+00:00",
+            "details": {
+                "capability": "draft_rfi",
+                "number": "RFI-001"
+            }
+        },
+        {
+            "id": "audit-5787f85c8e3c",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "specforge.drawing_scan_requested",
+            "entity_type": "job",
+            "entity_id": "job-3d5dea9e556a",
+            "at": "2026-08-22T00:58:44+00:00",
+            "details": {
+                "job_type": "ai_drawing_scan"
+            }
+        },
+        {
+            "id": "audit-2382faff4b04",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "bom.takeoff_requested",
+            "entity_type": "job",
+            "entity_id": "job-148e36f34699",
+            "at": "2026-08-22T00:58:47+00:00",
+            "details": {
+                "job_type": "ai_drawing_scan"
+            }
+        },
+        {
+            "id": "audit-c9927dc7f101",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "project.created",
+            "entity_type": "project",
+            "entity_id": "proj-fb934727a612",
+            "at": "2026-08-23T02:37:04+00:00",
+            "details": {
+                "name": "Durban Beachfront Pavilion",
+                "code": "DBP-2026",
+                "stage": "Brief"
+            }
+        },
+        {
+            "id": "audit-068a3988fe62",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "project.updated",
+            "entity_type": "project",
+            "entity_id": "proj-fb934727a612",
+            "at": "2026-08-23T02:37:08+00:00",
+            "details": {
+                "fields": [
+                    "revision",
+                    "progress",
+                    "stage"
+                ]
+            }
+        },
+        {
+            "id": "audit-705900379fa0",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "engineer",
+            "action": "calculation.saved",
+            "entity_type": "calculation",
+            "entity_id": "calc-73e5a03a9c",
+            "at": "2026-08-23T02:38:09+00:00",
+            "details": {
+                "calc_type": "steel-beam",
+                "status": "saved",
+                "project_id": "proj-faerie-glen"
+            }
+        },
+        {
+            "id": "audit-2c6d31a53849",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "engineer",
+            "action": "calculation.review_requested",
+            "entity_type": "calculation",
+            "entity_id": "calc-73e5a03a9c",
+            "at": "2026-08-23T02:38:09+00:00",
+            "details": {
+                "calc_type": "steel-beam"
+            }
+        },
+        {
+            "id": "audit-30f4617056d6",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-23T03:16:32+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-9959c2442c56",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-23T03:38:58+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-080f3cd1a2ea",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-23T03:58:46+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-75243e76e210",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "project.created",
+            "entity_type": "project",
+            "entity_id": "proj-ad1320a5c9a0",
+            "at": "2026-08-23T04:03:00+00:00",
+            "details": {
+                "name": "Stellenbosch Vineyard Cellar",
+                "code": "SVC-2026",
+                "stage": "Brief"
+            }
+        },
+        {
+            "id": "audit-5633903c41df",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-23T04:12:17+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        }
+    ],
+    "meetings": {
+        "mtg-design-001": {
+            "id": "mtg-design-001",
+            "project_id": "proj-faerie-glen",
+            "title": "Design Coordination Review",
+            "status": "review_required",
+            "policy": {
+                "recording_enabled": true,
+                "transcription_enabled": true,
+                "retention_days": 90,
+                "confidentiality": "project_confidential"
+            },
+            "consent": {
+                "recording": true,
+                "transcription": true,
+                "captured_at": "2026-08-20T09:00:00+02:00",
+                "recording_by": "user-demo-architect",
+                "recording_at": "2026-08-22T00:55:39+00:00",
+                "transcription_by": "user-demo-architect",
+                "transcription_at": "2026-08-22T00:55:39+00:00"
+            },
+            "outcomes": [
+                {
+                    "id": "outcome-fire-001",
+                    "title": "Adopt revised fire escape markup",
+                    "status": "accepted",
+                    "destination": "project_record"
+                },
+                {
+                    "id": "outcome-xa-001",
+                    "title": "Review AI-extracted XA fenestration values",
+                    "status": "pending",
+                    "destination": "action_centre"
+                }
+            ],
+            "published_revision": null,
+            "chair": "user-demo-architect",
+            "chair_label": "Justin Kruger (Chair)"
+        }
+    },
+    "write_backs": [],
+    "rfi_drafts": [
+        {
+            "id": "rfi-415604c5e7",
+            "project_id": "proj-faerie-glen",
+            "number": "RFI-001",
+            "subject": "Fire escape width clarification A-204",
+            "question": "Confirm whether revised escape route meets SANS 10400-T 1.5m requirement.",
+            "drawing_refs": [
+                "A-204 Rev P03"
+            ],
+            "addressee": "Project team",
+            "status": "draft",
+            "ai_generated": true,
+            "generated_by": "user-demo-architect",
+            "capability": "draft_rfi",
+            "created_at": "2026-08-22T00:56:17+00:00"
+        }
+    ],
+    "ai_usage": [
+        {
+            "job_id": "job-3d5dea9e556a",
+            "type": "ai_drawing_scan",
+            "by": "user-demo-architect",
+            "at": "2026-08-22T00:58:44+00:00"
+        },
+        {
+            "job_id": "job-148e36f34699",
+            "type": "ai_drawing_scan",
+            "by": "user-demo-architect",
+            "at": "2026-08-22T00:58:47+00:00"
+        }
+    ],
+    "calculations": [
+        {
+            "id": "calc-73e5a03a9c",
+            "project_id": "proj-faerie-glen",
+            "calc_type": "steel-beam",
+            "inputs": {
+                "span": 6,
+                "load": 15
+            },
+            "results": {
+                "utilization": 0.72,
+                "design_moment": "85.5 kNm"
+            },
+            "derivation": "M = wL2/8 = 15 x 6^2 / 8",
+            "status": "under_review",
+            "author_id": "user-demo-architect",
+            "linked_drawing_ref": null,
+            "linked_meeting_id": null,
+            "linked_rfi_id": null,
+            "created_at": "2026-08-23T02:38:09+00:00",
+            "updated_at": "2026-08-23T02:38:09+00:00",
+            "review_requested_by": "user-demo-architect",
+            "review_requested_at": "2026-08-23T02:38:09+00:00"
+        }
+    ]
+}

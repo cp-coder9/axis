@@ -1,0 +1,10 @@
+# Architex OS PHP API — Apache routing (shared hosting)
+# Every request that is not a real file is routed through index.php so the
+# /api/v1/* REST routes resolve on Apache/cPanel hosts where backend/public
+# is the domain (or subdomain) document root.
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

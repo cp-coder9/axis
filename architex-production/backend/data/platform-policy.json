@@ -1,0 +1,24 @@
+{
+  "canonical_registry_version": "2026-08-21",
+  "canonical_module_count": 46,
+  "source": "canonical tools.json registry (prototype tool data + native Architex Meetings override)",
+  "resolution": "The registry contains exactly 46 entries: 1 native module (Architex Meetings), 11 functional sample modules, and 34 scaffold modules. References to 53 are superseded marketing/roadmap planning counts with no deployable registered IDs. 45 was the historical pre-Meetings source count and is now superseded by the canonical 46.",
+  "implementation_status": "native|sample|scaffold",
+  "availability_status": "live (native+sample) | scaffold",
+  "payments_escrow": {
+    "status": "workflow_only",
+    "fund_holding_enabled": false,
+    "reason": "Deferred pending legal review and licensed payment/escrow partner."
+  },
+  "drawing_intelligence": {
+    "service": "shared",
+    "consumers": [
+      "specforge",
+      "bom",
+      "municipal",
+      "bim_ifc",
+      "xa"
+    ],
+    "human_review_required": true
+  }
+}

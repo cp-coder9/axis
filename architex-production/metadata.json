@@ -1,0 +1,6 @@
+{
+  "name": "Architex OS",
+  "description": "Unified Datum UI operating system for built-environment professionals in South Africa with 20 personas, 8-stage lifecycle, and 12 flagship modules.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
