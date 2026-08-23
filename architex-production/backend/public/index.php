@@ -1313,6 +1313,25 @@ function engineering_repository(): MariaDbCalculationRepository { static $reposi
 function engineering_error(Throwable $error): never { if ($error instanceof CalculationRepositoryError) json_response(['error'=>$error->getMessage()], $error->httpStatus); json_response(['error'=>'Engineering calculation store unavailable'], 503); }
 function idempotency_key(): string { return trim((string)($_SERVER['HTTP_IDEMPOTENCY_KEY'] ?? '')); }
 function if_match_version(): int { $value = trim((string)($_SERVER['HTTP_IF_MATCH'] ?? '')); if (!preg_match('/^"?(\d+)"?$/', $value, $match)) json_response(['error'=>'If-Match lock version is required'], 428); return (int)$match[1]; }
+function calculator_discipline(string $calculatorId): string {
+    return match ($calculatorId) {
+        'steel-beam', 'concrete-beam', 'timber-beam' => 'structural',
+        'geo-bearing' => 'geotechnical', 'wind-load' => 'civil-structural', 'stormwater-rational' => 'civil-stormwater',
+        'duct-sizing', 'heat-gain' => 'mechanical', 'travel-distance', 'fire-resistance' => 'fire', 'fire-water' => 'fire-water',
+        'cable-sizing', 'max-demand' => 'electrical', 'cold-water', 'drainage-fu' => 'wet-services',
+        'geyser-sizing' => 'wet-services-mechanical', 'unit-converter' => 'engineering-qa', default => 'unknown',
+    };
+}
+function require_qualified_engineering_reviewer(array $record): void {
+    $identity = current_identity();
+    if (($record['author_id'] ?? null) === $identity['sub']) json_response(['error'=>'Author cannot decide this review','code'=>'ENGINEERING_REVIEWER_NOT_INDEPENDENT'],403);
+    $discipline = calculator_discipline((string)$record['calc_type']);
+    try {
+        $stmt = db()->prepare('SELECT 1 FROM engineering_reviewer_credentials c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND u.organization_id=? AND c.discipline=? AND c.active=1 AND c.verified_at IS NOT NULL AND c.verified_by<>c.user_id AND (c.expires_at IS NULL OR c.expires_at > UTC_TIMESTAMP()) LIMIT 1');
+        $stmt->execute([$identity['sub'], $identity['org'], $discipline]);
+        if (!$stmt->fetchColumn()) json_response(['error'=>'Qualified independent engineering reviewer credential required','code'=>'ENGINEERING_REVIEWER_CREDENTIAL_REQUIRED'],403);
+    } catch (PDOException) { json_response(['error'=>'Engineering credential store unavailable'],503); }
+}
 
 if ($method === 'GET' && preg_match('#^/(api/)?v1/engineering/calculations$#', $path)) {
     require_permission('engineering.view'); $projectId = query_param('project_id'); if (query_param('project') !== null) json_response(['error'=>'Use project_id'], 400); if ($projectId !== null) require_project_access($projectId);
@@ -1337,7 +1356,7 @@ if ($method === 'PATCH' && preg_match('#^/(api/)?v1/engineering/calculations/([^
 }
 
 if ($method === 'POST' && preg_match('#^/(api/)?v1/engineering/calculations/([^/]+)/review$#', $path, $m)) {
-    $body=json_body(); $action=(string)($body['action'] ?? 'submit'); require_permission($action === 'submit' ? 'engineering.review.request' : 'engineering.review.decide'); try { $existing=engineering_repository()->find(current_identity(),$m[2]); if ($existing===null) json_response(['error'=>'Calculation not found'],404); reject_contained_calculator($existing['calc_type']); $result=engineering_repository()->transitionReview(current_identity(),$m[2],$action,is_string($body['note']??null)?$body['note']:null,if_match_version(),idempotency_key()); header('ETag: "'.$result['record']['lock_version'].'"'); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['calculation'=>$result['record'],'idempotent'=>$result['idempotent']]); } catch (Throwable $error) { engineering_error($error); }
+    $body=json_body(); $action=(string)($body['action'] ?? 'submit'); if (!in_array($action,['submit','approve','return'],true)) json_response(['error'=>'Invalid review action'],422); require_permission($action === 'submit' ? 'engineering.review.request' : 'engineering.review.decide'); try { $existing=engineering_repository()->find(current_identity(),$m[2]); if ($existing===null) json_response(['error'=>'Calculation not found'],404); if ($action !== 'submit') require_qualified_engineering_reviewer($existing); reject_contained_calculator($existing['calc_type']); $result=engineering_repository()->transitionReview(current_identity(),$m[2],$action,is_string($body['note']??null)?$body['note']:null,if_match_version(),idempotency_key()); header('ETag: "'.$result['record']['lock_version'].'"'); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['calculation'=>$result['record'],'idempotent'=>$result['idempotent']]); } catch (Throwable $error) { engineering_error($error); }
 }
 
 /* ---------- User management (admin & platform_admin) ---------- */
