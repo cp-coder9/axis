@@ -1,0 +1,20 @@
+{
+  "calculatorId": "max-demand",
+  "cases": [
+    {
+      "id": "advisory-1",
+      "formulaVersion": "max-demand/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-2",
+      "formulaVersion": "max-demand/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-3",
+      "formulaVersion": "max-demand/1.0.0",
+      "classification": "advisory-contained"
+    }
+  ]
+}

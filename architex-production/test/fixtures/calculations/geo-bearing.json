@@ -1,0 +1,20 @@
+{
+  "calculatorId": "geo-bearing",
+  "cases": [
+    {
+      "id": "advisory-1",
+      "formulaVersion": "geo-bearing/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-2",
+      "formulaVersion": "geo-bearing/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-3",
+      "formulaVersion": "geo-bearing/1.0.0",
+      "classification": "advisory-contained"
+    }
+  ]
+}

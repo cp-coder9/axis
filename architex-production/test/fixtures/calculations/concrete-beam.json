@@ -1,0 +1,25 @@
+{
+  "calculatorId": "concrete-beam",
+  "cases": [
+    {
+      "id": "advisory-1",
+      "formulaVersion": "concrete-beam/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-2",
+      "formulaVersion": "concrete-beam/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-3",
+      "formulaVersion": "concrete-beam/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-4",
+      "formulaVersion": "concrete-beam/1.0.0",
+      "classification": "advisory-contained"
+    }
+  ]
+}

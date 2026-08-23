@@ -1,0 +1,20 @@
+{
+  "calculatorId": "fire-water",
+  "cases": [
+    {
+      "id": "advisory-1",
+      "formulaVersion": "fire-water/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-2",
+      "formulaVersion": "fire-water/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-3",
+      "formulaVersion": "fire-water/1.0.0",
+      "classification": "advisory-contained"
+    }
+  ]
+}

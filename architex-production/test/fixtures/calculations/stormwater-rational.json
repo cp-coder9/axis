@@ -1,0 +1,25 @@
+{
+  "calculatorId": "stormwater-rational",
+  "cases": [
+    {
+      "id": "advisory-1",
+      "formulaVersion": "stormwater-rational/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-2",
+      "formulaVersion": "stormwater-rational/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-3",
+      "formulaVersion": "stormwater-rational/1.0.0",
+      "classification": "advisory-contained"
+    },
+    {
+      "id": "advisory-4",
+      "formulaVersion": "stormwater-rational/1.0.0",
+      "classification": "advisory-contained"
+    }
+  ]
+}
