@@ -23,6 +23,8 @@ This is a living evidence record. A task is listed as complete only when its req
 | `P0-E03` focused Playwright containment flow | PASS; advisory banner present, Save/Send absent |
 | `P0-E04` direct PHP-origin create/review/unknown probes | PASS; HTTP 503 `CALCULATOR_CONTAINED`, record count unchanged |
 | Chrome DevTools MCP live interaction | PASS; local page calculated advisory results with containment banner and no record controls |
+| Reproducible application baseline | PASS; complete tracked baseline committed as `ec5a24e` |
+| Immutable production build | PASS; build ID `-FYCfrAo4lswcUhhGMTyG` |
 
 Commands executed successfully:
 
@@ -38,6 +40,8 @@ npm run test:e2e -- e2e/rail.spec.ts --grep "V8-C01 V8-C02"
 ```
 
 Screenshot: [`screenshots/phase-0-containment.png`](screenshots/phase-0-containment.png)
+
+Prepared P0-E05 operator record: [`evidence/PHASE_0_RELEASE_EVIDENCE.md`](evidence/PHASE_0_RELEASE_EVIDENCE.md). It records the candidate revision and SHA-256 values and remains explicitly `NO-GO` until the deployment, observation, rollback, and signature fields are completed.
 
 ### Required external Phase 0 exit work
 
