@@ -57,3 +57,18 @@ test('P5-API-01 actions expose native keyboard behavior and semantic status labe
   await expect(page.locator('[data-ui="page-header"]')).toHaveCount(1);
   await expect(page.locator('[data-ui="surface"]')).toHaveCount(4);
 });
+
+test('P5-API-01 tabs fields table preserve controlled semantics and table relationships', async ({ page }) => {
+  await page.goto('/design-system');
+
+  const overview = page.getByRole('tab', { name: 'Overview' });
+  await overview.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Inputs' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('tab', { name: 'Inputs' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByLabel('Design flow rate')).toHaveAttribute('aria-describedby', /-description/);
+  await expect(page.getByText('Required', { exact: true })).toBeVisible();
+  await expect(page.getByRole('table', { name: 'Engineering review data' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Revision' })).toBeVisible();
+});

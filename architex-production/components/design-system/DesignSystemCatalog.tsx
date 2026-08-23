@@ -1,3 +1,6 @@
+import { ActionSpecimens } from './ActionSpecimens';
+import { DataEntrySpecimens } from './DataEntrySpecimens';
+
 export function DesignSystemCatalog() {
   return (
     <main className="ax-catalog">
@@ -42,7 +45,7 @@ export function DesignSystemCatalog() {
         <div className="ax-catalog__series" aria-label="Eight semantic data series">{Array.from({ length: 8 }, (_, index) => <i key={index} style={{ background: `var(--ax-data-${index + 1})` }} />)}</div>
       </section>
       <ActionSpecimens />
+      <DataEntrySpecimens />
     </main>
   );
 }
-import { ActionSpecimens } from './ActionSpecimens';
