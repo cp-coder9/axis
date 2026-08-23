@@ -1,0 +1,19 @@
+[
+  {
+    "id": "calc-73e5a03a9c",
+    "project_id": "proj-faerie-glen",
+    "calc_type": "steel-beam",
+    "inputs": { "span": 6, "load": 15 },
+    "results": { "utilization": 0.72, "design_moment": "85.5 kNm" },
+    "derivation": "M = wL2/8 = 15 x 6^2 / 8",
+    "status": "under_review",
+    "author_id": "user-demo-architect",
+    "linked_drawing_ref": null,
+    "linked_meeting_id": null,
+    "linked_rfi_id": null,
+    "created_at": "2026-08-23T02:38:09+00:00",
+    "updated_at": "2026-08-23T02:38:09+00:00",
+    "review_requested_by": "user-demo-architect",
+    "review_requested_at": "2026-08-23T02:38:09+00:00"
+  }
+]
