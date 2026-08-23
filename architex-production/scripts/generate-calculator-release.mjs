@@ -17,7 +17,7 @@ function fail(message) {
   throw new Error(`Invalid calculator release manifest: ${message}`);
 }
 
-function validate(manifest) {
+async function validate(manifest) {
   if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.calculators)) fail('expected schemaVersion 1 and calculators array');
   const ids = manifest.calculators.map((entry) => entry.id);
   if (JSON.stringify(ids) !== JSON.stringify(expectedIds)) fail('calculator IDs must be unique and in canonical registry order');
@@ -28,6 +28,22 @@ function validate(manifest) {
     if (!Array.isArray(entry.approvalEvidenceIds) || typeof entry.professionalOwner !== 'string') fail(`${entry.id} has invalid approval metadata`);
     if (entry.releaseState === 'contained' && entry.recordable) fail(`${entry.id} cannot be recordable while contained`);
     if (entry.releaseState === 'validated' && (!entry.recordable || !entry.formulaVersion || entry.approvalEvidenceIds.length === 0)) fail(`${entry.id} requires recordable state, formula version, and approval evidence when validated`);
+    if (entry.releaseState === 'validated') {
+      const fixturePath = resolve(root, 'test', 'fixtures', 'calculations', `${entry.id}.json`);
+      let fixture;
+      try {
+        fixture = JSON.parse(await readFile(fixturePath, 'utf8'));
+      } catch (error) {
+        fail(`${entry.id} requires a readable JSON fixture file when validated (${error instanceof Error ? error.message : 'unknown error'})`);
+      }
+      const cases = Array.isArray(fixture) ? fixture : fixture?.cases;
+      if (!Array.isArray(cases) || cases.length < entry.minimumGoldenCases) {
+        fail(`${entry.id} requires at least ${entry.minimumGoldenCases} fixture cases when validated`);
+      }
+      if (cases.some((testCase) => testCase?.formulaVersion !== entry.formulaVersion)) {
+        fail(`${entry.id} fixture formula versions must match ${entry.formulaVersion}`);
+      }
+    }
   }
   const minimum = manifest.calculators.reduce((sum, entry) => sum + entry.minimumGoldenCases, 0);
   if (minimum !== 57) fail(`golden-case minimum must total 57, received ${minimum}`);
@@ -54,7 +70,7 @@ function generatePhp(manifest) {
 }
 
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-validate(manifest);
+await validate(manifest);
 const outputs = [[tsPath, generateTs(manifest)], [phpPath, generatePhp(manifest)]];
 const check = process.argv.includes('--check');
 for (const [path, expected] of outputs) {
