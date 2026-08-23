@@ -52,9 +52,9 @@
   --ax-data-7: #087E8B;
   --ax-data-8: #526074;
 
-  --ax-font-display: 'Manrope Variable', Manrope, sans-serif;
-  --ax-font-body: 'IBM Plex Sans Variable', 'IBM Plex Sans', sans-serif;
-  --ax-font-mono: 'IBM Plex Mono Variable', 'IBM Plex Mono', monospace;
+  --ax-font-display: var(--font-ax-display), Manrope, sans-serif;
+  --ax-font-body: var(--font-ax-body), 'IBM Plex Sans', sans-serif;
+  --ax-font-mono: var(--font-ax-mono), 'IBM Plex Mono', monospace;
   --ax-text-11: 0.6875rem;
   --ax-text-12: 0.75rem;
   --ax-text-13: 0.8125rem;

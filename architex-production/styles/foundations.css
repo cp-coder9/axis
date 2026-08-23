@@ -56,3 +56,14 @@
     .ax-icon .outline, .ax-icon .line, .ax-icon .fold { stroke: CanvasText; forced-color-adjust: auto; }
   }
 }
+
+.ax-catalog { min-height: 100vh; padding: var(--ax-space-8); background: var(--ax-canvas); color: var(--ax-text); }
+.ax-catalog__header, .ax-catalog__section { max-width: 48rem; margin-inline: auto; }
+.ax-catalog__header p { max-width: 42rem; color: var(--ax-text-muted); font-size: var(--ax-text-16); line-height: 1.55; }
+.ax-catalog__header h1 { margin: var(--ax-space-2) 0; font-family: var(--ax-font-display); font-size: var(--ax-text-32); line-height: 1.12; }
+.ax-catalog__eyebrow, .ax-catalog__mono { font-family: var(--ax-font-mono); font-size: var(--ax-text-12); letter-spacing: 0.05em; }
+.ax-catalog__datum { width: min(12rem, 100%); height: 3px; margin: 0 auto var(--ax-space-6); background: var(--ax-datum); }
+.ax-catalog__section { margin-top: var(--ax-space-8); padding: var(--ax-space-6); border: 1px solid var(--ax-border); border-radius: var(--ax-radius-lg); background: var(--ax-surface-1); }
+.ax-catalog__display { font-family: var(--ax-font-display); font-size: var(--ax-text-24); font-weight: 700; line-height: 1.2; }
+.ax-catalog__body { font-family: var(--ax-font-body); font-size: var(--ax-text-16); line-height: 1.55; }
+@media (max-width: 767px) { .ax-catalog { padding: var(--ax-space-3); } }

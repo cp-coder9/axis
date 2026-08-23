@@ -50,6 +50,18 @@ function validate(name) {
   if (name === 'tokens') validateTokenContrast(css);
 }
 
+function validateFontAssets() {
+  const assets = [
+    'public/fonts/Manrope-Variable.woff2',
+    'public/fonts/IBMPlexSans-Variable.woff2',
+    'public/fonts/IBMPlexMono-Variable.woff2',
+    'public/fonts/OFL-Manrope.txt',
+    'public/fonts/OFL-IBMPlex.txt',
+  ];
+  const missing = assets.filter((asset) => !fs.existsSync(path.join(root, asset)));
+  if (missing.length) throw new Error(`P5-TYP-01: missing local font assets ${missing.join(', ')}`);
+}
+
 function validateTokenContrast(css) {
   const values = new Map();
   for (const [, name, value] of css.matchAll(/(--ax-[\w-]+)\s*:\s*([^;]*);/g)) {
@@ -85,6 +97,7 @@ function validateTokenContrast(css) {
 try {
   if (scope === 'tokens' || scope === 'full') validate('tokens');
   if (scope === 'foundations' || scope === 'full') validate('foundations');
+  if (scope === 'full') validateFontAssets();
   console.log(`Design-system validation passed (${scope}).`);
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
