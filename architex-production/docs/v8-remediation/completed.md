@@ -64,3 +64,4 @@ Phase 0 has not exited until all `P0-T05` evidence is attached and signed. Per t
 - Vitest/Next development output reports Node `DEP0205` (`module.register()` deprecation).
 - Chrome DevTools reported unlabeled/form-field accessibility issues in the current engineering form; these remain in scope for Phases 4–8.
 - A read-only Chrome DevTools probe found that `https://test.architex.co.za` does not serve the candidate build and the documented API health URL currently returns `API route not found`; P0-T05 therefore remains `NO-GO`.
+- Deployment discovery in `E:\arx-1` and `E:\arc-1` confirmed FTPS/GitHub Actions targets and cPanel paths, but the host is static/PHP-only while this candidate requires Next.js standalone Node. Credential values exist only as GitHub secrets, not in the local environment.

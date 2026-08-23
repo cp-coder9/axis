@@ -56,6 +56,18 @@ For every row, attach evidence proving:
 
 Read-only Chrome DevTools evidence on 2026-08-23 established that the documented staging URL currently serves an Architex marketing/entry page, not candidate build `-FYCfrAo4lswcUhhGMTyG`. The documented API probe `https://api.architex.co.za/api/v1/health` returned `API route not found` for `/v1/health` from gateway `php-gateway-v0.1.2-20260714`. These observations do not constitute deployment evidence; they prove the candidate is not presently verifiable at the documented targets.
 
+### Hosting contract discovered in `E:\arx-1` / `E:\arc-1`
+
+- cPanel account root: `/home/archite4`.
+- `test.architex.co.za` document root: `/home/archite4/public_html/architex.co.za/ai`.
+- Frontend deployment transport: FTPS through `.github/workflows/deploy-test.yml`.
+- API deployment transport: FTPS to the separate `api.architex.co.za` document root.
+- Required GitHub environment secrets: `TEST_ARCHITEX_FTP_SERVER`, `TEST_ARCHITEX_FTP_USERNAME`, `TEST_ARCHITEX_FTP_PASSWORD`, `TEST_ARCHITEX_FTP_SERVER_DIR`, and `TEST_ARCHITEX_API_FTP_SERVER_DIR`.
+- The shared-host package has no Node/Passenger support; `api.architex.co.za` is served by a PHP gateway.
+- No usable FTPS/cPanel credential values are present in the local environment or deployment configuration; the workflow consumes GitHub secrets.
+
+The current candidate cannot be uploaded unchanged to this target: it uses Next.js `output:'standalone'`, contains dynamic server routes, and rewrites `/api/*` to `127.0.0.1:8080`. The documented test deployment expects a static Vite SPA plus a separately uploaded PHP gateway. Replacing the existing test site therefore requires an approved architecture/deployment decision and a compatible artifact, not a blind upload.
+
 ## Rollback rehearsal
 
 Preferred rollback is a forward deployment of the all-contained manifest and both regenerated artifacts.
@@ -85,6 +97,6 @@ No signer may approve work they authored where independence is required.
 
 ## Exit decision
 
-Decision: `NO-GO — P0-T05 deployment, observation, rollback, and signatures are missing.`
+Decision: `NO-GO — P0-T05 deployment, observation, rollback, and signatures are missing; the candidate runtime is incompatible with the discovered static/PHP host contract.`
 
 Only after every required field above has reproducible evidence and all four signatures approve may this decision change to `GO` and authorize Phases 1, 2, and 5.
