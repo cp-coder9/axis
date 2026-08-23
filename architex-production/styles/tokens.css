@@ -1,0 +1,106 @@
+/* P5-TOK-01: reference values preserve the Architex V8 identity. */
+:root {
+  --ax-ref-teal-500: #19B7B0;
+  --ax-ref-teal-700: #167E79;
+  --ax-ref-ink-950: #102033;
+  --ax-ref-mint-200: #BFE9E2;
+  --ax-ref-mint-100: #DFF5F2;
+  --ax-ref-paper-50: #F5FAF9;
+  --ax-ref-violet-600: #7C4DDB;
+  --ax-ref-coral-600: #D95747;
+  --ax-ref-amber-700: #8A5A00;
+  --ax-ref-green-700: #218956;
+
+  /* Text/action contrast: ink/paper 16.45:1; white/teal-700 4.89:1. */
+  --ax-canvas: var(--ax-ref-paper-50);
+  --ax-surface-1: #FFFFFF;
+  --ax-surface-2: var(--ax-ref-mint-100);
+  --ax-text: var(--ax-ref-ink-950);
+  --ax-text-muted: #526074;
+  --ax-border: rgba(16, 32, 51, 0.12);
+  --ax-border-strong: rgba(16, 32, 51, 0.28);
+  --ax-action-primary: var(--ax-ref-teal-700);
+  --ax-action-primary-hover: #106B67;
+  --ax-action-secondary: var(--ax-ref-ink-950);
+  --ax-focus: var(--ax-ref-teal-700);
+  --ax-selection: var(--ax-ref-mint-200);
+  --ax-datum: var(--ax-ref-teal-500);
+
+  /* Status foreground/background contrast: info 6.59:1; success 5.26:1; warning 7.36:1; danger 5.71:1; neutral 5.73:1. */
+  --ax-status-info-fg: #075985;
+  --ax-status-info-bg: #E0F2FE;
+  --ax-status-info-border: #7DD3FC;
+  --ax-status-success-fg: #167344;
+  --ax-status-success-bg: #E7F6EC;
+  --ax-status-success-border: #75C996;
+  --ax-status-warning-fg: #6B4A00;
+  --ax-status-warning-bg: #FFF4D6;
+  --ax-status-warning-border: #E7B955;
+  --ax-status-danger-fg: #AB3226;
+  --ax-status-danger-bg: #FDECEA;
+  --ax-status-danger-border: #E9A39A;
+  --ax-status-neutral-fg: #526074;
+  --ax-status-neutral-bg: #EFF3F5;
+  --ax-status-neutral-border: #B8C4CC;
+
+  --ax-data-1: #167E79;
+  --ax-data-2: #2563EB;
+  --ax-data-3: #B77900;
+  --ax-data-4: #7C4DDB;
+  --ax-data-5: #D95747;
+  --ax-data-6: #218956;
+  --ax-data-7: #087E8B;
+  --ax-data-8: #526074;
+
+  --ax-font-display: 'Manrope Variable', Manrope, sans-serif;
+  --ax-font-body: 'IBM Plex Sans Variable', 'IBM Plex Sans', sans-serif;
+  --ax-font-mono: 'IBM Plex Mono Variable', 'IBM Plex Mono', monospace;
+  --ax-text-11: 0.6875rem;
+  --ax-text-12: 0.75rem;
+  --ax-text-13: 0.8125rem;
+  --ax-text-14: 0.875rem;
+  --ax-text-16: 1rem;
+  --ax-text-20: 1.25rem;
+  --ax-text-24: 1.5rem;
+  --ax-text-32: 2rem;
+
+  --ax-space-1: 0.25rem;
+  --ax-space-2: 0.5rem;
+  --ax-space-3: 0.75rem;
+  --ax-space-4: 1rem;
+  --ax-space-5: 1.25rem;
+  --ax-space-6: 1.5rem;
+  --ax-space-8: 2rem;
+  --ax-space-10: 2.5rem;
+  --ax-space-12: 3rem;
+  --ax-radius-sm: 0.375rem;
+  --ax-radius-md: 0.625rem;
+  --ax-radius-lg: 0.875rem;
+  --ax-radius-xl: 1.25rem;
+  --ax-radius-pill: 9999px;
+  --ax-elevation-raised: 0 10px 28px rgba(16, 32, 51, 0.055);
+  --ax-elevation-overlay: 0 20px 64px rgba(16, 32, 51, 0.09);
+  --ax-motion-press: 80ms;
+  --ax-motion-interaction: 140ms;
+  --ax-motion-drawer: 220ms;
+  --ax-motion-datum: 320ms;
+  --ax-ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --ax-ease-exit: cubic-bezier(.4, 0, 1, 1);
+}
+
+/* Theme override fixture: future themes replace aliases, never component tokens. */
+[data-theme='dark'] {
+  --ax-canvas: ;
+  --ax-surface-1: ;
+  --ax-surface-2: ;
+  --ax-text: ;
+  --ax-text-muted: ;
+  --ax-border: ;
+  --ax-border-strong: ;
+  --ax-action-primary: ;
+  --ax-action-primary-hover: ;
+  --ax-action-secondary: ;
+  --ax-focus: ;
+  --ax-selection: ;
+  --ax-datum: ;
+}
