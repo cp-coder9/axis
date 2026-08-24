@@ -61,4 +61,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Action Centre');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('work from Meetings, Passport, Documents and AI review in one queue');
   });
+
+  test('P6-W2-06 issues and RFIs renders its formal query pipeline through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'issues_rfis');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Issues & RFIs');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('audited queries with response workflow');
+  });
 });

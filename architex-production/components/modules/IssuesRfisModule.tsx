@@ -5,6 +5,8 @@ import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onOpenWingman?: () => void; onTabChange?: (key: string) => void }
 
@@ -41,10 +43,12 @@ export function IssuesRfisModule({ activeProject, currentRole, activeTabKey = 'r
   const inResponse = rfis.filter(r => r.status === 'In Response').length;
 
   return <section className="space-y-4" aria-label="Issues and RFIs">
-    <header className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#FF6B6B]/10 text-[#d95747]"><OrigamiIcon name="issues_rfis" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#d95747]">Formal query pipeline</p><h1 className="text-xl font-bold">Issues & RFIs</h1><p className="text-xs text-[#657287]">{activeProject.code} · audited queries with response workflow</p></div></div>
-      <button onClick={() => setShowForm(!showForm)} className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white">+ Raise RFI</button>
-    </header>
+    <PageHeader
+      title="Issues & RFIs"
+      origami={<OrigamiIcon name="issues_rfis" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#a13a2e]">Formal query pipeline</p><p>{activeProject.code} · audited queries with response workflow</p></>}
+      actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" onClick={() => setShowForm(!showForm)} className="shrink-0">+ Raise RFI</Button><nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Issues and RFIs sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>}
+    />
 
     {showForm && <div className="rounded-2xl border border-[#19B7B0]/30 bg-white p-5 shadow-sm space-y-3">
       <h3 className="text-sm font-bold">Raise a formal RFI</h3>
@@ -53,10 +57,8 @@ export function IssuesRfisModule({ activeProject, currentRole, activeTabKey = 'r
       <div className="flex justify-end gap-2"><button onClick={() => setShowForm(false)} className="rounded-xl border px-4 py-2 text-xs font-bold">Cancel</button><button onClick={raiseRfi} className="rounded-xl bg-[#19B7B0] px-4 py-2 text-xs font-bold text-white">Submit RFI</button></div>
     </div>}
 
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
-
     {tab === 'rfis' && <><div className="grid gap-3 md:grid-cols-3">{[['Open',String(active)],['In response',String(inResponse)],['Closed this month','6']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
-      <div className="rounded-2xl border bg-white shadow-sm overflow-x-auto"><table className="w-full min-w-[720px] text-left text-xs"><thead className="bg-[#f5faf9] text-[10px] uppercase text-[#657287]"><tr>{['RFI','Subject','Raised by','Discipline','Status','Due'].map(h => <th key={h} className="px-4 py-3">{h}</th>)}</tr></thead><tbody className="divide-y">{rfis.map(r => <tr key={r.id} className="hover:bg-[#f8fbfb]"><td className="px-4 py-3 font-mono font-bold text-[#167E79]">{r.id}</td><td className="px-4 py-3 font-semibold">{r.title}</td><td className="px-4 py-3">{r.raisedBy}</td><td className="px-4 py-3">{r.discipline}</td><td className="px-4 py-3"><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${r.status === 'Closed' ? 'bg-green-100 text-green-700' : r.status === 'Open' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{r.status}</span></td><td className="px-4 py-3 text-[#657287]">{r.due}</td></tr>)}</tbody></table></div></>}
+      <div className="rounded-2xl border bg-white shadow-sm overflow-x-auto" tabIndex={0} aria-label="RFI register table"><table className="w-full min-w-[720px] text-left text-xs"><thead className="bg-[#f5faf9] text-[10px] uppercase text-[#657287]"><tr>{['RFI','Subject','Raised by','Discipline','Status','Due'].map(h => <th key={h} className="px-4 py-3">{h}</th>)}</tr></thead><tbody className="divide-y">{rfis.map(r => <tr key={r.id} className="hover:bg-[#f8fbfb]"><td className="px-4 py-3 font-mono font-bold text-[#167E79]">{r.id}</td><td className="px-4 py-3 font-semibold">{r.title}</td><td className="px-4 py-3">{r.raisedBy}</td><td className="px-4 py-3">{r.discipline}</td><td className="px-4 py-3"><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${r.status === 'Closed' ? 'bg-green-100 text-green-700' : r.status === 'Open' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{r.status}</span></td><td className="px-4 py-3 text-[#657287]">{r.due}</td></tr>)}</tbody></table></div></>}
 
     {tab === 'issues' && <div className="space-y-3">{[['ISSUE-004','Masonry out of plumb — Block 2','High','Open'],['ISSUE-003','Water ingress at podium junction','Medium','In progress'],['ISSUE-002','Window schedule discrepancy','Medium','Resolved'],['ISSUE-001','Site access conflict','Low','Resolved']].map(([id,title,sev,status]) => <div key={id} className="flex items-center gap-3 rounded-2xl border bg-white p-4 shadow-sm"><span className="font-mono text-xs font-bold text-[#d95747]">{id}</span><div className="flex-1"><div className="text-xs font-bold">{title}</div><div className="text-[10px] text-[#657287]">Severity: {sev}</div></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${status === 'Resolved' ? 'bg-green-100 text-green-700' : status === 'Open' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'}`}>{status}</span></div>)}</div>}
 
