@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -30,13 +32,15 @@ export function CpdLearningModule({ activeProject, currentRole, activeTabKey = '
   const canEnrol = ['architect','bep','engineer','quantity_surveyor','town_planner','cpm','admin','platform_admin'].includes(currentRole);
 
   return <section className="space-y-4" aria-label="CPD and Learning">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="cpd_learning" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">SACAP · SAIA · CETA</p><h1 className="text-xl font-bold">CPD & Learning</h1><p className="text-xs text-[#657287]">Continuing professional development tracking</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader
+      title="CPD & Learning"
+      origami={<OrigamiIcon name="cpd_learning" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">SACAP · SAIA · CETA</p><p>Continuing professional development tracking</p></>}
+      actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="CPD and Learning sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>}
+    />
 
     {tab === 'courses' && <><div className="grid gap-4 md:grid-cols-4">{[['Courses',String(catalog.length)],['Enrolled',String(enroled)],['CPD hours earned',String(totalHours)],['SACAP annual target','18 / 25 hours']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
-      <div className="space-y-3">{catalog.map(c => <article key={c.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm lg:flex-row lg:items-center"><div className="h-10 w-1 rounded-full bg-[#2563EB]" /><div className="flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#167E79]">{c.id}</span><h2 className="text-sm font-bold">{c.title}</h2><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#167E79]">{c.cat}</span></div><p className="mt-1 text-xs text-[#657287]">{c.provider} · {c.hours} hours</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${c.status === 'Complete' ? 'bg-green-100 text-green-700' : c.status === 'In progress' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{c.status}</span><button disabled={!canEnrol || c.status === 'Complete'} className="rounded-xl border px-3 py-2 text-xs font-bold disabled:opacity-40">{c.status === 'Available' ? 'Enrol' : c.status === 'In progress' ? 'Continue' : 'Certificate'}</button></article>)}</div></>}
+      <div className="space-y-3">{catalog.map(c => <article key={c.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm lg:flex-row lg:items-center"><div className="h-10 w-1 rounded-full bg-[#2563EB]" /><div className="flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#135f5a]">{c.id}</span><h2 className="text-sm font-bold">{c.title}</h2><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#135f5a]">{c.cat}</span></div><p className="mt-1 text-xs text-[#657287]">{c.provider} · {c.hours} hours</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${c.status === 'Complete' ? 'bg-green-100 text-green-700' : c.status === 'In progress' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{c.status}</span><Button type="button" variant="quiet" size="sm" disabled={!canEnrol || c.status === 'Complete'}>{c.status === 'Available' ? 'Enrol' : c.status === 'In progress' ? 'Continue' : 'Certificate'}</Button></article>)}</div></>}
 
     {tab === 'sacap' && <div className="rounded-2xl border bg-white p-5 shadow-sm space-y-3"><h2 className="text-base font-bold">SACAP CPD Requirements</h2><div className="grid gap-3 md:grid-cols-3">{[['Category 1 — Formal','8 hours','2 complete'],['Category 2 — Structured','8 hours','5 complete'],['Category 3 — Unstructured','9 hours','3 complete']].map(([cat,req,progress]) => <div key={cat} className="rounded-xl bg-[#f5faf9] p-4"><div className="text-[10px] uppercase text-[#657287]">{cat}</div><div className="mt-1 text-lg font-bold">{req}</div><div className="text-[10px] text-[#526074]">{progress}</div></div>)}</div><p className="text-xs text-[#657287]">Annual cycle: 1 March to 28 February. Minimum 25 hours total across all categories.</p></div>}
 

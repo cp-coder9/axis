@@ -51,4 +51,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Remote Desktop');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('resource-heavy tool sessions');
   });
+
+  test('P6-W5-07 CPD learning renders its development tracking through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'cpd_learning');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('CPD & Learning');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Continuing professional development tracking');
+  });
 });
