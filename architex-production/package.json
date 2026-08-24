@@ -18,7 +18,8 @@
     "validate:v8-migration": "node scripts/validate-v8-migration.mjs",
     "test:e2e:v8-shell": "playwright test e2e/v8-shell-visual.spec.ts --project=chromium",
     "test:e2e:v8-parity": "playwright test e2e/v8-workflow-parity.spec.ts --project=chromium",
-    "test:e2e:v8-wave-1": "playwright test e2e/v8-wave-1.spec.ts --project=chromium"
+    "test:e2e:v8-wave-1": "playwright test e2e/v8-wave-1.spec.ts --project=chromium",
+    "test:e2e:v8-wave-2": "playwright test e2e/v8-wave-2.spec.ts --project=chromium"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
