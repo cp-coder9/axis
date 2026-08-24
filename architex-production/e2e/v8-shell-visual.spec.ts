@@ -22,6 +22,10 @@ test('P6-NAV-01 mobile context drawer opens, traps focus, and restores its trigg
   await expect(drawer).toBeVisible();
   await expect(drawer).toBeFocused();
 
+  const lastDrawerControl = drawer.locator('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])').last();
+  await page.keyboard.press('Shift+Tab');
+  await expect(lastDrawerControl).toBeFocused();
+
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
   await expect(trigger).toBeFocused();
