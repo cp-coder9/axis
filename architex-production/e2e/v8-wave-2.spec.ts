@@ -33,4 +33,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await openMigratedTool(page, 'project_passport');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Project Passport');
   });
+
+  test('P6-W2-02 project explorer renders its record relationships through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'project_explorer');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Project Explorer');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('search across drawings, contracts, RFIs, meetings, approvals');
+  });
 });
