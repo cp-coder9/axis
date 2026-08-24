@@ -5,6 +5,8 @@ import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface SpecForgeModuleProps {
   activeProject: ProjectEntity;
@@ -76,42 +78,28 @@ export const SpecForgeModule: React.FC<SpecForgeModuleProps> = ({
 
   return (
     <section className="space-y-4" aria-label="SpecForge specification builder">
-      <header className="flex flex-col gap-4 rounded-3xl border border-[#102033]/10 bg-white p-4 shadow-sm md:p-5">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#19B7B0]/30 bg-[#19B7B0]/10 text-[#167E79]">
-              <OrigamiIcon name="specification" size={26} />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-bold tracking-tight text-[#102033]">SpecForge V2</h1>
-                <span className="rounded-full bg-[#DFF5F2] px-2 py-0.5 text-[10px] font-bold text-[#167E79]">{activeProject.revision}</span>
-              </div>
-              <p className="text-[13px] text-[#657287]">{activeProject.name} · coordinated visual, clause, cost and drawing specification workflow</p>
-            </div>
-          </div>
-          <button onClick={() => setTab('issue')} className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#1d3550]">
-            Prepare issue set
-          </button>
-        </div>
-
-        <nav className="overflow-x-auto" aria-label="SpecForge workflow">
-          <div className="flex min-w-max gap-1 rounded-2xl border border-[#102033]/10 bg-[#F7F9FB] p-1">
+      <PageHeader
+        title="SpecForge V2"
+        origami={<OrigamiIcon name="specification" size={26} />}
+        metadata={<p>{activeProject.name} · coordinated visual, clause, cost and drawing specification workflow · {activeProject.revision}</p>}
+        actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" onClick={() => setTab('issue')}>Prepare issue set</Button><nav className="overflow-x-auto" aria-label="SpecForge workflow"><div className="flex min-w-max gap-1"> 
             {TABS.map((item) => (
-              <button
+              <Button
                 key={item.key}
+                type="button"
+                variant={tab === item.key ? 'ink' : 'quiet'}
+                size="sm"
                 aria-pressed={tab === item.key}
                 onClick={() => setTab(item.key || '')}
                 aria-current={tab === item.key ? 'page' : undefined}
-                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-bold transition-all ${tab === item.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:bg-white hover:text-[#102033]'}`}
+                className="shrink-0"
               >
                 {item.icon && <OrigamiIcon name={item.icon} size={13} />}
                 {item.label}
-              </button>
+              </Button>
             ))}
-          </div>
-        </nav>
-      </header>
+          </div></nav></div>}
+      />
 
       {tab === 'overview' && (
         <div data-tool-tab="overview" className="space-y-4">
@@ -123,7 +111,7 @@ export const SpecForgeModule: React.FC<SpecForgeModuleProps> = ({
               ['Drawing findings', '3', 'One high-priority coordination gap'],
             ].map(([label, value, detail]) => (
               <div key={label} className="rounded-2xl border bg-white p-4 shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#96a0ad]">{label}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--ax-text-muted)]">{label}</p>
                 <p className="mt-2 text-2xl font-extrabold text-[#102033]">{value}</p>
                 <p className="mt-1 text-[11px] text-[#657287]">{detail}</p>
               </div>

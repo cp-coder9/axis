@@ -77,4 +77,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Integrated Form System');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Passport data auto-fills every form');
   });
+
+  test('P6-W1-09 specforge renders its tender specification workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'specforge');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('SpecForge V2');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('coordinated visual, clause, cost and drawing specification workflow');
+  });
 });
