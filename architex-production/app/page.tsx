@@ -26,6 +26,7 @@ import {
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
 import { AccessGateway } from '@/components/access/AccessGateway';
 import { EngineeringWorkflowProvider } from '@/components/providers/EngineeringWorkflowProvider';
+import { godModeAvailable } from '@/lib/god-mode';
 
 /** Map a MariaDB-backed API project row onto the frontend ProjectEntity shape. */
 function apiProjectToEntity(project: ApiProject): ProjectEntity {
@@ -50,9 +51,11 @@ function ArchitexOSPage() {
   const [projects, setProjects] = useState<ProjectEntity[]>(ALL_PROJECTS);
   const [activeProject, setActiveProject] = useState<ProjectEntity>(ALL_PROJECTS[0]);
   const [currentRole, setCurrentRole] = useState<RoleKey>('architect');
+  const godModeEnabled = godModeAvailable();
   const dispatchNavigation = useCallback((event: NavigationEvent) => {
+    if (event.type === 'enter-god' && !godModeEnabled) return;
     setNavigation((state) => transitionNavigation(state, event, ALL_TOOLS));
-  }, []);
+  }, [godModeEnabled]);
   const { mode, globalId: activeGlobal, toolId: activeToolId, tabKey: activeToolTabKey } = navigation;
   const godMode = navigation.godSession !== null;
 
@@ -170,6 +173,7 @@ function ArchitexOSPage() {
           onToggleInspector={() => narrowLayout ? setInspectorDrawerOpen(true) : setInspectorOpen(!inspectorOpen)}
           onOpenWingman={() => handleOpenTool('wingman')}
           onNavigate={dispatchNavigation}
+          godModeEnabled={godModeEnabled}
           inspectorOpen={narrowLayout ? inspectorDrawerOpen : inspectorOpen}
           narrowLayout={narrowLayout}
         />

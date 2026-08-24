@@ -19,6 +19,7 @@ interface TopBarProps {
   onNavigate: (event: NavigationEvent) => void;
   inspectorOpen: boolean;
   narrowLayout: boolean;
+  godModeEnabled: boolean;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -34,6 +35,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onNavigate,
   inspectorOpen,
   narrowLayout,
+  godModeEnabled,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
   const { mode, globalId: activeGlobal } = navigation;
@@ -42,13 +44,13 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <header className="h-[64px] bg-white/90 border-b border-[#102033]/10 backdrop-blur-md px-4 flex items-center gap-3 z-10">
       {/* Mobile global-navigation drawer trigger */}
-      <button
+      {(godMode || godModeEnabled) && <button
         onClick={onOpenGlobalNavigation}
         className="md:hidden w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
         aria-label="Open global navigation"
       >
         <OrigamiIcon name="menu" size={18} />
-      </button>
+      </button>}
 
       {/* Toggle Navigator Compact / Expand */}
       <button
