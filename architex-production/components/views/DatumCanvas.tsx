@@ -12,6 +12,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 interface DatumCanvasProps {
   project: ProjectEntity;
   currentRole: RoleKey;
+  presentationStage?: StageKey | null;
   onSelectStage: (stage: StageKey) => void;
   onOpenTool: (toolId: string) => void;
   onOpenWingman: () => void;
@@ -21,6 +22,7 @@ interface DatumCanvasProps {
 export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   project,
   currentRole,
+  presentationStage = null,
   onSelectStage,
   onOpenTool,
   onOpenWingman,
@@ -29,14 +31,18 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   const [zoom, setZoom] = useState<number>(1.0);
   const profile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
-  // Determine stage & role filtered tools
-  const stageTools = STAGE_TOOL_MAP[project.stage] || [];
+  const displayedStage = presentationStage ?? project.stage;
+  // God Mode is a presentation-only branch: it shows the complete selected
+  // stage map without changing the authenticated role or durable project stage.
+  const stageTools = STAGE_TOOL_MAP[displayedStage] || [];
   const roleTools = ROLE_TOOL_MAP[currentRole] || [];
 
   // Prioritize tools that match both stage and role
   const priorityIds = stageTools.filter((id) => roleTools.includes(id));
   const fallbackIds = stageTools.filter((id) => !priorityIds.includes(id));
-  const activeToolIds = Array.from(new Set([...priorityIds, 'meetings', 'practice', ...fallbackIds])).slice(0, 8);
+  const activeToolIds = presentationStage
+    ? [...stageTools]
+    : Array.from(new Set([...priorityIds, 'meetings', 'practice', ...fallbackIds])).slice(0, 8);
 
   const activeTools = activeToolIds.map((id) => ALL_TOOLS[id]).filter(Boolean);
 
@@ -77,6 +83,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
 
   return (
     <div className="space-y-4" data-testid="datum-canvas">
+      {presentationStage && <span className="sr-only" data-testid="god-mode-datum">{presentationStage} exploration</span>}
       {/* Page Header */}
       <PageHeader
         title={project.name}
@@ -127,8 +134,8 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         {/* Interactive 8-Stage Lifecycle Selection */}
         <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
           {STAGES.map((s, idx) => {
-            const isCurrent = s === project.stage;
-            const stageIndex = STAGES.indexOf(project.stage);
+            const isCurrent = s === displayedStage;
+            const stageIndex = STAGES.indexOf(displayedStage);
             const isPast = idx < stageIndex;
 
             return (
@@ -163,7 +170,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         </div>
 
         <Surface level="inset" className="text-[var(--ax-text-muted)]">
-          <strong className="text-[var(--ax-text)]">{project.stage} Stage:</strong> {STAGE_COPY[project.stage]}
+          <strong className="text-[var(--ax-text)]">{displayedStage} Stage:</strong> {STAGE_COPY[displayedStage]}
         </Surface>
       </Surface>
 
@@ -201,7 +208,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         {/* Stage & Role Tool Count Badge — informational only, must not intercept clicks */}
         <Surface level="overlay" className="pointer-events-none absolute right-5 top-5 z-20 max-w-[260px] text-[var(--ax-text-muted)]">
           <strong className="mb-0.5 block font-bold text-[var(--ax-text)]">
-            {project.stage} Stage Tools for {profile.label}
+            {displayedStage} Stage Tools for {profile.label}
           </strong>
           {activeTools.length} role-prioritized tools are connected to the central datum line of truth.
         </Surface>
@@ -238,6 +245,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
                 <div key={tool.id} className="relative flex flex-col items-center">
                   <Button
                     data-testid="datum-card"
+                    data-tool-id={tool.id}
                     variant="secondary"
                     size="sm"
                     onClick={() => onOpenTool(tool.id)}
@@ -275,6 +283,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
 
                   <Button
                     data-testid="datum-card"
+                    data-tool-id={tool.id}
                     variant="secondary"
                     size="sm"
                     onClick={() => onOpenTool(tool.id)}

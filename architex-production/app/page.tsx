@@ -193,7 +193,10 @@ function ArchitexOSPage() {
             <DatumCanvas
               project={activeProject}
               currentRole={currentRole}
-              onSelectStage={handleSelectStage}
+              presentationStage={navigation.godSession?.presentationStage}
+              onSelectStage={(stage) => godMode
+                ? dispatchNavigation({ type: 'open-god-stage', stage })
+                : handleSelectStage(stage)}
               onOpenTool={handleOpenTool}
               onOpenWingman={() => handleOpenTool('wingman')}
               onOpenFeedback={() => handleOpenTool('feedback')}
