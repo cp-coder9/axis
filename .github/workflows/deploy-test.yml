@@ -42,7 +42,9 @@ jobs:
           FTP_PASSWORD: ${{ secrets.TEST_ARCHITEX_FTP_PASSWORD }}
           FTP_DIRECTORY: ${{ secrets.TEST_ARCHITEX_FTP_SERVER_DIR }}
         run: |
-          test -n "$FTP_SERVER" && test -n "$FTP_USERNAME" && test -n "$FTP_PASSWORD" && test -n "$FTP_DIRECTORY"
+          for required in FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_DIRECTORY; do
+            if [ -z "${!required}" ]; then echo "Required test deployment secret is missing: $required" >&2; exit 1; fi
+          done
           lftp <<EOF
           set cmd:fail-exit true
           set ftp:ssl-force true
