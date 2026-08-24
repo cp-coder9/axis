@@ -44,13 +44,13 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <header className="h-[64px] bg-white/90 border-b border-[#102033]/10 backdrop-blur-md px-4 flex items-center gap-3 z-10">
       {/* Mobile global-navigation drawer trigger */}
-      {(godMode || godModeEnabled) && <button
+      <button
         onClick={onOpenGlobalNavigation}
         className="md:hidden w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
         aria-label="Open global navigation"
       >
         <OrigamiIcon name="menu" size={18} />
-      </button>}
+      </button>
 
       {/* Toggle Navigator Compact / Expand */}
       <button
@@ -101,7 +101,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* God Mode Toggle — between project chip and role switcher (plan 5B) */}
-      <button
+      {(godMode || godModeEnabled) && <button
           type="button"
           data-testid="god-mode-toggle"
           aria-pressed={godMode}
@@ -118,7 +118,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <span className="hidden sm:inline text-[9px] font-bold uppercase">
             {godMode ? 'On' : 'Explore'}
           </span>
-        </button>
+        </button>}
 
       {/* 20 Role Personas Switcher */}
       <div className="flex items-center gap-1.5 bg-white border border-[#102033]/15 rounded-xl px-2 py-1 shadow-sm">

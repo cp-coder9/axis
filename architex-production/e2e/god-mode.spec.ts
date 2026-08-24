@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { STAGE_TOOL_MAP } from '@/lib/data';
 
+test('P7-T08 release flag disabled removes the God Mode entry point', async ({ page }) => {
+  test.skip(process.env.NEXT_PUBLIC_GOD_MODE_ENABLED !== 'false', 'requires the disabled production artifact');
+  await page.goto('/?workspace=v8');
+  await expect(page.getByTestId('god-mode-toggle')).toHaveCount(0);
+});
+
 test('P7-T05 God Mode toggle exposes stable selected semantics', async ({ page }) => {
   await page.goto('/?workspace=v8');
   const toggle = page.getByTestId('god-mode-toggle');
