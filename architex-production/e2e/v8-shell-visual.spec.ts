@@ -220,3 +220,14 @@ test('P6-W0-GLOBAL Tool Registry preserves search and status filtering', async (
   await expect(page.getByRole('button', { name: /Engineer's Calculation Hub/ })).toBeHidden();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-GLOBAL Command destination preserves its existing card action', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: /Command Centre/ }).click();
+
+  await page.getByRole('button', { name: /Practice & Command Centre/ }).click();
+  await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
+  await assertNoBodyOverflow(page);
+});

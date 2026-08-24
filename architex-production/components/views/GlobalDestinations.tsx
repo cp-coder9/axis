@@ -10,6 +10,10 @@ import {
   type NavigationEvent,
 } from '@/lib/navigation';
 import { UserManagementSection } from '@/components/views/UserManagementSection';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Card, Surface } from '@/components/ui/Surface';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 type ContentDestinationId = keyof typeof GLOBAL_DESTINATION_CONTENT;
 
@@ -34,62 +38,43 @@ function DestinationView({
   onNavigate: (event: NavigationEvent) => void;
 }) {
   const content = GLOBAL_DESTINATION_CONTENT[view];
-  const destination = GLOBAL_DESTINATIONS[view];
   const isCommand = view === 'command';
 
   return (
     <section className="space-y-5" data-testid={`global-destination-${view}`}>
-      <div className="flex items-center gap-3">
-        <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center"
-          style={{ background: `${destination.tone}18`, color: destination.tone }}
-        >
-          <OrigamiIcon name={destination.icon} size={26} />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-[#102033]">{content.heading}</h1>
-          <p className="text-xs text-[#657287]">{content.subheading}</p>
-        </div>
-        {content.primaryAction && (
-          <button
-            onClick={() => onNavigate(content.primaryAction!.action)}
-            className="ml-auto inline-flex items-center gap-2 px-4 py-2 text-white rounded-xl text-xs font-bold transition-colors"
-            style={{ background: destination.tone }}
-          >
-            <OrigamiIcon name={content.primaryAction.icon} size={16} />
-            {content.primaryAction.label}
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title={content.heading}
+        metadata={content.subheading}
+        origami={<OrigamiIcon name={GLOBAL_DESTINATIONS[view].icon} size={26} />}
+        actions={content.primaryAction ? <Button size="sm" onClick={() => onNavigate(content.primaryAction!.action)}><OrigamiIcon name={content.primaryAction.icon} size={16} /> {content.primaryAction.label}</Button> : undefined}
+      />
 
       <div className={`grid grid-cols-1 gap-4 ${isCommand ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
         {content.cards.map((card) => (
-          <button
+          <Button
             key={card.label}
+            variant="secondary"
             onClick={() => onNavigate(card.action)}
-            className="group flex items-start gap-3 p-4 bg-white border border-[#102033]/10 rounded-2xl text-left shadow-sm hover:shadow-md hover:border-[#19B7B0]/30 transition-all"
+            className="h-auto items-start gap-3 p-4 text-left"
           >
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${card.tone}15`, color: card.tone }}
-            >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[var(--ax-radius-sm)] bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
               <OrigamiIcon name={card.icon} size={22} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 text-sm font-bold text-[#102033] group-hover:text-[#167E79]">
+              <div className="flex items-center gap-2 font-bold">
                 {card.label}
-                {card.badge && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#102033]/5 text-[#657287]">{card.badge}</span>}
+                {card.badge && <StatusBadge tone="neutral" label={card.badge} />}
               </div>
-              <div className="text-xs text-[#657287] mt-0.5">{card.description}</div>
+              <div className="mt-0.5 text-[var(--ax-text-muted)]">{card.description}</div>
             </div>
-          </button>
+          </Button>
         ))}
       </div>
 
       {content.warning && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+        <Surface level="inset" className="text-[var(--ax-text)]">
           <strong>Note:</strong> {content.warning}
-        </div>
+        </Surface>
       )}
     </section>
   );
@@ -132,18 +117,15 @@ function SettingsView({ currentRole }: { currentRole: RoleKey }) {
 
   return (
     <section className="space-y-5" data-testid="global-destination-settings">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-[#DFF5F2] flex items-center justify-center text-[#167E79]">
-          <OrigamiIcon name="settings" size={26} />
-        </div>
-        <div><h1 className="text-xl font-bold text-[#102033]">{content.heading}</h1><p className="text-xs text-[#657287]">{content.subheading}</p></div>
-      </div>
+      <PageHeader title={content.heading} metadata={content.subheading} origami={<OrigamiIcon name="settings" size={26} />} />
       <div className="flex gap-2 overflow-x-auto" role="tablist" aria-label="Settings sections">
         {tabs.map((item) => (
-          <button
+          <Button
             key={item.id}
             id={`settings-tab-${item.id}`}
             type="button"
+            variant={tab === item.id ? 'primary' : 'secondary'}
+            size="sm"
             role="tab"
             aria-selected={tab === item.id}
             aria-controls={`settings-panel-${item.id}`}
@@ -153,16 +135,16 @@ function SettingsView({ currentRole }: { currentRole: RoleKey }) {
               if (event.key === 'ArrowRight') selectAdjacentTab(1);
               if (event.key === 'ArrowLeft') selectAdjacentTab(-1);
             }}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-[11px] font-bold ${tab === item.id ? 'bg-[#167E79] text-white shadow-sm' : 'bg-white border border-[#102033]/10 text-[#657287]'}`}
+            className="gap-1.5 whitespace-nowrap"
           >
             <OrigamiIcon name={item.icon} size={14} />{item.label}
-          </button>
+          </Button>
         ))}
       </div>
       <div id={`settings-panel-${tab}`} role="tabpanel" aria-labelledby={`settings-tab-${tab}`} aria-label={activeTab.label}>
       {tab === 'users' ? <UserManagementSection currentRole={currentRole} /> : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          {sections[tab].map((section) => <div key={section.title} className="p-4 bg-white border border-[#102033]/10 rounded-2xl shadow-sm"><div className="font-bold text-[#102033] mb-1">{section.title}</div><div className="text-[#657287]">{section.detail}</div></div>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {sections[tab].map((section) => <Card key={section.title} level="raised"><div className="mb-1 font-bold text-[var(--ax-text)]">{section.title}</div><div className="text-[var(--ax-text-muted)]">{section.detail}</div></Card>)}
         </div>
       )}
       </div>
