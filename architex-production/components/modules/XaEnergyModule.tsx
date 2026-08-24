@@ -5,6 +5,8 @@ import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface XaEnergyModuleProps {
   activeProject: ProjectEntity;
@@ -120,34 +122,27 @@ export const XaEnergyModule: React.FC<XaEnergyModuleProps> = ({
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-12 h-12 shrink-0 rounded-2xl bg-[#19B7B0]/10 border border-[#19B7B0]/30 flex items-center justify-center text-[#167E79]">
-            <OrigamiIcon name="xa" size={26} />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-[#102033] tracking-tight">SANS 10400-XA Energy Compliance</h1>
-            <p className="text-[13px] text-[#657287] truncate sm:whitespace-normal">{activeProject.name} · SANS 10400-XA:2021 prescriptive assessment</p>
-          </div>
-        </div>
-
-        <nav className="flex max-w-full overflow-x-auto bg-white p-1 rounded-2xl border border-[#102033]/15 shadow-sm" aria-label="XA calculation sections">
+      <PageHeader
+        title="SANS 10400-XA Energy Compliance"
+        origami={<OrigamiIcon name="xa" size={26} />}
+        metadata={<p>{activeProject.name} · SANS 10400-XA:2021 prescriptive assessment</p>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="XA calculation sections">
           {TABS.map((item) => (
-            <button
+            <Button
               key={item.key}
               type="button"
+              variant={tab === item.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === item.key}
               onClick={() => setTab(item.key || FALLBACK_TAB)}
               aria-current={tab === item.key ? 'page' : undefined}
-              className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${
-                tab === item.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:text-[#102033] hover:bg-[#102033]/5'
-              }`}
+              className="shrink-0"
             >
               {item.label}
-            </button>
+            </Button>
           ))}
-        </nav>
-      </header>
+        </nav>}
+      />
 
       <div className="flex items-center justify-between gap-3 rounded-xl border border-[#102033]/10 bg-[#f7f9fb] px-3 py-2 text-[11px]">
         <span className="font-bold text-[#526074]">Active calculation: {tabLabel}</span>
@@ -184,9 +179,9 @@ export const XaEnergyModule: React.FC<XaEnergyModuleProps> = ({
             <div className="lg:col-span-2">
               <Panel title="Project energy brief" description="The governing project inputs and selected compliance route.">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-xl bg-[#f7f9fb] p-3"><span className="block text-[#96a0ad] font-bold uppercase text-[10px]">Building classification</span><strong className="text-[#102033]">{buildingClass}</strong></div>
-                  <div className="rounded-xl bg-[#f7f9fb] p-3"><span className="block text-[#96a0ad] font-bold uppercase text-[10px]">Compliance route</span><strong className="text-[#102033]">{complianceRoute}</strong></div>
-                  <div className="rounded-xl bg-[#f7f9fb] p-3 sm:col-span-2"><span className="block text-[#96a0ad] font-bold uppercase text-[10px]">Climate zone</span><strong className="text-[#102033]">{climateZone}</strong></div>
+                  <div className="rounded-xl bg-[#f7f9fb] p-3"><span className="block text-[var(--ax-text-muted)] font-bold uppercase text-[10px]">Building classification</span><strong className="text-[#102033]">{buildingClass}</strong></div>
+                  <div className="rounded-xl bg-[#f7f9fb] p-3"><span className="block text-[var(--ax-text-muted)] font-bold uppercase text-[10px]">Compliance route</span><strong className="text-[#102033]">{complianceRoute}</strong></div>
+                  <div className="rounded-xl bg-[#f7f9fb] p-3 sm:col-span-2"><span className="block text-[var(--ax-text-muted)] font-bold uppercase text-[10px]">Climate zone</span><strong className="text-[#102033]">{climateZone}</strong></div>
                 </div>
                 <p className="text-[11px] text-[#657287]">Complete each calculation panel before issuing the compliance report. Values shown here update immediately from their source panels.</p>
               </Panel>

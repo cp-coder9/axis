@@ -63,4 +63,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await openMigratedTool(page, 'municipal');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Municipal Submission Manager');
   });
+
+  test('P6-W1-07 XA renders its energy compliance workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'xa');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('SANS 10400-XA Energy Compliance');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('prescriptive assessment');
+  });
 });
