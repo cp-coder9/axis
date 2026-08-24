@@ -12,6 +12,7 @@
     "test:unit": "vitest run",
     "test": "node scripts/validate-foundation.mjs && php backend/tests/smoke.php",
     "test:e2e": "playwright test",
+    "test:god-mode": "playwright test e2e/god-mode.spec.ts --project=chromium --workers=1",
     "validate:design-system": "node scripts/validate-design-system.mjs",
     "test:e2e:design-system": "playwright test e2e/design-system.spec.ts --project=chromium",
     "test:e2e:design-system:update": "playwright test e2e/design-system.spec.ts --project=chromium --update-snapshots",
