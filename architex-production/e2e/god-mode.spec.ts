@@ -15,6 +15,17 @@ test('P7-T05 God Mode toggle exposes stable selected semantics', async ({ page }
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('P7-T03 God Mode lens does not change the authenticated role', async ({ page }) => {
+  await page.goto('/?workspace=v8');
+  const roleSwitcher = page.getByTestId('role-switcher');
+  await expect(roleSwitcher).toHaveValue('architect');
+  await page.getByTestId('god-mode-toggle').click();
+  await page.getByRole('button', { name: /Quantity Surveyor/ }).click();
+
+  await expect(roleSwitcher).toHaveValue('architect');
+  await expect(page.getByRole('button', { name: /Quantity Surveyor/ })).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('P7-T04 handoff explorer opens governed stage details and restores focus', async ({ page }) => {
   await page.goto('/?workspace=v8');
   await page.getByRole('button', { name: 'God Mode Explore' }).click();
