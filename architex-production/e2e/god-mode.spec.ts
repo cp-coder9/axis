@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { STAGE_TOOL_MAP } from '@/lib/data';
 
+test('P7-T05 God Mode toggle exposes stable selected semantics', async ({ page }) => {
+  await page.goto('/?workspace=v8');
+  const toggle = page.getByTestId('god-mode-toggle');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('P7-T04 handoff explorer opens governed stage details and restores focus', async ({ page }) => {
   await page.goto('/?workspace=v8');
   await page.getByRole('button', { name: 'God Mode Explore' }).click();
