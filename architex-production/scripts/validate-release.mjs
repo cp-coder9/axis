@@ -9,6 +9,7 @@ const layers = [
   ['api-boundary', ['run', 'test:api']],
   ['typecheck', ['run', 'typecheck']],
   ['build', ['run', 'build']],
+  ['standalone-assembly', ['run', 'release:assemble']],
 ];
 
 for (const [name, args] of layers) {
