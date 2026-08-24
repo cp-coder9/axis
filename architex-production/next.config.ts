@@ -3,6 +3,7 @@ import type {NextConfig} from 'next';
 const staticExport = process.env.ARCHITEX_STATIC_EXPORT === '1';
 
 const nextConfig: NextConfig = {
+  distDir: process.env.ARCHITEX_GOD_MODE_TEST === 'true' ? '.next-god-mode' : '.next',
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
