@@ -20,3 +20,11 @@ test('P7-A11Y God Mode fits the required mobile viewport without page overflow',
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+test('P7-A11Y God Mode fits the required tablet viewport without page overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/?workspace=v8');
+  await page.getByTestId('god-mode-toggle').click();
+
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768);
+});
