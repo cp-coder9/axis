@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -20,11 +22,7 @@ export function EiaWorkspaceModule({ activeProject, currentRole, activeTabKey = 
   const canSubmit = ['architect','town_planner','bep','admin','platform_admin'].includes(currentRole);
 
   return <section className="space-y-4" aria-label="EIA Workspace">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#28a86b]/10 text-[#28a86b]"><OrigamiIcon name="eia_workspace" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#28a86b]">NEMA · EIA Regulations 2014</p><h1 className="text-xl font-bold">EIA Workspace</h1><p className="text-xs text-[#657287]">{activeProject.code} · Basic Assessment workflow</p></div></div>
-      {approved ? <span className="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-green-700">✓ BA Authorisation granted</span> : <button disabled={!canSubmit} onClick={() => setApproved(true)} className="rounded-xl bg-[#28a86b] px-4 py-2 text-xs font-bold text-white disabled:opacity-40">Submit BAR to DFFE</button>}
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#28a86b] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="EIA Workspace" origami={<OrigamiIcon name="eia_workspace" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#166534]">NEMA · EIA Regulations 2014</p><p>{activeProject.code} · Basic Assessment workflow</p></>} actions={<div className="flex max-w-full items-center gap-2">{approved ? <span className="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-green-700">✓ BA Authorisation granted</span> : <Button type="button" variant="ink" size="sm" disabled={!canSubmit} onClick={() => setApproved(true)} className="shrink-0">Submit BAR to DFFE</Button>}<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="EIA Workspace sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>} />
 
     {tab === 'eia' && <><div className="grid gap-4 md:grid-cols-4">{[['Process','Basic Assessment'],['BAR status','Drafting'],['Public review','Not started'],['Decision target','~90 days']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-xl font-bold">{v}</p></div>)}</div>
       <div className="rounded-2xl border bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><h3 className="text-sm font-bold">BAR progress</h3><span className="text-xl font-bold text-[#28a86b]">55%</span></div><div className="mt-3 h-3 rounded-full bg-gray-200"><div className="h-3 rounded-full bg-[#28a86b]" style={{width:'55%'}} /></div><p className="mt-2 text-xs text-[#657287]">Screening complete · specialist studies in progress · public participation pending</p></div></>}

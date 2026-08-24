@@ -41,4 +41,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Environmental & Heritage');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('EIA screening, heritage impact, public participation');
   });
+
+  test('P6-W3-03 EIA workspace renders its Basic Assessment workflow through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'eia_workspace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('EIA Workspace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Basic Assessment workflow');
+  });
 });
