@@ -23,7 +23,8 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: 'cmd /c "set NEXT_PUBLIC_GOD_MODE_ENABLED=true&& npm run dev"',
+        command: 'npm run dev',
+        env: { ...process.env, NEXT_PUBLIC_GOD_MODE_ENABLED: 'true' },
         url: 'http://127.0.0.1:3000',
         reuseExistingServer: true,
         timeout: 120_000,
