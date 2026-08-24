@@ -206,3 +206,17 @@ test('P6-GOD-01 God Mode preserves the existing lifecycle-stage action', async (
   await expect(page.getByText('Brief')).toBeVisible();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-GLOBAL Tool Registry preserves search and status filtering', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
+
+  await page.getByRole('searchbox', { name: 'Search workspace tools' }).fill("Engineer's Calculation Hub");
+  await expect(page.getByRole('button', { name: /Engineer's Calculation Hub/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Scaffold \(\d+\)/ }).click();
+  await expect(page.getByRole('button', { name: /Engineer's Calculation Hub/ })).toBeHidden();
+  await assertNoBodyOverflow(page);
+});

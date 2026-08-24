@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { OrientationMode, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 interface ToolRegistryViewProps {
   mode: OrientationMode;
@@ -38,42 +42,25 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
   return (
     <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6]">
-            <OrigamiIcon name="tools" size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#102033] tracking-tight">Workspace Tool Registry</h1>
-            <p className="text-[13px] text-[#657287]">
-              Browse all {tools.length} integrated capabilities. Live modules retain their full functional workflows; scaffolds reserve standard integration contracts.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onSetMode('project')}
-            className="px-3 py-1.5 bg-white hover:bg-gray-50 border border-[#102033]/15 text-[#102033] rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-sm"
-          >
-            <OrigamiIcon name="projects" size={16} />
-            <span>Open Project Datum</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Workspace Tool Registry"
+        origami={<OrigamiIcon name="tools" size={26} />}
+        metadata={<p>Browse all {tools.length} integrated capabilities. Live modules retain their full functional workflows; scaffolds reserve standard integration contracts.</p>}
+        actions={<Button variant="secondary" size="sm" onClick={() => onSetMode('project')}><OrigamiIcon name="projects" size={16} /> Open Project Datum</Button>}
+      />
 
       {/* Mode Explanation Notice */}
-      <div className="p-3.5 bg-[#DFF5F2]/60 border border-[#19B7B0]/20 rounded-2xl text-[12px] text-[#167E79] flex items-center justify-between">
-        <div>
+      <Surface level="inset" className="flex items-center justify-between">
+        <div className="text-[var(--ax-text)]">
           <strong>One Capability, Two Orientations.</strong>
-          <span className="text-[#526074] ml-1.5">
+          <span className="ml-1.5 text-[var(--ax-text-muted)]">
             Every tool operates standalone or connected to a project. Scope, data persistence, and audit logging adjust dynamically.
           </span>
         </div>
-      </div>
+      </Surface>
 
       {/* Search & Filter Toolbar */}
-      <div className="p-4 bg-white border border-[#102033]/10 rounded-2xl shadow-sm space-y-3">
+      <Surface level="raised" className="space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <input
@@ -82,26 +69,24 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
               placeholder={`Search across all ${tools.length} tools by name, discipline or standard...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-[#f7fbfa] border border-[#102033]/15 rounded-xl text-[13px] text-[#102033] focus:outline-none focus:border-[#19B7B0]"
+              className="w-full rounded-[var(--ax-radius-sm)] border border-[var(--ax-border-strong)] bg-[var(--ax-surface-1)] py-2 pl-9 pr-4 text-[var(--ax-text)] focus:outline-none focus:ring-2 focus:ring-[var(--ax-action-primary)]"
             />
-            <span className="absolute left-3 top-2.5 text-[#96a0ad]">🔍</span>
+            <span className="absolute left-3 top-2.5 text-[var(--ax-text-muted)]">🔍</span>
           </div>
 
           <div className="flex gap-1.5">
             {(['all', 'live', 'scaffold'] as const).map((st) => (
-              <button
+              <Button
                 key={st}
                 type="button"
+                variant={filterStatus === st ? 'ink' : 'secondary'}
+                size="sm"
                 aria-pressed={filterStatus === st}
                 onClick={() => setFilterStatus(st)}
-                className={`px-3 py-1.5 rounded-xl text-[12px] font-bold capitalize transition-all ${
-                  filterStatus === st
-                    ? 'bg-[#102033] text-white shadow-sm'
-                    : 'bg-[#f7fbfa] border border-[#102033]/10 text-[#657287] hover:text-[#102033]'
-                }`}
+                className="capitalize"
               >
                 {st === 'all' ? `All (${tools.length})` : st === 'live' ? `Live (${liveCount})` : `Scaffold (${scaffoldCount})`}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -109,63 +94,50 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
         {/* Group category chips */}
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {groups.map((grp) => (
-            <button
+            <Button
               key={grp}
               type="button"
+              variant={selectedGroup === grp ? 'quiet' : 'secondary'}
+              size="sm"
               aria-pressed={selectedGroup === grp}
               onClick={() => setSelectedGroup(grp)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
-                selectedGroup === grp
-                  ? 'bg-[#19B7B0]/15 text-[#167E79] border border-[#19B7B0]/30 font-bold'
-                  : 'bg-gray-50 text-[#657287] hover:bg-gray-100 border border-transparent'
-              }`}
+              className="whitespace-nowrap"
             >
               {grp}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Surface>
 
       {/* Grid of Tools */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {filteredTools.map((tool) => {
           return (
-            <button
+            <Button
               type="button"
+              variant="secondary"
               key={tool.id}
               onClick={() => onOpenTool(tool.id)}
-              className={`w-full p-4 text-left bg-white border rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between ${
-                tool.status === 'scaffold'
-                  ? 'border-dashed border-[#102033]/20 bg-[#fafcfb]'
-                  : 'border-[#102033]/10 hover:border-[#19B7B0]/50'
-              }`}
+              className={`h-auto w-full flex-col items-stretch justify-between p-4 text-left ${tool.status === 'scaffold' ? 'border-dashed' : ''}`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-[#DFF5F2] flex items-center justify-center text-[#167E79]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[var(--ax-radius-sm)] bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                     <OrigamiIcon name={tool.icon} size={22} />
                   </div>
-                  <span
-                    className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full ${
-                      tool.status === 'live'
-                        ? 'bg-green-50 text-green-700 border border-green-200'
-                        : 'bg-purple-50 text-purple-700 border border-purple-200'
-                    }`}
-                  >
-                    {tool.status === 'live' ? 'Live Flagship' : 'Scaffold'}
-                  </span>
+                  <StatusBadge tone={tool.status === 'live' ? 'success' : 'neutral'} label={tool.status === 'live' ? 'Live Flagship' : 'Scaffold'} />
                 </div>
 
-                <h3 className="text-[14px] font-bold text-[#102033] mb-1">{tool.name}</h3>
-                <div className="text-[11px] font-semibold text-[#167E79] mb-1.5">{tool.group}</div>
-                <p className="text-[12px] text-[#657287] line-clamp-3 leading-relaxed mb-3">{tool.summary}</p>
+                <h3 className="mb-1 font-bold">{tool.name}</h3>
+                <div className="mb-1.5 font-semibold text-[var(--ax-action-primary)]">{tool.group}</div>
+                <p className="mb-3 line-clamp-3 leading-relaxed text-[var(--ax-text-muted)]">{tool.summary}</p>
               </div>
 
-              <div className="pt-2.5 border-t border-[#102033]/5 flex items-center justify-between text-[11px] text-[#96a0ad]">
+              <div className="flex items-center justify-between border-t border-[var(--ax-border)] pt-2.5 text-[var(--ax-text-muted)]">
                 <span>Stage: {tool.stage}</span>
-                <span className="text-[#167E79] font-bold">Open Tool ›</span>
+                <span className="font-bold text-[var(--ax-action-primary)]">Open Tool ›</span>
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>
