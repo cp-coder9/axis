@@ -5,6 +5,7 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { OrientationMode, ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ROLE_PROFILES } from '@/lib/data';
 import { useEngineeringWorkflow } from '@/components/providers/EngineeringWorkflowProvider';
+import { Button } from '@/components/ui/Button';
 
 interface ContextInspectorProps {
   mode: OrientationMode;
@@ -99,12 +100,13 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
             </div>
 
             {mode === 'standalone' && (
-              <button
+              <Button
                 onClick={onAttachProject}
-                className="w-full py-2 bg-[#19B7B0] hover:bg-[#167E79] text-white rounded-xl font-semibold text-[12px] transition-colors shadow-sm"
+                size="sm"
+                className="w-full"
               >
                 Attach to {activeProject.name}
-              </button>
+              </Button>
             )}
 
             <div className="border-b border-[#102033]/10 pb-3">

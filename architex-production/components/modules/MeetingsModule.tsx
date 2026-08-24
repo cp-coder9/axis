@@ -6,6 +6,11 @@ import { ProjectEntity, RoleKey, MeetingOutcome, MeetingItem, ToolDefinition } f
 import { ALL_TOOLS, INITIAL_MEETING_DATA, ROLE_PROFILES } from '@/lib/data';
 import { architexApi, demoIdentity, ApiMeetingOutcome } from '@/lib/api';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { WorkflowRibbon } from '@/components/ui/WorkflowRibbon';
 
 const MEETING_ID = 'mtg-design-001';
 const TABS = (ALL_TOOLS['meetings'] as ToolDefinition).tabs;
@@ -184,118 +189,89 @@ export const MeetingsModule: React.FC<MeetingsModuleProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-2xl border border-[#102033]/10 bg-white p-3 shadow-sm xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex items-center gap-3 px-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#DFF5F2] text-[#167E79]">
-            <OrigamiIcon name="meetings" size={22} />
-          </div>
-          <div>
-            <h1 className="text-[15px] font-bold text-[#102033]">Architex Meetings</h1>
-            <p className="text-[11px] text-[#657287]">{activeProject.code} · governed calls, records and decisions</p>
-          </div>
-        </div>
-        <nav className="flex overflow-x-auto rounded-xl bg-[#F4F7F8] p-1" aria-label="Meetings sections">
+      <PageHeader
+        title="Architex Meetings"
+        origami={<OrigamiIcon name="meetings" size={22} />}
+        metadata={<p>{activeProject.code} · governed calls, records and decisions</p>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Meetings sections">
           {TABS.map((item) => (
-            <button
+            <Button
               key={item.key}
               type="button"
+              variant={tab === item.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === item.key}
               onClick={() => {
                 setTab(item.key || 'my-day');
                 setScreen('home');
               }}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-bold transition-all ${
-                tab === item.key
-                  ? 'bg-[#102033] text-white shadow-sm'
-                  : 'text-[#657287] hover:bg-white hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               <OrigamiIcon name={item.icon || 'meetings'} size={14} />
               {item.label}
               {item.badge && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${tab === item.key ? 'bg-white/15' : 'bg-[#E6ECEF]'}`}>
+                <span className="rounded-full bg-[var(--ax-surface-2)] px-1.5 py-0.5 text-[9px] text-[var(--ax-text)]">
                   {item.badge}
                 </span>
               )}
-            </button>
+            </Button>
           ))}
-        </nav>
-      </div>
+        </nav>}
+      />
 
       {/* 7-Stage Lifecycle Pipeline */}
-      <div className="bg-white border border-[#102033]/10 rounded-2xl p-3 shadow-sm overflow-x-auto">
-        <div className="grid grid-cols-7 min-w-[700px] relative">
-          {INITIAL_MEETING_DATA.lifecycle.map((step, idx) => {
+      <Surface level="raised" className="overflow-x-auto">
+        <WorkflowRibbon
+          label="Meeting lifecycle"
+          steps={INITIAL_MEETING_DATA.lifecycle.map((step) => {
             const stepIdx = INITIAL_MEETING_DATA.lifecycle.indexOf(activePipelineStep);
-            const isDone = idx < stepIdx;
-            const isCurrent = idx === stepIdx;
-
-            return (
-              <div key={step} className="flex flex-col items-center text-center relative group">
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold z-10 transition-all ${
-                    isCurrent
-                      ? 'bg-[#19B7B0] text-white shadow-md ring-4 ring-[#19B7B0]/15'
-                      : isDone
-                      ? 'bg-[#BFE9E2] text-[#167E79]'
-                      : 'bg-gray-100 text-[#96a0ad]'
-                  }`}
-                >
-                  {isDone ? '✓' : idx + 1}
-                </div>
-                <span
-                  className={`text-[11px] mt-1 truncate ${
-                    isCurrent ? 'font-bold text-[#102033]' : isDone ? 'text-[#167E79]' : 'text-[#96a0ad]'
-                  }`}
-                >
-                  {step}
-                </span>
-              </div>
-            );
+            const index = INITIAL_MEETING_DATA.lifecycle.indexOf(step);
+            return { id: step, label: step, state: index < stepIdx ? 'complete' : index === stepIdx ? 'current' : 'upcoming' };
           })}
-        </div>
-      </div>
+        />
+      </Surface>
 
-      <div className="grid gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-4 text-xs md:grid-cols-[1.2fr_.8fr]">
+      <Surface level="inset" className="grid gap-3 text-xs md:grid-cols-[1.2fr_.8fr]">
         <div>
-          <p className="font-bold text-violet-950">Reference-module governance</p>
-          <p className="mt-1 leading-5 text-violet-900">Consent gates recording and transcription. AI produces cited candidates only. Every outcome needs an explicit human decision, publication is revisioned, and duplicate write-back is blocked.</p>
+          <p className="font-bold text-[var(--ax-text)]">Reference-module governance</p>
+          <p className="mt-1 leading-5 text-[var(--ax-text-muted)]">Consent gates recording and transcription. AI produces cited candidates only. Every outcome needs an explicit human decision, publication is revisioned, and duplicate write-back is blocked.</p>
         </div>
-        <div className="rounded-xl border border-violet-200 bg-white/80 p-3">
-          <p className="text-[10px] font-bold uppercase text-violet-700">Audit preview</p>
-          <ul className="mt-2 space-y-1 text-[10px] text-[#526074]">{auditEntries.slice(0, 3).map((entry) => <li key={entry}>• {entry}</li>)}</ul>
-        </div>
-      </div>
+        <Surface level="flat" className="p-3">
+          <p className="text-[10px] font-bold uppercase text-[var(--ax-text-muted)]">Audit preview</p>
+          <ul className="mt-2 space-y-1 text-[10px] text-[var(--ax-text-muted)]">{auditEntries.slice(0, 3).map((entry) => <li key={entry}>• {entry}</li>)}</ul>
+        </Surface>
+      </Surface>
 
       {/* Screen Router */}
       {screen === 'home' && tab === 'my-day' && (
         <div data-tool-tab="my-day" className="space-y-4">
           {/* Default My Day / Upcoming Hub */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <section className="lg:col-span-2 bg-white border border-[#102033]/10 rounded-2xl p-5 shadow-sm space-y-4">
+            <Surface level="raised" className="space-y-4 lg:col-span-2">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-[17px] font-bold text-[#102033]">Today&apos;s Meeting Schedule</h2>
                   <p className="text-[12px] text-[#657287]">Governed coordination rooms with automated transcript ingestion.</p>
                 </div>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     data-testid="meetings-meet-now"
                     onClick={() => setScreen('prejoin')}
-                    className="px-3 py-1.5 bg-white border border-[#102033]/15 hover:bg-gray-50 text-[#102033] rounded-xl text-[12px] font-bold shadow-sm"
+                    variant="secondary"
+                    size="sm"
                   >
                     Meet Now
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     data-testid="meetings-schedule"
                     onClick={() => {
                       setWizardStep(0);
                       setScreen('schedule');
                     }}
-                    className="px-3.5 py-1.5 bg-[#19B7B0] hover:bg-[#167E79] text-white rounded-xl text-[12px] font-bold shadow-sm"
+                    size="sm"
                   >
                     + Schedule
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -307,51 +283,45 @@ export const MeetingsModule: React.FC<MeetingsModuleProps> = ({
                     className="pt-2 flex items-center justify-between hover:bg-[#DFF5F2]/40 p-2.5 rounded-xl cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="text-center font-mono font-bold text-[#167E79] text-sm bg-[#DFF5F2] px-2 py-1 rounded-lg">
+                      <div className="rounded-lg bg-[var(--ax-surface-2)] px-2 py-1 text-center font-mono text-sm font-bold text-[var(--ax-text)]">
                         {m.time}
                       </div>
                       <div>
-                        <div className="text-[13.5px] font-bold text-[#102033]">{m.title}</div>
-                        <div className="text-[11.5px] text-[#657287]">
+                        <div className="text-[13.5px] font-bold text-[var(--ax-text)]">{m.title}</div>
+                        <div className="text-[11.5px] text-[var(--ax-text-muted)]">
                           {m.type} · Stage: {m.stage} · {m.attendees} participants · Chair: {m.chair}
                         </div>
                       </div>
                     </div>
-                    <span
-                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${
-                        idx === 0 ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {m.status}
-                    </span>
+                    <StatusBadge tone={idx === 0 ? 'danger' : 'neutral'} label={m.status} />
                   </div>
                 ))}
               </div>
-            </section>
+            </Surface>
 
             {/* Quick Actions & Pending Minutes Review Card */}
             <div className="space-y-4">
-              <section className="bg-white border-l-4 border-l-[#8B5CF6] border-y border-r border-[#102033]/10 rounded-2xl p-4 shadow-sm space-y-2">
+              <Surface level="raised" className="space-y-2 border-l-4 border-l-[var(--ax-ref-violet-600)]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
-                    Review Required
-                  </span>
-                  <span className="text-[11px] text-[#657287]">3 outcomes</span>
+                  <StatusBadge tone="exploration" label="Review Required" />
+                  <span className="text-[11px] text-[var(--ax-text-muted)]">3 outcomes</span>
                 </div>
-                <h3 className="text-[14px] font-bold text-[#102033]">Municipal Readiness Review</h3>
-                <p className="text-[12px] text-[#657287] leading-snug">
+                <h3 className="text-[14px] font-bold text-[var(--ax-text)]">Municipal Readiness Review</h3>
+                <p className="text-[12px] leading-snug text-[var(--ax-text-muted)]">
                   AI drafted minutes from yesterday&apos;s call. 1 fire escape decision and 2 tasks awaiting Chair approval.
                 </p>
-                <button
+                <Button
                   onClick={() => setScreen('review')}
-                  className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-[12px] transition-colors shadow-sm"
+                  variant="ink"
+                  size="sm"
+                  className="w-full"
                 >
                   Open Minutes Review Canvas
-                </button>
-              </section>
+                </Button>
+              </Surface>
 
-              <section className="bg-white border border-[#102033]/10 rounded-2xl p-4 shadow-sm space-y-2">
-                <h3 className="text-[13px] font-bold text-[#102033]">Pre-configured Meeting Templates</h3>
+              <Surface level="raised" className="space-y-2">
+                <h3 className="text-[13px] font-bold text-[var(--ax-text)]">Pre-configured Meeting Templates</h3>
                 <div className="grid grid-cols-2 gap-2 text-[11.5px]">
                   {[
                     'Client Brief',
@@ -361,20 +331,22 @@ export const MeetingsModule: React.FC<MeetingsModuleProps> = ({
                     'Site Progress',
                     'Commercial Valuation',
                   ].map((tpl) => (
-                    <button
+                    <Button
                       key={tpl}
                       onClick={() => {
                         setWizardStep(1);
                         setScreen('schedule');
                         showToast(`${tpl} template applied.`);
                       }}
-                      className="p-2 rounded-xl border border-[#102033]/10 text-left hover:bg-[#DFF5F2] hover:text-[#167E79] font-medium transition-colors"
+                      variant="secondary"
+                      size="sm"
+                      className="h-auto justify-start text-left"
                     >
                       {tpl}
-                    </button>
+                    </Button>
                   ))}
                 </div>
-              </section>
+              </Surface>
             </div>
           </div>
         </div>
