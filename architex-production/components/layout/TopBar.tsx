@@ -100,6 +100,8 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* God Mode Toggle — between project chip and role switcher (plan 5B) */}
       <button
+          type="button"
+          aria-pressed={godMode}
           onClick={() => onNavigate(godMode ? { type: 'exit-god' } : { type: 'enter-god', initialLens: currentRole })}
           className={`flex items-center gap-1.5 px-3 h-9 rounded-xl border transition-colors shadow-sm ${
             godMode

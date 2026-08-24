@@ -181,3 +181,17 @@ test('P6-GOD-01 God Mode exposes the existing selected role lens', async ({ page
   await expect(architect).toHaveAttribute('aria-pressed', 'false');
   await expect(page.getByText(/Demo lens: Contractor/)).toBeVisible();
 });
+
+test('P6-GOD-01 shell exposes the existing God Mode toggle state', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+
+  const enterGodMode = page.getByRole('button', { name: 'Explore the entire Architex ecosystem' });
+  await expect(enterGodMode).toHaveAttribute('aria-pressed', 'false');
+  await enterGodMode.click();
+
+  const exitGodMode = page.getByRole('button', { name: 'Exit God Mode' });
+  await expect(exitGodMode).toHaveAttribute('aria-pressed', 'true');
+  await exitGodMode.click();
+  await expect(page.getByRole('button', { name: 'Explore the entire Architex ecosystem' })).toHaveAttribute('aria-pressed', 'false');
+});
