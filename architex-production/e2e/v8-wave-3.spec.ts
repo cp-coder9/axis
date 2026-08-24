@@ -69,4 +69,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Council Drawing Navigator');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('building plans, land-use, permits');
   });
+
+  test('P6-W3-07 municipal tracker renders its approval deadlines through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'municipal_tracker');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Municipal Tracker');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('every municipal interaction against its target');
+  });
 });
