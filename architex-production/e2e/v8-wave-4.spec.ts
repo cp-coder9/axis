@@ -43,4 +43,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('RFQ Marketplace');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('controlled requests, transparent comparisons');
   });
+
+  test('P6-W4-04 supplier catalog renders its verified supply chain through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'supplier_catalog');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Supplier Catalogue');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('compliance-checked suppliers with product data');
+  });
 });
