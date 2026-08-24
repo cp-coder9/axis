@@ -48,4 +48,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('EIA Workspace');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Basic Assessment workflow');
   });
+
+  test('P6-W3-04 refuse calculator renders its statutory sizing through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'refuse_calculator');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Refuse Area Calculator');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory refuse storage sizing');
+  });
 });
