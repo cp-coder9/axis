@@ -217,6 +217,8 @@ export const architexApi = {
       apiGet<{ actions: ApiActionItem[] }>(`/action-items?project=${projectId}`, identity).then((r) => r.actions),
     update: (id: string, body: Record<string, unknown>, identity: { role: string; userId: string }) =>
       apiPatch<{ action: ApiActionItem }>(`/action-items/${id}`, body, identity).then((r) => r.action),
+    create: (body: Pick<ApiActionItem, 'project_id' | 'title'> & { due?: string | null }, identity: { role: string; userId: string }) =>
+      apiPost<{ action: ApiActionItem }>('/action-items', body, identity).then((r) => r.action),
   },
   approvals: {
     list: (projectId: string, identity: { role: string; userId: string }) =>

@@ -8,6 +8,7 @@ import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { architexApi, demoIdentity } from '@/lib/api';
 
 interface PracticeModuleProps {
   activeProject: ProjectEntity;
@@ -209,6 +210,14 @@ export const PracticeModule: React.FC<PracticeModuleProps> = ({
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
+  };
+
+  const createTask = async () => {
+    try {
+      const created = await architexApi.actions.create({ project_id: activeProject.id, title: 'New Command Centre task', due: null }, demoIdentity(currentRole));
+      setTasks((current) => [{ id: created.id, title: created.title, stage: activeProject.stage, col: 'Backlog', assignee: created.owner, role: profile.label, dueDate: 'Unscheduled', daysRemaining: 0, priority: 'Normal', moduleTarget: 'practice' }, ...current]);
+      showToast('New task created and recorded.');
+    } catch (error) { showToast(error instanceof Error ? error.message.replace(/^Architex API \d+: /, '') : 'Task creation failed'); }
   };
 
   const moveTask = (taskId: string, targetCol: ActionTask['col']) => {
@@ -1274,7 +1283,7 @@ export const PracticeModule: React.FC<PracticeModuleProps> = ({
               ))}
             </div>
             <button
-              onClick={() => showToast('New task draft created in Backlog.')}
+              onClick={() => void createTask()}
               className="px-3 py-1.5 bg-[#19B7B0] text-white rounded-xl text-xs font-bold shadow-sm"
             >
               + Add Action Task

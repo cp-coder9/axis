@@ -849,7 +849,42 @@ if ($method === 'GET' && preg_match('#^/(api/)?v1/action-items$#', $path)) {
     require_permission('actions.view');
     $projectId = query_param('project');
     require_collection_scope($projectId);
+    if (db_health() !== null) {
+        $sql = 'SELECT a.id, a.project_id, a.title, COALESCE(u.name, \'Unassigned\') AS owner, a.due_date AS due, a.status, COALESCE(m.name, \'Action Centre\') AS source FROM action_items a LEFT JOIN users u ON u.id = a.owner_user_id LEFT JOIN modules m ON m.id = a.source_module_id';
+        $params = [];
+        if ($projectId) { $sql .= ' WHERE a.project_id = ?'; $params[] = $projectId; }
+        $sql .= ' ORDER BY a.created_at DESC';
+        $stmt = db()->prepare($sql); $stmt->execute($params);
+        $actions = array_map(fn ($row) => [...$row, 'priority' => 'medium'], $stmt->fetchAll());
+        json_response(['actions' => $actions]);
+    }
     json_response(['actions'=>$projectId ? by_project(read_json_file('foundation.json')['actions'] ?? [], $projectId) : (read_json_file('foundation.json')['actions'] ?? [])]);
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/action-items$#', $path)) {
+    require_permission('actions.edit');
+    $body = json_body();
+    $projectId = (string)($body['project_id'] ?? '');
+    $title = trim((string)($body['title'] ?? ''));
+    if ($projectId === '' || $title === '' || mb_strlen($title) > 240) json_response(['error' => 'project_id and title (max 240 characters) are required'], 422);
+    require_project_access($projectId); require_project($projectId);
+    $id = 'act-' . bin2hex(random_bytes(5));
+    $due = isset($body['due']) && is_string($body['due']) ? $body['due'] : null;
+    if (db_health() !== null) {
+        try {
+            $pdo = db();
+            $pdo->prepare('INSERT INTO action_items (id, project_id, source_module_id, title, owner_user_id, due_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
+                ->execute([$id, $projectId, 'practice', $title, known_user(current_user()) ? current_user() : null, $due, 'open']);
+            $pdo->prepare('INSERT INTO audit_log (organization_id, actor_user_id, entity_type, entity_id, action_key, after_json) VALUES (?, ?, ?, ?, ?, ?)')
+                ->execute([current_identity()['org'], known_user(current_user()) ? current_user() : null, 'action_item', $id, 'action.created', json_encode(['project_id'=>$projectId,'title'=>$title])]);
+            json_response(['action'=>['id'=>$id,'project_id'=>$projectId,'title'=>$title,'owner'=>known_user(current_user()) ? current_user() : 'Unassigned','due'=>$due,'priority'=>'medium','status'=>'open','source'=>'Practice Management — Command Centre']], 201);
+        } catch (PDOException $e) { json_response(['error'=>'Could not create action item'], 500); }
+    }
+    $action = mutate_json_file('foundation.json', function (array &$store) use ($id, $projectId, $title, $due) {
+        $record = ['id'=>$id,'project_id'=>$projectId,'title'=>$title,'owner'=>current_user(),'due'=>$due,'priority'=>'medium','status'=>'open','source'=>'Practice Management — Command Centre'];
+        $store['actions'][] = $record; audit($store, 'action.created', 'action_item', $id, ['project_id'=>$projectId,'title'=>$title]); return $record;
+    });
+    json_response(['action'=>$action], 201);
 }
 
 if ($method === 'PATCH' && preg_match('#^/(api/)?v1/action-items/([^/]+)$#', $path, $m)) {
