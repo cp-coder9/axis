@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { Dialog } from '@/components/ui/Dialog';
+import { Tab, TabList, Tabs } from '@/components/ui/Tabs';
 import { FeedbackRecord, ProjectEntity, RoleKey } from '@/lib/types';
 import { INITIAL_FEEDBACK_RECORDS, ROLE_PROFILES } from '@/lib/data';
 import { apiPost, ApiFeedbackResponse } from '@/lib/api';
@@ -144,28 +145,12 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
             </div>
 
             {/* Sub-Tabs: Submit vs My Submissions */}
-            <div role="tablist" aria-label="Feedback views" className="flex bg-[#f2f7f6] p-1 rounded-xl border border-[#102033]/10">
-              <button
-                role="tab"
-                aria-selected={activeTab === 'submit'}
-                onClick={() => setActiveTab('submit')}
-                className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
-                  activeTab === 'submit' ? 'bg-white text-[#167E79] shadow-sm' : 'text-[#657287]'
-                }`}
-              >
-                Submit Feedback
-              </button>
-              <button
-                role="tab"
-                aria-selected={activeTab === 'records'}
-                onClick={() => setActiveTab('records')}
-                className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
-                  activeTab === 'records' ? 'bg-white text-[#167E79] shadow-sm' : 'text-[#657287]'
-                }`}
-              >
-                My Feedback ({records.length})
-              </button>
-            </div>
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'submit' | 'records')}>
+              <TabList label="Feedback views" className="flex bg-[#f2f7f6] p-1 rounded-xl border border-[#102033]/10">
+                <Tab value="submit" className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${activeTab === 'submit' ? 'bg-white text-[#135f5a] shadow-sm' : 'text-[#657287]'}`}>Submit Feedback</Tab>
+                <Tab value="records" className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${activeTab === 'records' ? 'bg-white text-[#135f5a] shadow-sm' : 'text-[#657287]'}`}>My Feedback ({records.length})</Tab>
+              </TabList>
+            </Tabs>
 
             {activeTab === 'submit' ? (
               <form onSubmit={handleSubmit} className="space-y-3">

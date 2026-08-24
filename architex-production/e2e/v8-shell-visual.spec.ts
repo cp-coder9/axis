@@ -95,6 +95,20 @@ test('P6-W0-SYS feedback shortcut opens a named dialog and restores its trigger'
   await expect(trigger).toBeFocused();
 });
 
+test('P6-W0-SYS feedback tabs retain their existing record state and keyboard navigation', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open feedback intelligence' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Send Feedback' });
+  const submitTab = dialog.getByRole('tab', { name: 'Submit Feedback' });
+  const recordsTab = dialog.getByRole('tab', { name: /My Feedback/ });
+  await submitTab.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(recordsTab).toBeFocused();
+  await recordsTab.click();
+  await expect(recordsTab).toHaveAttribute('aria-selected', 'true');
+});
+
 test('P6-W0-SYS not-found keeps a landmark and recovery action at mobile width', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.mobile);
   await page.goto('/missing-datum-record');
