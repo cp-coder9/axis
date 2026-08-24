@@ -68,9 +68,9 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
         <Surface level="raised" className="space-y-4 lg:col-span-2" aria-label="Calculation inputs">
           <div className="flex items-center gap-2"><OrigamiIcon name={calcDef.icon} size={20} /><h3 className="text-sm font-bold text-[var(--ax-text)]">{calcDef.title}</h3></div>
           {calcDef.fields.map((field) => (
-            <label key={field.key} className="block text-[11px] font-medium text-[#657287]">
-              {field.label} <span className="text-[#96a0ad]">({field.canonicalUnit})</span>
-              <input aria-label={field.label} type="number" value={inputs[field.key]?.value ?? ''} min={field.min.value} max={field.max.value} step="any" onChange={(event) => updateInput(field.key, event.target.value)} className="mt-1 w-full px-3 py-2 border border-[#102033]/15 rounded-lg text-[13px] text-[#102033]" />
+            <label key={field.key} className="block text-[11px] font-medium text-[var(--ax-text-muted)]">
+              {field.label} <span className="text-[var(--ax-text-muted)]">({field.canonicalUnit})</span>
+              <input aria-label={field.label} type="number" value={inputs[field.key]?.value ?? ''} min={field.min.value} max={field.max.value} step="any" onChange={(event) => updateInput(field.key, event.target.value)} className="mt-1 w-full rounded-[var(--ax-radius-sm)] border border-[var(--ax-border-strong)] bg-[var(--ax-surface-1)] px-3 py-2 text-[13px] text-[var(--ax-text)]" />
             </label>
           ))}
           <div className="flex gap-2">
@@ -82,12 +82,12 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
         <Surface level="raised" className="space-y-4 lg:col-span-3" aria-label="Calculation results">
           {issues.length > 0 && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-[12px] text-red-800">{issues.map((issue) => <div key={`${issue.field}-${issue.code}`}>{issue.message}</div>)}</div>}
           {payload ? <>
-            <div className="flex items-center gap-2"><h3 className="text-sm font-bold text-[#102033]">Results</h3><span className="text-[10px] text-[#657287]">{payload.formulaVersion}</span></div>
-            {payload.results.map((result) => <div key={result.key} className="flex items-center justify-between py-2.5 border-b border-[#102033]/5"><span className="text-[12px] text-[#657287]">{result.label} <span className="text-[10px] text-[#96a0ad]">({result.criterion ?? '—'})</span></span><span className="text-[14px] font-bold text-[#102033]">{result.quantity.value.toFixed(2)} <small className="text-[11px] text-[#657287]">{result.quantity.unit}</small>{result.passes !== null && <small className={result.passes ? 'ml-2 text-[#218956]' : 'ml-2 text-[#b34b3e]'}>{result.passes ? 'PASS' : 'FAIL'}</small>}</span></div>)}
-            <button onClick={() => setShowDerivation((visible) => !visible)} className="text-[11px] text-[#167E79] font-medium">{showDerivation ? 'Hide derivation' : 'Show derivation'}</button>
-            {showDerivation && <div className="p-3 bg-[#f4f8f7] border-l-2 border-[#19B7B0] rounded-r-lg text-[11px] text-[#167E79] font-mono">{payload.derivation.map((line) => <div key={line}>{line}</div>)}</div>}
+            <div className="flex items-center gap-2"><h3 className="text-sm font-bold text-[var(--ax-text)]">Results</h3><span className="text-[10px] text-[var(--ax-text-muted)]">{payload.formulaVersion}</span></div>
+            {payload.results.map((result) => <div key={result.key} className="flex items-center justify-between border-b border-[var(--ax-border)] py-2.5"><span className="text-[12px] text-[var(--ax-text-muted)]">{result.label} <span className="text-[10px] text-[var(--ax-text-muted)]">({result.criterion ?? '—'})</span></span><span className="text-[14px] font-bold text-[var(--ax-text)]">{result.quantity.value.toFixed(2)} <small className="text-[11px] text-[var(--ax-text-muted)]">{result.quantity.unit}</small>{result.passes !== null && <small className={result.passes ? 'ml-2 text-[var(--ax-status-success-fg)]' : 'ml-2 text-[var(--ax-status-danger-fg)]'}>{result.passes ? 'PASS' : 'FAIL'}</small>}</span></div>)}
+            <Button variant="quiet" size="sm" onClick={() => setShowDerivation((visible) => !visible)}>{showDerivation ? 'Hide derivation' : 'Show derivation'}</Button>
+            {showDerivation && <Surface level="inset" className="border-l-2 border-l-[var(--ax-action-primary)] p-3 font-mono text-[11px] text-[var(--ax-text)]">{payload.derivation.map((line) => <div key={line}>{line}</div>)}</Surface>}
             <div className="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">{payload.limitations.map((limitation) => <div key={limitation}>⚠ {limitation}</div>)}</div>
-          </> : issues.length === 0 && <div className="flex flex-col items-center justify-center h-48 text-[#96a0ad]"><OrigamiIcon name="engineering_hub" size={48} /><p className="mt-3 text-[13px]">Enter inputs and click Calculate to see results.</p></div>}
+          </> : issues.length === 0 && <div className="flex h-48 flex-col items-center justify-center text-[var(--ax-text-muted)]"><OrigamiIcon name="engineering_hub" size={48} /><p className="mt-3 text-[13px]">Enter inputs and click Calculate to see results.</p></div>}
         </Surface>
       </div>
     </div>
