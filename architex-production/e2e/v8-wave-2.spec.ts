@@ -47,4 +47,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Professional Directory');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('SACAP · ECSA · SACQSP · SACPLAN · SACPCMP registrations');
   });
+
+  test('P6-W2-04 team workspace renders its RACI workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'team_workspace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Team Workspace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('RACI, members and resource availability');
+  });
 });
