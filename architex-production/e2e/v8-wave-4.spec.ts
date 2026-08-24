@@ -57,4 +57,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Market Insights');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('building cost, tender and material trends');
   });
+
+  test('P6-W4-06 contract administration renders its contract controls through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'contract_admin');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Contract Administration');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('certificates, variations, claims and EoT');
+  });
 });
