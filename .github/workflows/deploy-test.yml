@@ -54,3 +54,9 @@ jobs:
           mirror --reverse --only-newer --verbose out/ "$FTP_DIRECTORY"
           bye
           EOF
+      - name: Purge LiteSpeed cache
+        if: vars.TEST_ARCHITEX_LITESPEED_PURGE_ENABLED == 'true'
+        shell: pwsh
+        run: >
+          ./scripts/purge-litespeed-cache.ps1
+          -Url https://test.architex.co.za/,https://test.architex.co.za/build-info.json
