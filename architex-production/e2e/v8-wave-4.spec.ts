@@ -29,4 +29,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Fee Proposal Builder');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('stage-based professional fees');
   });
+
+  test('P6-W4-02 insurance register renders its statutory cover through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'insurance_register');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Insurance Register');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory and contractual cover');
+  });
 });
