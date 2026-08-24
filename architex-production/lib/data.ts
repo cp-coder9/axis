@@ -778,10 +778,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Home builder registration, enrolment fee calculators, statutory stage inspections, and certificates.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'enrolment', label: 'NHBRC Enrolment', group: 'Enrolment', icon: 'nhbrc_enrolment' },
+      { key: 'requirements', label: 'Requirements', group: 'Enrolment', icon: 'detail' },
+      { key: 'inspections', label: 'Inspections', group: 'Enrolment', icon: 'itp' },
+      { key: 'warranty', label: 'Warranty Status', group: 'Enrolment', icon: 'document' }
     ]
   },
   documents_drawings: {
@@ -810,10 +810,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Cadastral pegging, contour data, GIS site boundaries, and surveyor general diagram integration.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'survey', label: 'Survey Register', group: 'Survey', icon: 'survey_geomatics' },
+      { key: 'boundaries', label: 'Boundaries & Pegs', group: 'Survey', icon: 'detail' },
+      { key: 'contours', label: 'Contour Data', group: 'Survey', icon: 'trends' },
+      { key: 'deliverables', label: 'Deliverables', group: 'Survey', icon: 'document' }
     ]
   },
   bim_ifc: {
@@ -826,10 +826,11 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'IFC model geometry parser, element schedule extraction, and quantity takeoff synchronisation.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'overview', label: 'Overview', group: 'BIM', icon: 'dashboard' },
+      { key: 'models', label: 'Model Register', group: 'BIM', icon: 'bim_ifc' },
+      { key: 'extraction', label: 'IFC Extraction', group: 'BIM', icon: 'drawing' },
+      { key: 'mapping', label: 'Property Mapping', group: 'BIM', icon: 'detail' },
+      { key: 'audit', label: 'Extraction Audit', group: 'BIM', icon: 'workflow' }
     ]
   },
   fee_proposal: {
@@ -842,10 +843,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'SACAP/tariff-based professional fee agreements, work-stage allocations, and client contracts.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'proposals', label: 'Fee Proposals', group: 'Fees', icon: 'fee_proposal' },
+      { key: 'phases', label: 'Phases & Stages', group: 'Fees', icon: 'workflow' },
+      { key: 'acceptance', label: 'Acceptance', group: 'Fees', icon: 'approvals_queue' },
+      { key: 'invoicing', label: 'Invoicing Link', group: 'Fees', icon: 'finance' }
     ]
   },
   insurance_register: {
@@ -858,10 +859,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Public liability, Contractors All Risks (CAR), and Professional Indemnity (PI) insurance tracking.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'policies', label: 'Insurance Policies', group: 'Insurance', icon: 'insurance_register' },
+      { key: 'requirements', label: 'Statutory Requirements', group: 'Insurance', icon: 'detail' },
+      { key: 'renewals', label: 'Renewals & Claims', group: 'Insurance', icon: 'workflow' }
     ]
   },
   rfq_marketplace: {
@@ -874,10 +874,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Digital package bidding, RFQ distribution to suppliers, quotes comparison matrix, and awards.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'rfqs', label: 'RFQ Pipeline', group: 'Procure', icon: 'rfq_marketplace' },
+      { key: 'packages', label: 'Work Packages', group: 'Procure', icon: 'document' },
+      { key: 'quotes', label: 'Quote Comparison', group: 'Procure', icon: 'detail' },
+      { key: 'awards', label: 'Awards & Orders', group: 'Procure', icon: 'workflow' }
     ]
   },
   supplier_catalog: {
@@ -890,10 +890,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Master product catalogue, technical data sheets, local pricing, and specification links.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'catalogue', label: 'Supplier Catalogue', group: 'Suppliers', icon: 'supplier_catalog' },
+      { key: 'products', label: 'Products & Data', group: 'Suppliers', icon: 'detail' },
+      { key: 'verification', label: 'Verification', group: 'Suppliers', icon: 'approvals_queue' },
+      { key: 'orders', label: 'Order Tracking', group: 'Suppliers', icon: 'workflow' }
     ]
   },
   market_insights: {
@@ -906,10 +906,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Construction cost index (BER / Stats SA), inflation trends, unit rate benchmarks, and forecasts.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'market', label: 'Market Insights', group: 'Insights', icon: 'market_insights' },
+      { key: 'benchmarks', label: 'Benchmarks', group: 'Insights', icon: 'detail' },
+      { key: 'cost', label: 'Cost Indices', group: 'Insights', icon: 'budget' },
+      { key: 'forecast', label: 'Forecasts', group: 'Insights', icon: 'trends' }
     ]
   },
   contract_admin: {
@@ -922,10 +922,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'JBCC / NEC payment certificates, variation orders, claims, and Extension of Time (EoT) records.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'contracts', label: 'Contracts', group: 'Contracts', icon: 'contract_admin' },
+      { key: 'certificates', label: 'Payment Certificates', group: 'Contracts', icon: 'finance' },
+      { key: 'variations', label: 'Variation Orders', group: 'Contracts', icon: 'workflow' },
+      { key: 'claims', label: 'Claims & EoT', group: 'Contracts', icon: 'risk' }
     ]
   },
   payments_escrow: {
@@ -938,10 +938,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Invoice, milestone, approval, retention and release-status workflow only. Fund holding and true escrow are disabled pending legal review and a licensed partner.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'payments', label: 'Payment Workflow', group: 'Payments', icon: 'payments_escrow' },
+      { key: 'milestones', label: 'Milestones', group: 'Payments', icon: 'workflow' },
+      { key: 'approvals', label: 'Approval & Release', group: 'Payments', icon: 'approvals_queue' },
+      { key: 'audit', label: 'Payment Audit', group: 'Payments', icon: 'detail' }
     ]
   },
   dispute_resolution: {
@@ -954,10 +954,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Contractual dispute notices, adjudication, mediation records, and claims timelines.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'notices', label: 'Dispute Notices', group: 'Disputes', icon: 'dispute_resolution' },
+      { key: 'adjudication', label: 'Adjudication', group: 'Disputes', icon: 'workflow' },
+      { key: 'mediation', label: 'Mediation', group: 'Disputes', icon: 'team_workspace' },
+      { key: 'timeline', label: 'Claims Timeline', group: 'Disputes', icon: 'programme' }
     ]
   },
   contractor_compliance: {
