@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_TOOLS, STAGES, STAGE_TOOL_MAP } from '@/lib/data';
-import { GOD_MODE_HANDOFFS, handoffsForStage, stageExplorationToolIds, validateGodModeDomain } from '@/lib/god-mode';
+import { GOD_MODE_HANDOFFS, godModeAvailable, handoffsForStage, stageExplorationToolIds, validateGodModeDomain } from '@/lib/god-mode';
 
 describe('God Mode domain contract', () => {
+  it('fails closed unless the God Mode release flag is literally true', () => {
+    expect(godModeAvailable()).toBe(false);
+    expect(godModeAvailable('')).toBe(false);
+    expect(godModeAvailable('false')).toBe(false);
+    expect(godModeAvailable('TRUE')).toBe(false);
+    expect(godModeAvailable('true')).toBe(true);
+  });
+
   it('resolves exact exploration tools', () => {
     for (const stage of STAGES) {
       expect(stageExplorationToolIds(stage)).toEqual(STAGE_TOOL_MAP[stage]);

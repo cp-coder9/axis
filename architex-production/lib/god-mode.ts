@@ -1,6 +1,11 @@
 import { ALL_TOOLS, ROLE_PROFILES, STAGES, STAGE_TOOL_MAP } from '@/lib/data';
 import type { RoleKey, StageKey } from '@/lib/types';
 
+/** God Mode is a compiled release option; only the literal string enables it. */
+export function godModeAvailable(value = process.env.NEXT_PUBLIC_GOD_MODE_ENABLED): boolean {
+  return value === 'true';
+}
+
 export type GodHandoff = { id: string; stage: StageKey; sourceToolId: string; destinationToolId: string; sourceRole: RoleKey; destinationRole: RoleKey; artifact: string; decisionGate: string; projection: 'authorized-live-record' | 'safe-demonstration-projection' };
 
 export const GOD_MODE_HANDOFFS: readonly GodHandoff[] = [
