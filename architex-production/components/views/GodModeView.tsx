@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
 import { RoleKey } from '@/lib/types';
@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, Surface } from '@/components/ui/Surface';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Dialog } from '@/components/ui/Dialog';
+import { handoffsForStage, type GodHandoff } from '@/lib/god-mode';
 
 interface GodModeViewProps {
   currentRole: RoleKey;
@@ -20,6 +22,9 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
   onNavigate,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
+  const [handoffsOpen, setHandoffsOpen] = useState(false);
+  const [selectedHandoff, setSelectedHandoff] = useState<GodHandoff | null>(null);
+  const handoffs = STAGES.flatMap((stage) => handoffsForStage(stage, currentRole));
 
   const toolGroups = useMemo(() => {
     const groups: Record<string, { id: string; name: string; icon: string; status: string }[]> = {};
@@ -149,6 +154,7 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
 
       {/* CTA */}
       <div className="flex flex-wrap gap-3 pt-2">
+        <Button variant="quiet" onClick={() => setHandoffsOpen(true)}>Explore handoffs</Button>
         <Button
           variant="secondary"
           onClick={() => onNavigate({ type: 'open-god-stage', stage: 'Brief' })}
@@ -163,6 +169,10 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
           <OrigamiIcon name="engineering_hub" size={16} /> Engineering hub
         </Button>
       </div>
+      <Dialog open={handoffsOpen} onOpenChange={setHandoffsOpen} title="Governed handoffs" description="Learning-only workflow explanations; access is unchanged.">
+        <div className="space-y-2">{handoffs.map((handoff) => <Button key={handoff.id} type="button" variant="secondary" onClick={() => setSelectedHandoff(handoff)} className="w-full justify-start text-left">{handoff.stage} · {handoff.artifact}</Button>)}</div>
+        {selectedHandoff && <div className="mt-4 rounded-xl border border-[var(--ax-border)] p-3 text-sm"><strong>{selectedHandoff.artifact}</strong><p>{selectedHandoff.decisionGate}</p><p>{selectedHandoff.sourceToolId} → {selectedHandoff.destinationToolId}</p></div>}
+      </Dialog>
     </div>
   );
 };

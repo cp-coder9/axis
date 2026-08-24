@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, ReactNode, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -36,6 +36,12 @@ export function AccessGateway({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return false;
     return new URLSearchParams(window.location.search).get('workspace') === 'v8' || sessionStorage.getItem('architex-v8-access') === 'granted';
   });
+  useEffect(() => {
+    const shouldEnter = new URLSearchParams(window.location.search).get('workspace') === 'v8' || sessionStorage.getItem('architex-v8-access') === 'granted';
+    if (!shouldEnter) return;
+    const timer = window.setTimeout(() => setEntered(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const enterWorkspace = (event: FormEvent) => {
     event.preventDefault();
