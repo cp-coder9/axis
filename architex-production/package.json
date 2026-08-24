@@ -20,7 +20,8 @@
     "test:e2e:v8-parity": "playwright test e2e/v8-workflow-parity.spec.ts --project=chromium",
     "test:e2e:v8-wave-1": "playwright test e2e/v8-wave-1.spec.ts --project=chromium",
     "test:e2e:v8-wave-2": "playwright test e2e/v8-wave-2.spec.ts --project=chromium",
-    "test:e2e:v8-wave-3": "playwright test e2e/v8-wave-3.spec.ts --project=chromium"
+    "test:e2e:v8-wave-3": "playwright test e2e/v8-wave-3.spec.ts --project=chromium",
+    "test:e2e:v8-wave-4": "playwright test e2e/v8-wave-4.spec.ts --project=chromium"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
