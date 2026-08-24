@@ -73,3 +73,20 @@ test('P6-NAV-01 tablet context drawer keeps the desktop workspace unobscured unt
   await expect(page.getByRole('dialog', { name: 'Context navigation' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-SYS feedback shortcut opens a named dialog and restores its trigger', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+
+  const trigger = page.getByRole('button', { name: 'Open feedback intelligence' });
+  await trigger.focus();
+  await page.keyboard.press('Control+Shift+F');
+
+  const dialog = page.getByRole('dialog', { name: 'Send Feedback' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByPlaceholder('Describe the issue, idea, or compliance friction...')).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});

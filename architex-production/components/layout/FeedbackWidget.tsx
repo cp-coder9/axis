@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Dialog } from '@/components/ui/Dialog';
 import { FeedbackRecord, ProjectEntity, RoleKey } from '@/lib/types';
 import { INITIAL_FEEDBACK_RECORDS, ROLE_PROFILES } from '@/lib/data';
 import { apiPost, ApiFeedbackResponse } from '@/lib/api';
@@ -26,6 +27,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
   const [records, setRecords] = useState<FeedbackRecord[]>(INITIAL_FEEDBACK_RECORDS);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const feedbackCounter = React.useRef(100);
+  const feedbackInputRef = useRef<HTMLTextAreaElement>(null);
 
   const profile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
@@ -105,8 +107,15 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
       </button>
 
       {/* Floating Feedback Dialog Panel */}
-      {isOpen && (
-        <div className="fixed right-6 bottom-24 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-120px)] bg-white border border-[#102033]/15 rounded-3xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+      <Dialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title="Send Feedback"
+        description="Context is captured automatically"
+        initialFocusRef={feedbackInputRef}
+        hideHeading
+        className="!absolute right-4 bottom-4 sm:right-6 sm:bottom-24 !w-[420px] !max-w-[calc(100vw-32px)] !max-h-[calc(100vh-120px)] !p-0 !rounded-3xl !border-[#102033]/15 flex flex-col overflow-hidden"
+      >
           {/* Header */}
           <div className="p-4 border-b border-[#102033]/10 flex items-center justify-between bg-[#fbfdfd]">
             <div className="flex items-center gap-2.5">
@@ -121,6 +130,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
             <button
               onClick={() => setIsOpen(false)}
               className="w-8 h-8 rounded-lg bg-[#102033]/5 text-[#657287] hover:text-[#102033] flex items-center justify-center font-bold text-base"
+              aria-label="Close feedback"
             >
               ×
             </button>
@@ -182,6 +192,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
                 {/* Feedback Textarea */}
                 <div>
                   <textarea
+                    ref={feedbackInputRef}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={2000}
@@ -242,8 +253,7 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
               </div>
             )}
           </div>
-        </div>
-      )}
+      </Dialog>
 
       {/* Global Toast Notification */}
       {toastMessage && (
