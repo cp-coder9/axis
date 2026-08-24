@@ -123,4 +123,5 @@ test('P6-W0-GLOBAL Tool Registry exposes its existing search control at mobile w
   await page.getByRole('button', { name: 'Open global navigation' }).click();
   await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
   await expect(page.getByRole('searchbox', { name: 'Search workspace tools' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Practice Management/ })).toBeVisible();
 });
