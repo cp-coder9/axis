@@ -292,7 +292,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
       {isGodContext && (
         <div className="flex-1 overflow-y-auto py-2">
           <div className="space-y-0.5">
-            <div className="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-[#8B5CF6]">
+            <div className="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-[#5B21B6]">
               Explore
             </div>
             <button

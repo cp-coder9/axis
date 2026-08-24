@@ -81,7 +81,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
       {/* Inspector Body Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 text-[13px]">
         {godMode && (
-          <div className="p-3 bg-[#8B5CF6]/10 border border-[#8B5CF6]/25 rounded-xl text-[12px] text-[#8B5CF6] leading-relaxed">
+          <div className="p-3 bg-[#8B5CF6]/10 border border-[#8B5CF6]/25 rounded-xl text-[12px] text-[#5B21B6] leading-relaxed">
             <strong>God Mode active</strong>
             <p className="text-[var(--ax-text-muted)] mt-1 text-[11px]">
               Full-system visibility is for exploration. Authority, professional responsibility and protected records remain governed.

@@ -88,7 +88,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Scope Orientation Pill */}
       <span className={`hidden sm:inline-flex items-center text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
         godMode
-          ? 'bg-[#8B5CF6]/10 text-[var(--ax-ref-violet-600)] border-[#8B5CF6]/20'
+          ? 'bg-[#8B5CF6]/10 text-[#5B21B6] border-[#8B5CF6]/20'
           : 'bg-[#19B7B0]/10 text-[var(--ax-text)] border-[#19B7B0]/20'
       }`}>
         {godMode ? 'God Mode · demo explorer' : mode === 'project' ? 'Project orientation' : 'Standalone mode'}
@@ -108,8 +108,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           onClick={() => onNavigate(godMode ? { type: 'exit-god' } : { type: 'enter-god', initialLens: currentRole })}
           className={`flex items-center gap-1.5 px-3 h-9 rounded-xl border transition-colors shadow-sm ${
             godMode
-              ? 'bg-[#8B5CF6]/15 text-[var(--ax-ref-violet-600)] border-[#8B5CF6]/30'
-              : 'bg-white text-[var(--ax-ref-violet-600)] border-[#102033]/10 hover:bg-[#8B5CF6]/10'
+              ? 'bg-[#8B5CF6]/15 text-[#5B21B6] border-[#8B5CF6]/30'
+              : 'bg-white text-[#5B21B6] border-[#102033]/10 hover:bg-[#8B5CF6]/10'
           }`}
           title={godMode ? 'Exit God Mode' : 'Explore the entire Architex ecosystem'}
         >
