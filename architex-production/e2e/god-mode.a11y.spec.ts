@@ -28,3 +28,13 @@ test('P7-A11Y God Mode fits the required tablet viewport without page overflow',
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(768);
 });
+
+test('P7-A11Y God Mode respects reduced-motion preferences', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/?workspace=v8');
+  await page.getByTestId('god-mode-toggle').click();
+
+  expect(parseFloat(await page.locator('[data-testid="god-mode-toggle"]').evaluate((element) =>
+    getComputedStyle(element).transitionDuration,
+  ))).toBeLessThanOrEqual(0.001);
+});
