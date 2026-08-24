@@ -144,8 +144,10 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
             </div>
 
             {/* Sub-Tabs: Submit vs My Submissions */}
-            <div className="flex bg-[#f2f7f6] p-1 rounded-xl border border-[#102033]/10">
+            <div role="tablist" aria-label="Feedback views" className="flex bg-[#f2f7f6] p-1 rounded-xl border border-[#102033]/10">
               <button
+                role="tab"
+                aria-selected={activeTab === 'submit'}
                 onClick={() => setActiveTab('submit')}
                 className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
                   activeTab === 'submit' ? 'bg-white text-[#167E79] shadow-sm' : 'text-[#657287]'
@@ -154,6 +156,8 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
                 Submit Feedback
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'records'}
                 onClick={() => setActiveTab('records')}
                 className={`flex-1 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
                   activeTab === 'records' ? 'bg-white text-[#167E79] shadow-sm' : 'text-[#657287]'

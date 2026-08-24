@@ -86,6 +86,10 @@ test('P6-W0-SYS feedback shortcut opens a named dialog and restores its trigger'
   await expect(dialog).toBeVisible();
   await expect(dialog.getByPlaceholder('Describe the issue, idea, or compliance friction...')).toBeFocused();
 
+  const recordsTab = dialog.getByRole('tab', { name: /My Feedback/ });
+  await recordsTab.click();
+  await expect(recordsTab).toHaveAttribute('aria-selected', 'true');
+
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
