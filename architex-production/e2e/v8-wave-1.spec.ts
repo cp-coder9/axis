@@ -70,4 +70,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('SANS 10400-XA Energy Compliance');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('prescriptive assessment');
   });
+
+  test('P6-W1-08 forms renders its statutory document workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'forms');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Integrated Form System');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Passport data auto-fills every form');
+  });
 });

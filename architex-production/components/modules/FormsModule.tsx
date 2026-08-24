@@ -5,6 +5,8 @@ import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -46,24 +48,26 @@ export function FormsModule({ activeProject, currentRole, activeTabKey = 'librar
   const activeTemplate = templates.find(t => t.id === selected);
 
   return <section className="space-y-4" aria-label="Integrated Forms">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="forms" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Auto-filling statutory documents</p><h1 className="text-xl font-bold">Integrated Form System</h1><p className="text-xs text-[#657287]">Passport data auto-fills every form · human review before export</p></div></div>
-      <div className="flex gap-2">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#19B7B0] text-white' : 'bg-[#f5faf9] text-[#657287]'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</button>)}</div>
-    </header>
+    <PageHeader
+      title="Integrated Form System"
+      origami={<OrigamiIcon name="forms" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Auto-filling statutory documents</p><p>Passport data auto-fills every form · human review before export</p></>}
+      actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Form system sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</Button>)}</nav>}
+    />
 
     {tab === 'library' && <div className="space-y-4">
       <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search templates by name or category..." className="w-full rounded-2xl border border-[#102033]/10 bg-white p-3 text-xs shadow-sm focus:outline-none focus:border-[#19B7B0]" />
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{filtered.map(t => <button key={t.id} onClick={() => { setSelected(t.id); setTab('editor'); }} className={`rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:border-[#19B7B0] ${selected === t.id ? 'border-[#19B7B0] ring-1 ring-[#19B7B0]/30' : ''}`}><div className="flex items-start justify-between gap-2"><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#167E79]">{t.cat}</span><span className="text-[10px] text-[#96a0ad]">Rev {t.rev}</span></div><h3 className="mt-3 text-sm font-bold leading-snug">{t.name}</h3><p className="mt-2 font-mono text-[10px] text-[#657287]">{t.id}</p></button>)}</div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{filtered.map(t => <button key={t.id} onClick={() => { setSelected(t.id); setTab('editor'); }} className={`rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:border-[#19B7B0] ${selected === t.id ? 'border-[#19B7B0] ring-1 ring-[#19B7B0]/30' : ''}`}><div className="flex items-start justify-between gap-2"><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#135f5a]">{t.cat}</span><span className="text-[10px] text-[var(--ax-text-muted)]">Rev {t.rev}</span></div><h3 className="mt-3 text-sm font-bold leading-snug">{t.name}</h3><p className="mt-2 font-mono text-[10px] text-[#657287]">{t.id}</p></button>)}</div>
     </div>}
 
     {tab === 'editor' && <div className="grid gap-4 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between"><div><h2 className="text-base font-bold">{activeTemplate?.name}</h2><p className="text-xs text-[#657287]">Auto-filled from Project Passport — verify before export</p></div><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#167E79]">{activeTemplate?.id}</span></div>
+        <div className="flex items-center justify-between"><div><h2 className="text-base font-bold">{activeTemplate?.name}</h2><p className="text-xs text-[#657287]">Auto-filled from Project Passport — verify before export</p></div><span className="rounded-full bg-[#DFF5F2] px-2 py-1 text-[10px] font-bold text-[#135f5a]">{activeTemplate?.id}</span></div>
         <div className="grid gap-3 md:grid-cols-2">{Object.entries(editorFields).map(([k, v]) => <div key={k}><label className="text-[10px] font-bold uppercase text-[#657287]">{k}</label><input value={v} onChange={e => setEditorFields(f => ({ ...f, [k]: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#102033]/10 bg-[#f5faf9] p-2.5 text-xs focus:border-[#19B7B0] focus:outline-none" /></div>)}</div>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-950"><strong>Human review required.</strong> AI-filled values are advisory. Exporting records your role, timestamp and audit entry.</div>
         <div className="flex gap-2"><button onClick={() => { setDrafts(d => [{ id:`FRM-${String(d.length+1).padStart(3,'0')}`, template: activeTemplate?.name || 'Form', status:'Draft', updated:'Just now' }, ...d]); showToast('Draft saved to My Drafts.'); }} className="rounded-xl border border-[#167E79] px-4 py-2 text-xs font-bold text-[#167E79]">Save draft</button><button onClick={() => showToast('Export queued — PDF generation job created.')} className="rounded-xl bg-[#167E79] px-4 py-2 text-xs font-bold text-white">Export PDF</button></div>
       </div>
-      <aside className="rounded-2xl border bg-white p-5 shadow-sm h-fit space-y-3 text-xs"><h4 className="font-bold uppercase tracking-wider text-[#96a0ad]">Form Intelligence</h4><div className="space-y-2 text-[#526074]"><div><strong>Auto-fill source:</strong> Project Passport v3</div><div><strong>Validation:</strong> 6/6 fields populated</div><div><strong>Linked records:</strong> Documents & Drawings</div><div><strong>Export:</strong> PDF/A · XLSX</div></div></aside>
+      <aside className="rounded-2xl border bg-white p-5 shadow-sm h-fit space-y-3 text-xs"><h4 className="font-bold uppercase tracking-wider text-[var(--ax-text-muted)]">Form Intelligence</h4><div className="space-y-2 text-[#526074]"><div><strong>Auto-fill source:</strong> Project Passport v3</div><div><strong>Validation:</strong> 6/6 fields populated</div><div><strong>Linked records:</strong> Documents & Drawings</div><div><strong>Export:</strong> PDF/A · XLSX</div></div></aside>
     </div>}
 
     {tab === 'drafts' && <div className="rounded-2xl border bg-white shadow-sm divide-y">{drafts.length === 0 ? <div className="p-8 text-center text-xs text-[#657287]">No drafts yet.</div> : drafts.map(d => <div key={d.id} className="flex items-center gap-3 p-4"><span className="font-mono text-xs font-bold text-[#167E79]">{d.id}</span><div className="flex-1"><div className="text-xs font-bold">{d.template}</div><div className="text-[10px] text-[#657287]">Updated {d.updated}</div></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${d.status === 'Draft' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>{d.status}</span><button onClick={() => { setTab('editor'); }} className="rounded-lg border px-2.5 py-1 text-[10px] font-bold text-[#167E79]">Open</button></div>)}</div>}
