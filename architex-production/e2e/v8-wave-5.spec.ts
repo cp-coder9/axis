@@ -45,4 +45,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('FM Bridge');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('as-built data to facility managers');
   });
+
+  test('P6-W5-06 remote desktop renders its session controls through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'remote_desktop');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Remote Desktop');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('resource-heavy tool sessions');
+  });
 });
