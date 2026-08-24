@@ -98,4 +98,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Inspection Test Plans');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('hold points gate construction progress');
   });
+
+  test('P6-W1-12 safety renders its construction compliance workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'safety');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('OHS Safety File & Construction Regs');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('SACPCMP client-agent compliance');
+  });
 });

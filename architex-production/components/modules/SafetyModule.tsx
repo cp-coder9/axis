@@ -5,6 +5,8 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ALL_TOOLS } from '@/lib/data';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface SafetyModuleProps {
   activeProject: ProjectEntity;
@@ -35,40 +37,32 @@ export const SafetyModule: React.FC<SafetyModuleProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#19B7B0]/30 bg-[#19B7B0]/10 text-[#167E79]">
-            <OrigamiIcon name="safety" size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#102033]">OHS Safety File & Construction Regs</h1>
-            <p className="text-[13px] text-[#657287]">
-              Construction Regulations 2014, OHS Act 85 of 1993, SACPCMP client-agent compliance and live site controls for {activeProject.name}.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-1 rounded-2xl border border-[#102033]/15 bg-white p-1 shadow-sm xl:max-w-[760px] xl:justify-end">
+      <PageHeader
+        title="OHS Safety File & Construction Regs"
+        origami={<OrigamiIcon name="safety" size={26} />}
+        metadata={<p>Construction Regulations 2014, OHS Act 85 of 1993, SACPCMP client-agent compliance and live site controls for {activeProject.name}.</p>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Safety compliance sections">
           {TABS.map((item) => (
-            <button
+            <Button
               key={item.key}
+              type="button"
+              variant={tab === item.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === item.key}
               onClick={() => setTab(item.key || '')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[12px] font-bold transition-all ${
-                tab === item.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               {item.icon && <OrigamiIcon name={item.icon} size={13} />}
               {item.label}
               {item.badge && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${tab === item.key ? 'bg-white/20 text-white' : 'bg-[#102033]/5 text-[#657287]'}`}>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${tab === item.key ? 'bg-[#102033] text-white' : 'bg-[#102033]/5 text-[#102033]'}`}>
                   {item.badge}
                 </span>
               )}
-            </button>
+            </Button>
           ))}
-        </div>
-      </div>
+        </nav>}
+      />
 
       {tab === 'overview' && (
         <section data-tool-tab="overview" className="space-y-4">
@@ -93,7 +87,7 @@ export const SafetyModule: React.FC<SafetyModuleProps> = ({
                   <h3 className="text-sm font-bold text-[#102033]">Today&apos;s site control board</h3>
                   <p className="text-[#657287]">Live hold points requiring supervisor awareness before work proceeds.</p>
                 </div>
-                <span className="rounded-full bg-[#19B7B0]/10 px-3 py-1 font-bold text-[#167E79]">23 Aug 2026</span>
+                <span className="rounded-full bg-[#19B7B0]/10 px-3 py-1 font-bold text-[#135f5a]">23 Aug 2026</span>
               </div>
               {[
                 ['07:15', 'Toolbox talk', 'Excavation edge protection', 'Complete'],
