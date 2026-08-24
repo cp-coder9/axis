@@ -50,4 +50,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Supplier Catalogue');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('compliance-checked suppliers with product data');
   });
+
+  test('P6-W4-05 market insights renders its sector intelligence through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'market_insights');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Market Insights');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('building cost, tender and material trends');
+  });
 });
