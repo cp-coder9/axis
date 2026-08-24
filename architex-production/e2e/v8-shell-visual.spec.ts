@@ -90,3 +90,13 @@ test('P6-W0-SYS feedback shortcut opens a named dialog and restores its trigger'
   await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
 });
+
+test('P6-W0-SYS not-found keeps a landmark and recovery action at mobile width', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/missing-datum-record');
+
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Resource Not Found' })).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Return to Project Datum' })).toHaveAttribute('href', '/');
+  await assertNoBodyOverflow(page);
+});
