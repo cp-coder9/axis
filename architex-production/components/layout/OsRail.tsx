@@ -13,6 +13,7 @@ interface OsRailProps {
   onToggleRail: () => void;
   currentRole: RoleKey;
   totalToolsCount: number;
+  variant?: 'inline' | 'drawer';
 }
 
 export const OsRail: React.FC<OsRailProps> = ({
@@ -22,6 +23,7 @@ export const OsRail: React.FC<OsRailProps> = ({
   onToggleRail,
   currentRole,
   totalToolsCount,
+  variant = 'inline',
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
 
@@ -29,8 +31,8 @@ export const OsRail: React.FC<OsRailProps> = ({
 
   return (
     <aside
-      className={`relative z-20 flex flex-col h-full bg-gradient-to-b from-[#167E79] to-[#0f5854] border-r border-white/20 shadow-xl transition-all duration-300 ${
-        railExpanded ? 'w-[264px]' : 'w-[74px]'
+      className={`${variant === 'drawer' ? 'w-full' : `relative z-20 ${railExpanded ? 'w-[264px]' : 'w-[74px]'}`} flex flex-col h-full bg-gradient-to-b from-[#167E79] to-[#0f5854] border-r border-white/20 shadow-xl transition-all duration-300 ${
+        variant === 'drawer' ? '' : ''
       }`}
     >
       {/* Brand Logo & Toggle */}

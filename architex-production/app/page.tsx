@@ -5,6 +5,7 @@ import { OsRail } from '@/components/layout/OsRail';
 import { ContextNavigator } from '@/components/layout/ContextNavigator';
 import { TopBar } from '@/components/layout/TopBar';
 import { ContextInspector } from '@/components/layout/ContextInspector';
+import { ResponsiveDrawer } from '@/components/layout/ResponsiveDrawer';
 import { FeedbackWidget } from '@/components/layout/FeedbackWidget';
 import { DatumCanvas } from '@/components/views/DatumCanvas';
 import { ToolRegistryView } from '@/components/views/ToolRegistryView';
@@ -93,6 +94,19 @@ function ArchitexOSPage() {
   const [railExpanded, setRailExpanded] = useState<boolean>(false);
   const [navCompact, setNavCompact] = useState<boolean>(false);
   const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
+  const [narrowLayout, setNarrowLayout] = useState(false);
+  const [globalDrawerOpen, setGlobalDrawerOpen] = useState(false);
+  const [navigatorDrawerOpen, setNavigatorDrawerOpen] = useState(false);
+  const [inspectorDrawerOpen, setInspectorDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1279px)');
+    const update = () => setNarrowLayout(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  const mobileLayout = narrowLayout && typeof window !== 'undefined' && window.innerWidth < 768;
 
   // Active Tool Resolution
   const activeTool: ToolDefinition | null = activeToolId ? ALL_TOOLS[activeToolId] || null : null;
@@ -118,17 +132,17 @@ function ArchitexOSPage() {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f5faf9] text-[#102033] select-none font-sans">
       {/* Layer 1: Global OS Rail */}
-      <OsRail
+      {!mobileLayout && <OsRail
         navigation={navigation}
         onNavigate={dispatchNavigation}
         railExpanded={railExpanded}
         onToggleRail={() => setRailExpanded(!railExpanded)}
         currentRole={currentRole}
         totalToolsCount={Object.keys(ALL_TOOLS).length}
-      />
+      />}
 
       {/* Layer 2: Context Navigator */}
-      <ContextNavigator
+      {!narrowLayout && <ContextNavigator
         mode={mode}
         onNavigate={dispatchNavigation}
         activeProject={activeProject}
@@ -141,7 +155,7 @@ function ArchitexOSPage() {
         compact={navCompact}
         roleFilteredToolIds={roleFilteredToolIds}
         activeGlobal={activeGlobal}
-      />
+      />}
 
       {/* Layer 3: Central Workspace */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -151,11 +165,13 @@ function ArchitexOSPage() {
           activeTool={activeTool}
           currentRole={currentRole}
           onSetRole={setCurrentRole}
-          onToggleCompactNav={() => setNavCompact(!navCompact)}
-          onToggleInspector={() => setInspectorOpen(!inspectorOpen)}
+          onToggleCompactNav={() => narrowLayout ? setNavigatorDrawerOpen(true) : setNavCompact(!navCompact)}
+          onOpenGlobalNavigation={() => setGlobalDrawerOpen(true)}
+          onToggleInspector={() => narrowLayout ? setInspectorDrawerOpen(true) : setInspectorOpen(!inspectorOpen)}
           onOpenWingman={() => handleOpenTool('wingman')}
           onNavigate={dispatchNavigation}
-          inspectorOpen={inspectorOpen}
+          inspectorOpen={narrowLayout ? inspectorDrawerOpen : inspectorOpen}
+          narrowLayout={narrowLayout}
         />
 
         {/* Dynamic Screen Viewport Container */}
@@ -209,7 +225,7 @@ function ArchitexOSPage() {
       </main>
 
       {/* Layer 4: Contextual Inspector */}
-      {inspectorOpen && (
+      {!narrowLayout && inspectorOpen && (
         <ContextInspector
           mode={mode}
           activeProject={activeProject}
@@ -220,6 +236,54 @@ function ArchitexOSPage() {
           onAttachProject={() => dispatchNavigation({ type: 'set-mode', mode: 'project' })}
           godMode={godMode}
         />
+      )}
+
+      {mobileLayout && (
+        <ResponsiveDrawer open={globalDrawerOpen} title="Global navigation" side="start" onClose={() => setGlobalDrawerOpen(false)}>
+          <OsRail
+            navigation={navigation}
+            onNavigate={(event) => { dispatchNavigation(event); setGlobalDrawerOpen(false); }}
+            railExpanded
+            onToggleRail={() => setGlobalDrawerOpen(false)}
+            currentRole={currentRole}
+            totalToolsCount={Object.keys(ALL_TOOLS).length}
+            variant="drawer"
+          />
+        </ResponsiveDrawer>
+      )}
+
+      {narrowLayout && (
+        <ResponsiveDrawer open={navigatorDrawerOpen} title="Context navigation" side="start" onClose={() => setNavigatorDrawerOpen(false)}>
+          <ContextNavigator
+            mode={mode}
+            onNavigate={(event) => { dispatchNavigation(event); setNavigatorDrawerOpen(false); }}
+            activeProject={activeProject}
+            onSelectProject={setActiveProject}
+            projects={projects}
+            onCreateProject={handleCreateProject}
+            activeTool={activeTool}
+            activeToolTabKey={activeToolTabKey ?? '0'}
+            currentRole={currentRole}
+            compact={false}
+            roleFilteredToolIds={roleFilteredToolIds}
+            activeGlobal={activeGlobal}
+          />
+        </ResponsiveDrawer>
+      )}
+
+      {narrowLayout && (
+        <ResponsiveDrawer open={inspectorDrawerOpen} title="Context inspector" side="end" onClose={() => setInspectorDrawerOpen(false)}>
+          <ContextInspector
+            mode={mode}
+            activeProject={activeProject}
+            activeTool={activeTool}
+            currentRole={currentRole}
+            onClose={() => setInspectorDrawerOpen(false)}
+            onOpenWingmanTool={() => { handleOpenTool('wingman'); setInspectorDrawerOpen(false); }}
+            onAttachProject={() => { dispatchNavigation({ type: 'set-mode', mode: 'project' }); setInspectorDrawerOpen(false); }}
+            godMode={godMode}
+          />
+        </ResponsiveDrawer>
       )}
 
       {/* Universal Floating Feedback Widget with Ctrl+Shift+F */}
