@@ -21,5 +21,5 @@ const findings = requiredEvidence.flatMap(([phase, path]) => {
 });
 
 for (const finding of findings) console.error(finding);
-console.log(`Phase gates: ${requiredEvidence.length} checked, ${requiredEvidence.length - findings.length} passed, ${findings.length} unexplained blockers`);
+console.log(`Phase gates: ${requiredEvidence.length} checked, ${requiredEvidence.length - findings.length} passed, ${findings.length} release blockers`);
 if (findings.length) process.exitCode = 1;
