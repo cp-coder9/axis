@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -42,13 +44,15 @@ export function IconographyRegistryModule({ activeProject, currentRole, activeTa
   const filtered = icons.filter(([id, name]) => id.includes(query.toLowerCase()) || name.toLowerCase().includes(query.toLowerCase()));
 
   return <section className="space-y-4" aria-label="Iconography Registry">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="tools" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Design-system tooling</p><h1 className="text-xl font-bold">Iconography Registry</h1><p className="text-xs text-[#657287]">Single source of truth for the Origami icon set</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader
+      title="Iconography Registry"
+      origami={<OrigamiIcon name="tools" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Design-system tooling</p><p>Single source of truth for the Origami icon set</p></>}
+      actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Iconography Registry sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>}
+    />
 
-    {tab === 'registry' && <><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search icons by id or name..." className="w-full rounded-2xl border border-[#102033]/10 bg-white p-3 text-xs shadow-sm focus:outline-none focus:border-[#19B7B0]" />
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{filtered.map(([id, name, tone]) => <div key={id} className="rounded-2xl border bg-white p-4 shadow-sm text-center"><div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name={id} size={20} /></div><div className="mt-2 truncate text-xs font-bold">{name}</div><div className="font-mono text-[9px] text-[#96a0ad]">{id} · {tone}</div></div>)}</div></>}
+    {tab === 'registry' && <><label htmlFor="iconography-search" className="sr-only">Search icons by ID or name</label><input id="iconography-search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search icons by id or name..." className="w-full rounded-2xl border border-[#102033]/10 bg-white p-3 text-xs shadow-sm focus:outline-none focus:border-[#19B7B0]" />
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{filtered.map(([id, name, tone]) => <div key={id} className="rounded-2xl border bg-white p-4 shadow-sm text-center"><div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-[#DFF5F2] text-[#135f5a]"><OrigamiIcon name={id} size={20} /></div><div className="mt-2 truncate text-xs font-bold">{name}</div><div className="font-mono text-[9px] text-[#526074]">{id} · {tone}</div></div>)}</div></>}
 
     {tab === 'tones' && <div className="rounded-2xl border bg-white p-5 shadow-sm space-y-3"><h2 className="text-base font-bold">Tone System</h2><div className="grid gap-3 md:grid-cols-2">{[['core / teal','#19B7B0 · #167E79','Shell, projects, documents, forms'],['lavender','#8B5CF6','Tools, wingman, feedback'],['coral','#FF6B6B','Inbox, meetings, safety, ITP'],['amber','#FFB020','Finance, fees, payments'],['cobalt','#2563EB','Planning, XA, specforge'],['green / red','#28a86b · #d95747','Status semantics']].map(([tone,hex,usage]) => <div key={tone} className="rounded-xl border p-4"><div className="flex items-center gap-2"><span className={`h-4 w-4 rounded-full ${tone.includes('teal') ? 'bg-[#19B7B0]' : tone.includes('lavender') ? 'bg-[#8B5CF6]' : tone.includes('coral') ? 'bg-[#FF6B6B]' : tone.includes('amber') ? 'bg-[#FFB020]' : tone.includes('cobalt') ? 'bg-[#2563EB]' : 'bg-[#28a86b]'}`} /><span className="text-sm font-bold">{tone}</span></div><div className="mt-1 font-mono text-[10px] text-[#657287]">{hex}</div><div className="mt-1 text-[10px] text-[#526074]">{usage}</div></div>)}</div></div>}
 

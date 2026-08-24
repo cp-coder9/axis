@@ -63,4 +63,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Admin Review');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('System health, audit inspection, user moderation');
   });
+
+  test('P6-W5-09 iconography registry renders its design-system source through the shared header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'iconography_registry');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Iconography Registry');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Single source of truth for the Origami icon set');
+  });
 });
