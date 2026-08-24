@@ -45,3 +45,17 @@ test('P6-NAV-01 mobile inspector drawer exposes its existing contextual content'
   await page.keyboard.press('Escape');
   await expect(trigger).toBeFocused();
 });
+
+test('P6-NAV-01 mobile global drawer preserves the selected destination transition', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  const drawer = page.getByRole('dialog', { name: 'Global navigation' });
+  await expect(drawer).toContainText('Global OS Rail');
+  await drawer.getByRole('button', { name: 'Project Space Datum' }).click();
+
+  await expect(drawer).toBeHidden();
+  await expect(page.getByTestId('datum-canvas')).toBeVisible();
+  await assertNoBodyOverflow(page);
+});
