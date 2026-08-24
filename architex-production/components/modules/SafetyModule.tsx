@@ -48,6 +48,7 @@ export const SafetyModule: React.FC<SafetyModuleProps> = ({
               type="button"
               variant={tab === item.key ? 'ink' : 'quiet'}
               size="sm"
+              aria-label={item.badge ? `${item.label} ${item.badge}` : item.label}
               aria-pressed={tab === item.key}
               onClick={() => setTab(item.key || '')}
               className="shrink-0"

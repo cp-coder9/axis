@@ -100,6 +100,7 @@ export const BomModule: React.FC<BomModuleProps> = ({
               type="button"
               variant={tab === t.key ? 'ink' : 'quiet'}
               size="sm"
+              aria-label={t.badge ? `${t.label} ${t.badge}` : t.label}
               aria-pressed={tab === t.key}
               onClick={() => setTab(t.key || '')}
               className="shrink-0"
