@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const requiredEvidence = [
@@ -12,9 +12,13 @@ const requiredEvidence = [
   ['P7', 'docs/v8-remediation/evidence/PHASE_7_GOD_MODE_EVIDENCE.md'],
 ];
 
-const findings = requiredEvidence
-  .filter(([, path]) => !existsSync(resolve(path)))
-  .map(([phase, path]) => `P8-PHASE-${phase}-EVIDENCE-MISSING|owner=${phase}|evidence=${path}|observed=missing`);
+const findings = requiredEvidence.flatMap(([phase, path]) => {
+  const absolutePath = resolve(path);
+  if (!existsSync(absolutePath)) return [`P8-PHASE-${phase}-EVIDENCE-MISSING|owner=${phase}|evidence=${path}|observed=missing`];
+  const status = readFileSync(absolutePath, 'utf8').match(/^Status:\s*`?([^`\r\n]+)`?/m)?.[1]?.trim();
+  if (!status || !/^(PASS|APPROVED)/.test(status)) return [`P8-PHASE-${phase}-EVIDENCE-NOT-CERTIFIED|owner=${phase}|evidence=${path}|observed=${status ?? 'missing-status'}`];
+  return [];
+});
 
 for (const finding of findings) console.error(finding);
 console.log(`Phase gates: ${requiredEvidence.length} checked, ${requiredEvidence.length - findings.length} passed, ${findings.length} unexplained blockers`);
