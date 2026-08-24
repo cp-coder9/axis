@@ -970,10 +970,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'COIDA letters of good standing, tax clearance, CIDB gradings, and subcontractor verification.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'compliance', label: 'Compliance Pack', group: 'Compliance', icon: 'contractor_compliance' },
+      { key: 'documents', label: 'Document Register', group: 'Compliance', icon: 'document' },
+      { key: 'expiry', label: 'Expiry Watch', group: 'Compliance', icon: 'risk' }
     ]
   },
   site_instructions: {
@@ -986,10 +985,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Formal architect/engineer site instructions, contractor acknowledgement, and cost implications log.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'instructions', label: 'Site Instructions', group: 'Execution', icon: 'rfi' },
+      { key: 'acknowledgements', label: 'Acknowledgements', group: 'Execution', icon: 'detail' },
+      { key: 'cost', label: 'Cost Implications', group: 'Execution', icon: 'budget' },
+      { key: 'audit', label: 'Audit Trail', group: 'Execution', icon: 'workflow' }
     ]
   },
   ncr_manager: {
@@ -1002,10 +1001,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Non-Conformance Reports (NCR), defect rectification notices, root cause analysis, and closure tracking.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'register', label: 'NCR Register', group: 'Quality', icon: 'risk' },
+      { key: 'rectification', label: 'Rectification', group: 'Quality', icon: 'workflow' },
+      { key: 'linkage', label: 'ITP & Hold Linkage', group: 'Quality', icon: 'itp' },
+      { key: 'closeout', label: 'Close-out', group: 'Quality', icon: 'detail' }
     ]
   },
   snag_manager: {
@@ -1018,10 +1017,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Site defect punch-list, photo evidence, trade assignments, reinspections, and client sign-off.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'register', label: 'Snag Register', group: 'Snags', icon: 'itp' },
+      { key: 'zones', label: 'Zones & Walkthroughs', group: 'Snags', icon: 'projects' },
+      { key: 'closeout', label: 'Close-out Progress', group: 'Snags', icon: 'detail' },
+      { key: 'handover', label: 'Handover', group: 'Snags', icon: 'document' }
     ]
   },
   fm_bridge: {
@@ -1034,10 +1033,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'COBie and asset register export, O&M manuals handover, and facilities management bridge.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'handover', label: 'Handover Pack', group: 'Handover', icon: 'fm_bridge' },
+      { key: 'assets', label: 'Asset Register', group: 'Handover', icon: 'detail' },
+      { key: 'warranties', label: 'Warranties & Manuals', group: 'Handover', icon: 'document' },
+      { key: 'defects', label: 'Defects Period', group: 'Handover', icon: 'snag_manager' }
     ]
   },
   council_navigator: {
@@ -1050,10 +1049,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Municipal review markups, departmental comment coordination, and revision comparison viewer.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'applications', label: 'Council Applications', group: 'Council', icon: 'council_navigator' },
+      { key: 'checklist', label: 'Submission Checklist', group: 'Council', icon: 'detail' },
+      { key: 'status', label: 'Application Status', group: 'Council', icon: 'workflow' },
+      { key: 'refs', label: 'Council References', group: 'Council', icon: 'document' }
     ]
   },
   municipal_tracker: {
@@ -1066,10 +1065,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Departmental circulation tracking, SLA monitoring, and authority milestone alerts.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'tracker', label: 'Municipal Tracker', group: 'Tracker', icon: 'municipal_tracker' },
+      { key: 'timeline', label: 'Timeline', group: 'Tracker', icon: 'programme' },
+      { key: 'alerts', label: 'Alerts & Blocks', group: 'Tracker', icon: 'risk' }
     ]
   },
   remote_desktop: {
@@ -1082,10 +1080,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Web-streamed CAD/BIM workstation sessions, file handoff, and hosted engineering cloud instances.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'sessions', label: 'Sessions', group: 'Remote', icon: 'remote_desktop' },
+      { key: 'hosts', label: 'Host Machines', group: 'Remote', icon: 'detail' },
+      { key: 'security', label: 'Security & Access', group: 'Remote', icon: 'risk' },
+      { key: 'audit', label: 'Session Audit', group: 'Remote', icon: 'workflow' }
     ]
   },
   cpd_learning: {
@@ -1098,10 +1096,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Voluntary & Category 1 CPD credit tracking, accredited courses, and statutory validation records.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'courses', label: 'CPD Courses', group: 'CPD', icon: 'cpd_learning' },
+      { key: 'sacap', label: 'SACAP Requirements', group: 'CPD', icon: 'detail' },
+      { key: 'history', label: 'Learning History', group: 'CPD', icon: 'detail' },
+      { key: 'resources', label: 'Reference Library', group: 'CPD', icon: 'document' }
     ]
   },
   admin_review: {
@@ -1114,10 +1112,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Platform moderation, tenant audit trails, security policy enforcement, and role provisioning.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'review', label: 'Admin Review', group: 'Admin', icon: 'admin_review' },
+      { key: 'actions', label: 'Platform Actions', group: 'Admin', icon: 'action' },
+      { key: 'logs', label: 'System Logs', group: 'Admin', icon: 'detail' },
+      { key: 'tenants', label: 'Tenant Health', group: 'Admin', icon: 'workflow' }
     ]
   },
   iconography_registry: {
@@ -1130,10 +1128,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Design system icon dictionary, SVG token manager, and brand origami guidelines.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'registry', label: 'Icon Registry', group: 'Registry', icon: 'iconography_registry' },
+      { key: 'tones', label: 'Tone System', group: 'Registry', icon: 'detail' },
+      { key: 'usage', label: 'Usage Rules', group: 'Registry', icon: 'workflow' }
     ]
   }
 };
