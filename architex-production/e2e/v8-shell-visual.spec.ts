@@ -116,3 +116,11 @@ test('P6-W0-GLOBAL Datum renders the existing tool order as a mobile sequence', 
   await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-GLOBAL Tool Registry exposes its existing search control at mobile width', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
+  await expect(page.getByRole('searchbox', { name: 'Search workspace tools' })).toBeVisible();
+});

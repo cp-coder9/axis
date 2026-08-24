@@ -77,7 +77,8 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <input
-              type="text"
+              type="search"
+              aria-label="Search workspace tools"
               placeholder={`Search across all ${tools.length} tools by name, discipline or standard...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
