@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -32,11 +34,7 @@ export function SnagManagerModule({ activeProject, currentRole, activeTabKey = '
   const pct = Math.round((resolved / items.length) * 100);
 
   return <section className="space-y-4" aria-label="Snag Manager">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="snag_manager" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Defects to close-out</p><h1 className="text-xl font-bold">Snag Manager</h1><p className="text-xs text-[#657287]">{activeProject.code} · zone-based snags toward practical completion</p></div></div>
-      <button className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white">+ Log Snag</button>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Snag Manager" origami={<OrigamiIcon name="snag_manager" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Defects to close-out</p><p>{activeProject.code} · zone-based snags toward practical completion</p></>} actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" className="shrink-0">+ Log Snag</Button><nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Snag Manager sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>} />
 
     {tab === 'register' && <><div className="grid gap-3 md:grid-cols-4">{[['Open',String(open)],['Rectifying',String(resolving)],['Resolved',String(resolved)],['Close-out',`${pct}%`]].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className="space-y-3">{items.map(s => <article key={s.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm lg:flex-row lg:items-center"><div className={`h-10 w-1 rounded-full ${s.severity === 'Critical' ? 'bg-[#d95747]' : s.severity === 'Major' ? 'bg-[#FFB020]' : 'bg-[#19B7B0]'}`} /><div className="flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#167E79]">{s.id}</span><h2 className="text-sm font-bold">{s.title}</h2><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${s.severity === 'Critical' ? 'bg-red-100 text-red-700' : s.severity === 'Major' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{s.severity}</span></div><p className="mt-1 text-xs text-[#657287]">Zone: {s.zone} · Due {s.due}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${s.status === 'Resolved' ? 'bg-green-100 text-green-700' : s.status === 'Rectifying' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-700'}`}>{s.status}</span><button disabled={!canClose} onClick={() => toggle(s.id)} className="rounded-xl border px-3 py-2 text-xs font-bold disabled:opacity-40">{s.status === 'Resolved' ? 'Reopen' : 'Mark resolved'}</button></article>)}</div></>}

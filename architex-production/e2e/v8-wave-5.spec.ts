@@ -33,4 +33,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('NCR Manager');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('deviations, rectification and hold-point linkage');
   });
+
+  test('P6-W5-04 snag manager renders its close-out workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'snag_manager');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Snag Manager');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('zone-based snags toward practical completion');
+  });
 });
