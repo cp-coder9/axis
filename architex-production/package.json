@@ -28,6 +28,8 @@
     "validate:release": "node scripts/validate-release.mjs",
     "release:assemble": "node scripts/release/assemble-standalone.mjs",
     "release:standalone:verify": "node scripts/release/verify-standalone.mjs",
+    "evidence:collect": "node scripts/collect-release-evidence.mjs",
+    "evidence:verify": "node scripts/collect-release-evidence.mjs --verify",
     "test:e2e:v8-shell": "playwright test e2e/v8-shell-visual.spec.ts --project=chromium",
     "test:e2e:v8-parity": "playwright test e2e/v8-workflow-parity.spec.ts --project=chromium",
     "test:e2e:v8-wave-1": "playwright test e2e/v8-wave-1.spec.ts --project=chromium",
