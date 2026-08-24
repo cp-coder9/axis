@@ -37,8 +37,11 @@ export const EngineeringCalcModule: React.FC<EngineeringCalcModuleProps> = ({ ac
   // Calculator-specific state is reset atomically on every navigator transition.
   useEffect(() => {
     activate(calcId, isProjectMode ? activeProject.id : null);
-    setOutput(null);
-    setShowDerivation(false);
+    const resetTimer = window.setTimeout(() => {
+      setOutput(null);
+      setShowDerivation(false);
+    }, 0);
+    return () => window.clearTimeout(resetTimer);
   }, [calcId, activeProject.id, isProjectMode, activate]);
 
   const updateInput = (key: string, rawValue: string) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, ReactNode, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -32,12 +32,10 @@ export function AccessGateway({ children }: { children: ReactNode }) {
   const [view, setView] = useState<AccessView>('landing');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [dark, setDark] = useState(false);
-  const [entered, setEntered] = useState(false);
-
-  useEffect(() => {
-    const testBypass = new URLSearchParams(window.location.search).get('workspace') === 'v8';
-    setEntered(testBypass || sessionStorage.getItem('architex-v8-access') === 'granted');
-  }, []);
+  const [entered, setEntered] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return new URLSearchParams(window.location.search).get('workspace') === 'v8' || sessionStorage.getItem('architex-v8-access') === 'granted';
+  });
 
   const enterWorkspace = (event: FormEvent) => {
     event.preventDefault();
