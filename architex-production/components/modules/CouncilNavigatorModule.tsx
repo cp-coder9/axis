@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -26,11 +28,7 @@ export function CouncilNavigatorModule({ activeProject, currentRole, activeTabKe
   const canEdit = ['architect','town_planner','cpm','admin','platform_admin'].includes(currentRole);
 
   return <section className="space-y-4" aria-label="Council Drawing Navigator">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="council_navigator" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Municipal application tracking</p><h1 className="text-xl font-bold">Council Drawing Navigator</h1><p className="text-xs text-[#657287]">{activeProject.code} · building plans, land-use, permits</p></div></div>
-      <button disabled={!canEdit} className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white disabled:opacity-40">+ New application</button>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Council Drawing Navigator" origami={<OrigamiIcon name="council_navigator" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Municipal application tracking</p><p>{activeProject.code} · building plans, land-use, permits</p></>} actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" disabled={!canEdit} className="shrink-0">+ New application</Button><nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Council Navigator sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>} />
 
     {tab === 'applications' && <div className="space-y-3">{items.map(a => <article key={a.id} className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm lg:flex-row lg:items-center"><div className="h-10 w-1 rounded-full bg-[#2563EB]" /><div className="flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-mono text-xs font-bold text-[#167E79]">{a.id}</span><h2 className="text-sm font-bold">{a.title}</h2></div><p className="mt-1 text-xs text-[#657287]">{a.council} · Ref {a.ref} · Updated {a.updated}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${a.status === 'Approved' ? 'bg-green-100 text-green-700' : a.status === 'Scrutiny' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>{a.status}</span><button disabled={!canEdit} className="rounded-xl border px-3 py-2 text-xs font-bold disabled:opacity-40">Open</button></article>)}</div>}
 

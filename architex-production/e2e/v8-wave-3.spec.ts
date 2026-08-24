@@ -62,4 +62,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('NHBRC Enrolment');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory enrolment for residential units');
   });
+
+  test('P6-W3-06 council navigator renders its municipal applications through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'council_navigator');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Council Drawing Navigator');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('building plans, land-use, permits');
+  });
 });
