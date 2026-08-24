@@ -64,4 +64,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Contract Administration');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('certificates, variations, claims and EoT');
   });
+
+  test('P6-W4-07 payments and escrow renders its release tracking through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'payments_escrow');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Payments & Escrow');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('invoice, milestone and release-status tracking');
+  });
 });
