@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES, STAGE_COPY, STAGE_TOOL_MAP, ROLE_TOOL_MAP } from '@/lib/data';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 interface DatumCanvasProps {
   project: ProjectEntity;
@@ -74,57 +78,25 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   return (
     <div className="space-y-4" data-testid="datum-canvas">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#19B7B0]/10 border border-[#19B7B0]/30 flex items-center justify-center text-[#167E79]">
-            <OrigamiIcon name="projects" size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#102033] tracking-tight">{project.name}</h1>
-            <p className="text-[13px] text-[#657287]">
-              The Datum is the project&apos;s single line of truth. All tools attach as viewports and write back governed records.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onOpenTool('practice')}
-            className="px-3 py-1.5 bg-white hover:bg-gray-50 border border-[#102033]/15 text-[#102033] rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-sm"
-          >
-            <OrigamiIcon name="practice_management" size={16} />
-            <span>Plan Project</span>
-          </button>
-          <button
-            onClick={onOpenWingman}
-            className="px-3 py-1.5 bg-white hover:bg-purple-50 border border-[#8B5CF6]/30 text-[var(--ax-ref-violet-600)] rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-sm"
-          >
-            <OrigamiIcon name="wingman" size={16} />
-            <span>Ask Wingman</span>
-          </button>
-          <button
-            onClick={onOpenFeedback}
-            className="px-3 py-1.5 bg-gradient-to-r from-[#19B7B0] to-[#167E79] text-white rounded-xl text-[12px] font-semibold flex items-center gap-1.5 shadow-md"
-          >
-            <OrigamiIcon name="feedback" size={16} />
-            <span>Give Feedback</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={project.name}
+        origami={<OrigamiIcon name="projects" size={26} />}
+        metadata="The Datum is the project's single line of truth. All tools attach as viewports and write back governed records."
+        datum
+        actions={<div className="flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={() => onOpenTool('practice')}><OrigamiIcon name="practice_management" size={16} /> Plan Project</Button><Button variant="quiet" size="sm" onClick={onOpenWingman}><OrigamiIcon name="wingman" size={16} /> Ask Wingman</Button><Button size="sm" onClick={onOpenFeedback}><OrigamiIcon name="feedback" size={16} /> Give Feedback</Button></div>}
+      />
 
       {/* Role Experience Banner */}
-      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#DFF5F2]/80 to-white border border-[#19B7B0]/20 rounded-2xl">
-        <div className="w-9 h-9 rounded-xl bg-[#102033] text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+      <Surface level="inset" className="flex items-center gap-3">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--ax-radius-sm)] bg-[var(--ax-text)] font-bold text-[var(--ax-surface-1)]">
           {profile.code}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[13px] font-bold text-[#102033] flex items-center gap-2">
+          <div className="flex items-center gap-2 font-bold text-[var(--ax-text)]">
             <span>{profile.label} Experience</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#19B7B0]/15 text-[#167E79]">
-              Active
-            </span>
+            <StatusBadge tone="success" label="Active" />
           </div>
-          <p className="text-[11.5px] text-[#657287] truncate">
+          <p className="truncate text-[var(--ax-text-muted)]">
             {profile.description}. The Datum surface prioritises tools and decision gates for your role.
           </p>
         </div>
@@ -132,31 +104,28 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           {profile.tags.map((tag) => (
             <span
               key={tag}
-              className="text-[10.5px] px-2 py-0.5 rounded-full bg-white border border-[#102033]/10 text-[#167E79] font-medium"
+              className="rounded-[var(--ax-radius-pill)] border border-[var(--ax-border)] bg-[var(--ax-surface-1)] px-2 py-0.5 font-medium text-[var(--ax-action-primary)]"
             >
               {tag}
             </span>
           ))}
         </div>
-      </div>
+      </Surface>
 
       {/* Project Hero Card with 8-Stage Progress Bar */}
-      <section className="bg-white border border-[#102033]/10 rounded-3xl p-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#102033]/10">
+      <Surface level="raised" className="space-y-4">
+        <div className="flex flex-col justify-between gap-2 border-b border-[var(--ax-border)] pb-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-[17px] font-bold text-[#102033]">{project.name}</h2>
-            <p className="text-[12px] text-[#657287]">
+            <h2 className="text-[17px] font-bold text-[var(--ax-text)]">{project.name}</h2>
+            <p className="text-[var(--ax-text-muted)]">
               {project.location} · {project.client} · {project.professional} · Code: {project.code}
             </p>
           </div>
-          <span className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold bg-green-50 text-green-700 border border-green-200">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span>In Progress · {project.progress}%</span>
-          </span>
+          <StatusBadge tone="success" label={`In Progress · ${project.progress}%`} />
         </div>
 
         {/* Interactive 8-Stage Lifecycle Selection */}
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-2 pt-4">
+        <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
           {STAGES.map((s, idx) => {
             const isCurrent = s === project.stage;
             const stageIndex = STAGES.indexOf(project.stage);
@@ -165,23 +134,24 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
             return (
               <button
                 key={s}
+                type="button"
                 onClick={() => onSelectStage(s)}
                 className={`relative flex flex-col items-center p-2 rounded-2xl border transition-all text-center group ${
                   isCurrent
-                    ? 'border-[#19B7B0] bg-[#DFF5F2]/50 text-[#167E79] font-bold shadow-sm ring-2 ring-[#19B7B0]/20'
+                    ? 'border-[var(--ax-action-primary)] bg-[var(--ax-surface-2)] text-[var(--ax-text)] font-bold shadow-sm ring-2 ring-[var(--ax-action-primary)]/20'
                     : isPast
-                    ? 'border-[#102033]/10 bg-white text-[#102033] hover:border-[#19B7B0]/40'
-                    : 'border-[#102033]/5 bg-gray-50/50 text-[var(--ax-text-muted)] hover:bg-white'
+                    ? 'border-[var(--ax-border)] bg-[var(--ax-surface-1)] text-[var(--ax-text)] hover:border-[var(--ax-action-primary)]/40'
+                    : 'border-[var(--ax-border)] bg-[var(--ax-surface-2)] text-[var(--ax-text-muted)] hover:bg-[var(--ax-surface-1)]'
                 }`}
                 title={`Switch to ${s} stage`}
               >
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold mb-1 transition-all ${
                     isCurrent
-                      ? 'bg-[#19B7B0] text-white shadow-md'
+                      ? 'bg-[var(--ax-action-primary)] text-[var(--ax-surface-1)] shadow-md'
                       : isPast
-                      ? 'bg-[#167E79]/15 text-[#167E79]'
-                      : 'bg-[#102033]/5 text-[var(--ax-text-muted)]'
+                      ? 'bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]'
+                      : 'bg-[var(--ax-border)] text-[var(--ax-text-muted)]'
                   }`}
                 >
                   {isPast ? '✓' : idx + 1}
@@ -192,10 +162,10 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           })}
         </div>
 
-        <div className="mt-3.5 px-3 py-2 bg-[#f7fbfa] rounded-xl text-[12px] text-[#526074]">
-          <strong className="text-[#167E79]">{project.stage} Stage:</strong> {STAGE_COPY[project.stage]}
-        </div>
-      </section>
+        <Surface level="inset" className="text-[var(--ax-text-muted)]">
+          <strong className="text-[var(--ax-text)]">{project.stage} Stage:</strong> {STAGE_COPY[project.stage]}
+        </Surface>
+      </Surface>
 
       {/* Mobile Datum Sequence — derived from the same ordered activeTools collection as the desktop plane. */}
       <section data-testid="datum-mobile-sequence" className="md:hidden space-y-2 rounded-3xl border border-[var(--ax-border)] bg-[var(--ax-surface-1)] p-3">
@@ -206,20 +176,22 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         {activeTools.map((tool, index) => {
           const metricInfo = getToolMetric(tool.id);
           return (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               key={tool.id}
               data-testid="datum-mobile-tool"
               onClick={() => onOpenTool(tool.id)}
-              className="flex w-full items-center gap-3 rounded-2xl border border-[var(--ax-border)] bg-[var(--ax-surface-1)] p-3 text-left hover:border-[#19B7B0]/50"
+              className="h-auto w-full items-center gap-3 p-3 text-left"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#DFF5F2] text-[var(--ax-action-primary)]"><OrigamiIcon name={tool.icon} size={18} /></span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]"><OrigamiIcon name={tool.icon} size={18} /></span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[var(--ax-text-13)] font-bold text-[var(--ax-text)]">{index + 1}. {tool.name}</span>
                 <span className="mt-0.5 block truncate text-[var(--ax-text-12)] text-[var(--ax-text-muted)]">{metricInfo[0]}</span>
               </span>
-              <span className="rounded-full border border-[var(--ax-border)] px-2 py-0.5 text-[10px] font-bold text-[var(--ax-text-muted)]">{tool.status === 'live' ? 'Live' : 'Scaffold'}</span>
-            </button>
+              <StatusBadge tone={tool.status === 'live' ? 'success' : 'neutral'} label={tool.status === 'live' ? 'Live' : 'Scaffold'} />
+            </Button>
           );
         })}
       </section>
