@@ -18,7 +18,13 @@ for (const [surface, ids, ordered] of [['backend', backend, true], ['migration',
   if (!matches) findings.push(`P8-REGISTRY-${surface.toUpperCase()}-MISMATCH|surface=${surface}|expected=47|observed=${ids.length}`);
 }
 if (!database || JSON.stringify([...database].sort()) !== JSON.stringify([...canonical].sort())) findings.push(`P8-REGISTRY-MARIADB-MISMATCH|surface=mariadb|expected=47|observed=${database?.length ?? 'unavailable'}`);
-for (const [surface, path] of [['e2e-contracts', 'e2e/fixtures/module-contracts.ts'], ['documentation', 'docs/v8-remediation/MODULE_INVENTORY.md']]) {
+const documentationPath = resolve(root, 'docs/v8-remediation/MODULE_INVENTORY.md');
+if (!existsSync(documentationPath)) findings.push('P8-REGISTRY-DOCUMENTATION-UNAVAILABLE|surface=documentation|evidence=docs/v8-remediation/MODULE_INVENTORY.md');
+else {
+  const documented = [...readFileSync(documentationPath, 'utf8').matchAll(/^- `([^`]+)`$/gm)].map((match) => match[1]);
+  if (JSON.stringify(documented) !== JSON.stringify(canonical)) findings.push(`P8-REGISTRY-DOCUMENTATION-MISMATCH|surface=documentation|expected=47|observed=${documented.length}`);
+}
+for (const [surface, path] of [['e2e-contracts', 'e2e/fixtures/module-contracts.ts']]) {
   if (!existsSync(resolve(root, path))) findings.push(`P8-REGISTRY-${surface.toUpperCase()}-UNAVAILABLE|surface=${surface}|evidence=${path}`);
 }
 for (const finding of findings) console.error(finding);
