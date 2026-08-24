@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -26,11 +28,7 @@ export function ContractorComplianceModule({ activeProject, currentRole, activeT
   const canEdit = ['cpm','contractor','admin','platform_admin'].includes(currentRole);
 
   return <section className="space-y-4" aria-label="Contractor Compliance">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="contractor_compliance" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Pre-qualification & standing</p><h1 className="text-xl font-bold">Contractor Compliance</h1><p className="text-xs text-[#657287]">{activeProject.code} · COIDA, tax, CIDB, BBBEE</p></div></div>
-      <div className="flex gap-2"><div className="rounded-xl bg-green-100 px-3 py-2 text-xs font-bold text-green-700">✓ Pre-qualified</div><button disabled={!canEdit} className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white disabled:opacity-40">+ Add document</button></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Contractor Compliance" origami={<OrigamiIcon name="contractor_compliance" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Pre-qualification & standing</p><p>{activeProject.code} · COIDA, tax, CIDB, BBBEE</p></>} actions={<div className="flex max-w-full items-center gap-2"><span className="rounded-xl bg-green-100 px-3 py-2 text-xs font-bold text-green-700">✓ Pre-qualified</span><Button type="button" variant="ink" size="sm" disabled={!canEdit} className="shrink-0">+ Add document</Button><nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Contractor Compliance sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>} />
 
     {tab === 'compliance' && <div className="rounded-2xl border bg-white p-5 shadow-sm space-y-3"><h2 className="text-base font-bold">Pre-qualification Summary</h2><div className="grid gap-3 md:grid-cols-3">{[['Overall status','Compliant','bg-green-500'],['Documents valid','3 of 4','bg-[#19B7B0]'],['Risk level','Low','bg-green-500']].map(([l,v,c]) => <div key={l} className="rounded-xl bg-[#f5faf9] p-4"><div className="text-[10px] uppercase text-[#657287]">{l}</div><div className={`mt-1 text-xl font-bold ${c === 'bg-green-500' ? 'text-green-700' : 'text-[#167E79]'}`}>{v}</div></div>)}</div></div>}
 
