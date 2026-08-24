@@ -54,4 +54,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Team Workspace');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('RACI, members and resource availability');
   });
+
+  test('P6-W2-05 action centre renders its cross-module commitments through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'inbox_action');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Action Centre');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('work from Meetings, Passport, Documents and AI review in one queue');
+  });
 });
