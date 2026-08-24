@@ -27,4 +27,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Site Instructions');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('contractor acknowledgement + cost implications');
   });
+
+  test('P6-W5-03 NCR manager renders its quality workflow through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'ncr_manager');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('NCR Manager');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('deviations, rectification and hold-point linkage');
+  });
 });
