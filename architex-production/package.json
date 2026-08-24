@@ -22,7 +22,9 @@
     "test:e2e:v8-wave-2": "playwright test e2e/v8-wave-2.spec.ts --project=chromium",
     "test:e2e:v8-wave-3": "playwright test e2e/v8-wave-3.spec.ts --project=chromium",
     "test:e2e:v8-wave-4": "playwright test e2e/v8-wave-4.spec.ts --project=chromium",
-    "test:e2e:v8-wave-5": "playwright test e2e/v8-wave-5.spec.ts --project=chromium"
+    "test:e2e:v8-wave-5": "playwright test e2e/v8-wave-5.spec.ts --project=chromium",
+    "test:e2e:v8-waves": "playwright test e2e/v8-wave-1.spec.ts e2e/v8-wave-2.spec.ts e2e/v8-wave-3.spec.ts e2e/v8-wave-4.spec.ts e2e/v8-wave-5.spec.ts --project=chromium",
+    "test:e2e:v8-migration": "playwright test e2e/v8-workflow-parity.spec.ts e2e/v8-shell-visual.spec.ts e2e/v8-wave-1.spec.ts e2e/v8-wave-2.spec.ts e2e/v8-wave-3.spec.ts e2e/v8-wave-4.spec.ts e2e/v8-wave-5.spec.ts --project=chromium"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
