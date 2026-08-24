@@ -5,6 +5,8 @@ import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -34,10 +36,12 @@ export function ItpModule({ activeProject, currentRole, activeTabKey = 'overview
   const setStatus = (id: string, status: Checkpoint['status']) => setCheckpoints(list => list.map(c => c.id === id ? { ...c, status, signedBy: status === 'Pending' ? undefined : 'Engineer', when: status === 'Pending' ? undefined : 'Just now' } : c));
 
   return <section className="space-y-4" aria-label="Inspection Test Plans">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="itp" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">QA checkpoints · SANS aligned</p><h1 className="text-xl font-bold">Inspection Test Plans</h1><p className="text-xs text-[#657287]">{activeProject.code} · hold points gate construction progress</p></div></div>
-      <div className="flex gap-2">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-[#f5faf9] text-[#657287]'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</button>)}</div>
-    </header>
+    <PageHeader
+      title="Inspection Test Plans"
+      origami={<OrigamiIcon name="itp" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">QA checkpoints · SANS aligned</p><p>{activeProject.code} · hold points gate construction progress</p></>}
+      actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Inspection test plan sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</Button>)}</nav>}
+    />
 
     {tab === 'overview' && <div className="grid gap-4 md:grid-cols-4">{[['Checkpoints',String(checkpoints.length)],['Passed',String(passed)],['Hold Points',String(holds)],['Failures',String(failed)]].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}
       <div className="md:col-span-4 rounded-2xl border border-[#19B7B0]/20 bg-[#DFF5F2] p-4 text-xs"><strong>Hold point breached:</strong> ITP-002 reinforcement placement requires engineer sign-off before concrete pour. Pour cannot proceed until released.</div></div>}

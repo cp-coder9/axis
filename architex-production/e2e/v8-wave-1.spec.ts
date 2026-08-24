@@ -91,4 +91,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Bill of Quantities (BoM) Engine');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('live drawing takeoff sync and market rates');
   });
+
+  test('P6-W1-11 ITP renders its construction quality workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'itp');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Inspection Test Plans');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('hold points gate construction progress');
+  });
 });
