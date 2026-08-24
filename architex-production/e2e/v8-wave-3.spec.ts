@@ -34,4 +34,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Compliance Hub');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('SANS 10400, NBR, OHS and municipal by-laws');
   });
+
+  test('P6-W3-02 environmental and heritage renders its EIA screening through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'environmental_heritage');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Environmental & Heritage');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('EIA screening, heritage impact, public participation');
+  });
 });

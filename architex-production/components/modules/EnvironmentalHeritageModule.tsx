@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -27,10 +29,7 @@ export function EnvironmentalHeritageModule({ activeProject, currentRole, active
   const pending = screenings.filter(s => s.status.includes('Requires')).length;
 
   return <section className="space-y-4" aria-label="Environmental & Heritage">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#28a86b]/10 text-[#28a86b]"><OrigamiIcon name="environmental_heritage" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#28a86b]">NEMA · SAHRA · DWS</p><h1 className="text-xl font-bold">Environmental & Heritage</h1><p className="text-xs text-[#657287]">{activeProject.code} · EIA screening, heritage impact, public participation</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#28a86b] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Environmental & Heritage" origami={<OrigamiIcon name="environmental_heritage" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#166534]">NEMA · SAHRA · DWS</p><p>{activeProject.code} · EIA screening, heritage impact, public participation</p></>} actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Environmental and Heritage sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>} />
 
     {tab === 'overview' && <><div className="grid gap-4 md:grid-cols-4">{[['Screening items',String(screenings.length)],['Requires action',String(pending)],['Heritage risk','1 flag'],['Public participation','Not started']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-950"><strong>Screening outcome:</strong> Basic Assessment (BA) required — site exceeds 2,000 m² disturbance threshold. Heritage study required for pre-1960 structures on site.</div></>}
