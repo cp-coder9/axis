@@ -621,10 +621,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Universal search and relational graph across drawings, assets, contracts, and project records.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'search', label: 'Universal Search', group: 'Explore', icon: 'project_explorer' },
+      { key: 'graph', label: 'Relational Graph', group: 'Explore', icon: 'workflow' },
+      { key: 'entities', label: 'Entity Registry', group: 'Explore', icon: 'detail' },
+      { key: 'timeline', label: 'Project Timeline', group: 'Explore', icon: 'programme' }
     ]
   },
   professional_directory: {
@@ -637,10 +637,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Statutory council verification (SACAP/ECSA/SACPCMP/SACQSP) and team appointments directory.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'directory', label: 'Professional Directory', group: 'Directory', icon: 'professional_directory' },
+      { key: 'verification', label: 'Verification Status', group: 'Directory', icon: 'approvals_queue' },
+      { key: 'appointments', label: 'Team Appointments', group: 'Directory', icon: 'team_workspace' }
     ]
   },
   team_workspace: {
@@ -653,10 +652,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Project RACI matrix, team permissions, active participants, and resource availability.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'raci', label: 'RACI Matrix', group: 'Team', icon: 'team_workspace' },
+      { key: 'members', label: 'Active Members', group: 'Team', icon: 'professional_directory' },
+      { key: 'availability', label: 'Availability', group: 'Team', icon: 'calendar' }
     ]
   },
   inbox_action: {
@@ -685,10 +683,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Formal Request for Information (RFI) submission, review, response, and audit log.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'rfis', label: 'RFI Register', group: 'RFIs', icon: 'rfi' },
+      { key: 'issues', label: 'Issues', group: 'RFIs', icon: 'risk' },
+      { key: 'responses', label: 'Response Workflow', group: 'RFIs', icon: 'workflow' },
+      { key: 'audit', label: 'Audit Trail', group: 'RFIs', icon: 'detail' }
     ]
   },
   approvals_queue: {
@@ -716,10 +714,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Cross-standard statutory compliance aggregator across SANS 10400, NBR, and municipal by-laws.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'dashboard', label: 'Compliance Dashboard', group: 'Compliance', icon: 'dashboard' },
+      { key: 'standards', label: 'Standard Checklist', group: 'Compliance', icon: 'detail' },
+      { key: 'gaps', label: 'Gap Register', group: 'Compliance', icon: 'risk' },
+      { key: 'signoffs', label: 'Sign-off Register', group: 'Compliance', icon: 'approvals_queue' }
     ]
   },
   environmental_heritage: {
@@ -732,10 +730,11 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'NEMA environmental screening, Section 38 NHRA 60-year heritage permits, and SAHRA submissions.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'overview', label: 'Overview', group: 'EIA', icon: 'dashboard' },
+      { key: 'screening', label: 'Screening Report', group: 'EIA', icon: 'detail' },
+      { key: 'assessments', label: 'Assessment Register', group: 'EIA', icon: 'workflow' },
+      { key: 'heritage', label: 'Heritage Impact', group: 'EIA', icon: 'document' },
+      { key: 'public', label: 'Public Participation', group: 'EIA', icon: 'team_workspace' }
     ]
   },
   eia_workspace: {
@@ -748,10 +747,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Basic Assessment & Full Environmental Impact Assessment workflows with public participation.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'eia', label: 'EIA Workspace', group: 'EIA', icon: 'eia_workspace' },
+      { key: 'studies', label: 'Specialist Studies', group: 'EIA', icon: 'detail' },
+      { key: 'empr', label: 'EMPr', group: 'EIA', icon: 'document' },
+      { key: 'conditions', label: 'Conditions of Approval', group: 'EIA', icon: 'workflow' }
     ]
   },
   refuse_calculator: {
@@ -764,10 +763,9 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     summary: 'Municipal waste volume, storage area requirements, bin allocations, and ventilation compliance.',
     status: 'live',
     tabs: [
-      { label: 'Workspace Brief', kind: 'scaffold', icon: 'brief' },
-      { label: 'Project Orientation', kind: 'scaffold', icon: 'projects' },
-      { label: 'Standalone Orientation', kind: 'scaffold', icon: 'standalone' },
-      { label: 'Integration Contract', kind: 'scaffold', icon: 'integration' }
+      { key: 'refuse', label: 'Refuse Area Calculator', group: 'Calculator', icon: 'refuse_calculator' },
+      { key: 'dimensions', label: 'Dimension Inputs', group: 'Calculator', icon: 'detail' },
+      { key: 'results', label: 'Results & Report', group: 'Calculator', icon: 'document' }
     ]
   },
   nhbrc_enrolment: {
