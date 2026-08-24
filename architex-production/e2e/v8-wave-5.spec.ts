@@ -21,4 +21,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Contractor Compliance');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('COIDA, tax, CIDB, BBBEE');
   });
+
+  test('P6-W5-02 site instructions renders its directive workflow through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'site_instructions');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Site Instructions');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('contractor acknowledgement + cost implications');
+  });
 });
