@@ -82,4 +82,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Documents & Drawings');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('revisioned evidence shared across modules');
   });
+
+  test('P6-W2-09 survey and geomatics renders its cadastral records through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'survey_geomatics');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Survey & Geomatics');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('boundary pegs, contours, survey records');
+  });
 });

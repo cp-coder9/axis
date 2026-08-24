@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -18,10 +20,7 @@ export function SurveyGeomaticsModule({ activeProject, currentRole, activeTabKey
   const [tab, setTab] = useControlledToolTab(activeTabKey, TABS, TABS[0]?.key || '0', onTabChange);
 
   return <section className="space-y-4" aria-label="Survey & Geomatics">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="survey_geomatics" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Cadastral & site data</p><h1 className="text-xl font-bold">Survey & Geomatics</h1><p className="text-xs text-[#657287]">{activeProject.code} · boundary pegs, contours, survey records</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Survey & Geomatics" origami={<OrigamiIcon name="survey_geomatics" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Cadastral & site data</p><p>{activeProject.code} · boundary pegs, contours, survey records</p></>} actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Survey and Geomatics sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>} />
 
     {tab === 'survey' && <div className="rounded-2xl border bg-white shadow-sm overflow-x-auto"><table className="w-full min-w-[680px] text-left text-xs"><thead className="bg-[#f5faf9] text-[10px] uppercase text-[#657287]"><tr>{['Survey','Type','Date','Surveyor','Status'].map(h => <th key={h} className="px-4 py-3">{h}</th>)}</tr></thead><tbody className="divide-y">{[['SUR-004','As-built topographic','15 Aug 2026','Land Survey Group','Approved'],['SUR-003','Boundary re-peg','28 Jul 2026','Land Survey Group','Approved'],['SUR-002','Contour survey (0.5m)','20 Jul 2026','Land Survey Group','Approved'],['SUR-001','Cadastral verification','05 Jul 2026','Land Survey Group','Approved']].map(([id,type,date,surv,st]) => <tr key={id} className="hover:bg-[#f8fbfb]"><td className="px-4 py-3 font-mono font-bold text-[#167E79]">{id}</td><td className="px-4 py-3 font-semibold">{type}</td><td className="px-4 py-3">{date}</td><td className="px-4 py-3">{surv}</td><td className="px-4 py-3"><span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-bold text-green-700">{st}</span></td></tr>)}</tbody></table></div>}
 
