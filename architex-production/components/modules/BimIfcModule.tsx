@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -28,10 +30,7 @@ export function BimIfcModule({ activeProject, currentRole, activeTabKey = 'overv
   const runExtraction = (id: string) => setModels(list => list.map(m => m.id === id ? { ...m, extracted: true } : m));
 
   return <section className="space-y-4" aria-label="BIM / IFC Extraction">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="bim_ifc" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Read & extract only</p><h1 className="text-xl font-bold">BIM / IFC Extraction</h1><p className="text-xs text-[#657287]">{activeProject.code} · shared drawing-intelligence consumer</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="BIM / IFC Extraction" origami={<OrigamiIcon name="bim_ifc" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Read & extract only</p><p>{activeProject.code} · shared drawing-intelligence consumer</p></>} actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="BIM and IFC sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>} />
 
     {tab === 'overview' && <><div className="grid gap-4 md:grid-cols-4">{[['Linked models',String(models.length)],['Elements',String(models.reduce((s,m) => s + m.elements, 0))],['Extracted',String(models.filter(m => m.extracted).length)],['AI candidates','4']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4 text-xs text-violet-950"><strong>Shared drawing-intelligence service:</strong> extraction jobs use the same pipeline as SpecForge, BoM, Municipal and XA. All extracted candidates require human acceptance before they become project records.</div></>}

@@ -89,4 +89,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Survey & Geomatics');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('boundary pegs, contours, survey records');
   });
+
+  test('P6-W2-10 BIM and IFC renders its read-only extraction workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'bim_ifc');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('BIM / IFC Extraction');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('shared drawing-intelligence consumer');
+  });
 });
