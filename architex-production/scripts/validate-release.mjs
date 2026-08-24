@@ -10,6 +10,7 @@ const layers = [
   ['typecheck', ['run', 'typecheck']],
   ['build', ['run', 'build']],
   ['standalone-assembly', ['run', 'release:assemble']],
+  ['standalone-runtime', ['run', 'release:standalone:verify']],
 ];
 
 for (const [name, args] of layers) {
