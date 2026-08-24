@@ -231,3 +231,17 @@ test('P6-W0-GLOBAL Command destination preserves its existing card action', asyn
   await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-GLOBAL User Management preserves the admin invite-panel toggle', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('combobox', { name: 'Active role' }).selectOption('platform_admin');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Settings' }).click();
+
+  const invite = page.getByRole('button', { name: 'Invite user' });
+  await invite.click();
+  await expect(page.getByPlaceholder('e.g. Naledi Mokoena')).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page.getByPlaceholder('e.g. Naledi Mokoena')).toBeHidden();
+});
