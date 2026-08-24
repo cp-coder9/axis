@@ -197,14 +197,14 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
       </section>
 
       {/* 2D Spatial Datum Plane (Desktop / Fluid Canvas) */}
-      <section className="relative hidden min-h-[580px] overflow-hidden rounded-3xl border border-[#102033]/10 bg-white/80 p-6 shadow-md datum-grid-pattern md:block">
+      <Surface level="raised" className="relative hidden min-h-[580px] overflow-hidden datum-grid-pattern md:block">
         {/* Stage & Role Tool Count Badge — informational only, must not intercept clicks */}
-        <div className="absolute right-5 top-5 z-20 max-w-[260px] p-3 bg-white/95 border border-[#102033]/10 rounded-2xl text-[11.5px] text-[#657287] shadow-sm leading-snug pointer-events-none">
-          <strong className="block text-[#167E79] font-bold mb-0.5">
+        <Surface level="overlay" className="pointer-events-none absolute right-5 top-5 z-20 max-w-[260px] text-[var(--ax-text-muted)]">
+          <strong className="mb-0.5 block font-bold text-[var(--ax-text)]">
             {project.stage} Stage Tools for {profile.label}
           </strong>
           {activeTools.length} role-prioritized tools are connected to the central datum line of truth.
-        </div>
+        </Surface>
 
         {/* Scaled Spatial Canvas */}
         <div
@@ -212,10 +212,10 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           style={{ transform: `scale(${zoom})`, transformOrigin: 'center center' }}
         >
           {/* Central Datum Line of Truth */}
-          <div className="absolute left-[8%] right-[4%] top-1/2 -translate-y-1/2 h-[3px] bg-gradient-to-r from-[#19B7B0] via-[#58C8BC] to-[#167E79] rounded-full shadow-lg z-0" />
+          <div className="absolute left-[8%] right-[4%] top-1/2 z-0 h-[3px] -translate-y-1/2 rounded-full bg-[var(--ax-datum)] shadow-lg" />
 
           {/* Datum Origin Badge with Architex Logo */}
-          <div className="absolute left-[3%] top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white border-2 border-[#19B7B0] shadow-xl flex items-center justify-center z-10">
+          <div className="absolute left-[3%] top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[var(--ax-datum)] bg-[var(--ax-surface-1)] shadow-xl">
             <svg className="w-9 h-9" viewBox="0 0 32 32" fill="none">
               <path d="M16 4L6 10v12l10 6 10-6V10L16 4z" fill="#19B7B0" opacity="0.25" />
               <path d="M16 8l-6 4v8l6 4 6-4v-8l-6-4z" fill="#167E79" />
@@ -223,9 +223,9 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
             </svg>
           </div>
 
-          <div className="absolute left-[3.2%] top-[58%] text-[10px] font-bold uppercase tracking-widest text-[#167E79]">
+          <div className="absolute left-[3.2%] top-[58%] font-bold uppercase tracking-widest text-[var(--ax-text)]">
             DATUM
-            <span className="block text-[8.5px] normal-case tracking-normal text-[#657287] font-normal">
+            <span className="block normal-case tracking-normal text-[var(--ax-text-muted)] font-normal">
               Line of Truth
             </span>
           </div>
@@ -236,29 +236,29 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
               const metricInfo = getToolMetric(tool.id);
               return (
                 <div key={tool.id} className="relative flex flex-col items-center">
-                  <article
+                  <Button
                     data-testid="datum-card"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => onOpenTool(tool.id)}
-                    className="w-[200px] bg-white hover:-translate-y-1 p-3.5 border border-[#102033]/10 hover:border-[#19B7B0]/50 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+                    className="h-auto w-[200px] flex-col items-stretch p-3.5 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#DFF5F2] flex items-center justify-center text-[#167E79] flex-shrink-0 group-hover:bg-[#19B7B0] group-hover:text-white transition-colors">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                         <OrigamiIcon name={tool.icon} size={18} />
                       </div>
-                      <strong className="text-[12.5px] font-bold text-[#102033] truncate">{tool.name}</strong>
+                      <strong className="truncate font-bold text-[var(--ax-text)]">{tool.name}</strong>
                     </div>
-                    <p className="text-[11px] text-[#657287] line-clamp-2 leading-relaxed mb-2">{tool.summary}</p>
-                    <div className="pt-2 border-t border-[#102033]/5 flex justify-between items-center text-[10.5px]">
-                      <span className="font-semibold text-[#102033] truncate max-w-[120px]">{metricInfo[0]}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-[#f2f7f6] text-[#167E79] font-bold">
-                        {tool.status === 'live' ? 'Live' : 'Scaffold'}
-                      </span>
+                    <p className="mb-2 line-clamp-2 leading-relaxed text-[var(--ax-text-muted)]">{tool.summary}</p>
+                    <div className="flex items-center justify-between border-t border-[var(--ax-border)] pt-2">
+                      <span className="max-w-[120px] truncate font-semibold text-[var(--ax-text)]">{metricInfo[0]}</span>
+                      <StatusBadge tone={tool.status === 'live' ? 'success' : 'neutral'} label={tool.status === 'live' ? 'Live' : 'Scaffold'} />
                     </div>
-                  </article>
+                  </Button>
 
                   {/* Vertical Connector Stem to Datum Line */}
-                  <div className="w-[2px] h-[36px] bg-[#19B7B0]/60 my-1" />
-                  <div className="w-3 h-3 rounded-full bg-white border-2 border-[#19B7B0] shadow-sm z-10" />
+                  <div className="my-1 h-[36px] w-[2px] bg-[var(--ax-datum)]" />
+                  <div className="z-10 h-3 w-3 rounded-full border-2 border-[var(--ax-datum)] bg-[var(--ax-surface-1)] shadow-sm" />
                 </div>
               );
             })}
@@ -270,28 +270,28 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
               const metricInfo = getToolMetric(tool.id);
               return (
                 <div key={tool.id} className="relative flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-white border-2 border-[#19B7B0] shadow-sm z-10" />
-                  <div className="w-[2px] h-[36px] bg-[#19B7B0]/60 my-1" />
+                  <div className="z-10 h-3 w-3 rounded-full border-2 border-[var(--ax-datum)] bg-[var(--ax-surface-1)] shadow-sm" />
+                  <div className="my-1 h-[36px] w-[2px] bg-[var(--ax-datum)]" />
 
-                  <article
+                  <Button
                     data-testid="datum-card"
+                    variant="secondary"
+                    size="sm"
                     onClick={() => onOpenTool(tool.id)}
-                    className="w-[200px] bg-white hover:translate-y-1 p-3.5 border border-[#102033]/10 hover:border-[#19B7B0]/50 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group"
+                    className="h-auto w-[200px] flex-col items-stretch p-3.5 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#DFF5F2] flex items-center justify-center text-[#167E79] flex-shrink-0 group-hover:bg-[#19B7B0] group-hover:text-white transition-colors">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                         <OrigamiIcon name={tool.icon} size={18} />
                       </div>
-                      <strong className="text-[12.5px] font-bold text-[#102033] truncate">{tool.name}</strong>
+                      <strong className="truncate font-bold text-[var(--ax-text)]">{tool.name}</strong>
                     </div>
-                    <p className="text-[11px] text-[#657287] line-clamp-2 leading-relaxed mb-2">{tool.summary}</p>
-                    <div className="pt-2 border-t border-[#102033]/5 flex justify-between items-center text-[10.5px]">
-                      <span className="font-semibold text-[#102033] truncate max-w-[120px]">{metricInfo[0]}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-[#f2f7f6] text-[#167E79] font-bold">
-                        {tool.status === 'live' ? 'Live' : 'Scaffold'}
-                      </span>
+                    <p className="mb-2 line-clamp-2 leading-relaxed text-[var(--ax-text-muted)]">{tool.summary}</p>
+                    <div className="flex items-center justify-between border-t border-[var(--ax-border)] pt-2">
+                      <span className="max-w-[120px] truncate font-semibold text-[var(--ax-text)]">{metricInfo[0]}</span>
+                      <StatusBadge tone={tool.status === 'live' ? 'success' : 'neutral'} label={tool.status === 'live' ? 'Live' : 'Scaffold'} />
                     </div>
-                  </article>
+                  </Button>
                 </div>
               );
             })}
@@ -299,14 +299,17 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         </div>
 
         {/* Floating Zoom Controls */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 z-20 flex items-center gap-2 bg-white/95 border border-[#102033]/15 px-3 py-1.5 rounded-2xl shadow-lg backdrop-blur-md">
-          <button
+        <Surface level="overlay" className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 p-1.5">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setZoom((prev) => Math.max(0.65, prev - 0.1))}
-            className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-[#102033] font-bold text-sm"
+            className="w-8 px-0"
             title="Zoom Out"
           >
             −
-          </button>
+          </Button>
           <input
             type="range"
             aria-label="Datum canvas zoom"
@@ -315,27 +318,32 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
             step="0.05"
             value={zoom}
             onChange={(e) => setZoom(parseFloat(e.target.value))}
-            className="w-24 accent-[#19B7B0] cursor-pointer"
+            className="w-24 cursor-pointer accent-[var(--ax-datum)]"
           />
-          <span className="text-[11px] font-bold text-[#657287] w-9 text-center">
+          <span className="w-9 text-center font-bold text-[var(--ax-text-muted)]">
             {Math.round(zoom * 100)}%
           </span>
-          <button
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setZoom((prev) => Math.min(1.35, prev + 0.1))}
-            className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-[#102033] font-bold text-sm"
+            className="w-8 px-0"
             title="Zoom In"
           >
             +
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="quiet"
+            size="sm"
             onClick={() => setZoom(1.0)}
-            className="px-2 py-1 text-[11px] font-semibold text-[#167E79] hover:bg-[#DFF5F2] rounded-lg transition-colors"
             title="Reset to 100%"
           >
             Reset
-          </button>
-        </div>
-      </section>
+          </Button>
+        </Surface>
+      </Surface>
     </div>
   );
 };

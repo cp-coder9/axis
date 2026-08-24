@@ -245,3 +245,11 @@ test('P6-W0-GLOBAL User Management preserves the admin invite-panel toggle', asy
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page.getByPlaceholder('e.g. Naledi Mokoena')).toBeHidden();
 });
+
+test('P6-W0-GLOBAL Datum desktop plane preserves its first card action', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.desktop);
+  await page.goto('/?workspace=v8');
+  await page.getByTestId('datum-card').first().click();
+
+  await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
+});
