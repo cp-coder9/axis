@@ -100,10 +100,12 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
           <h3 className="text-sm font-bold text-[#102033]">Understand the ecosystem of roles</h3>
           <p className="text-[11px] text-[#657287]">Change the selected role lens without losing God Mode access.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5" role="group" aria-label="Role lenses">
           {roleEntries.map(([key, profile]) => (
             <button
               key={key}
+              type="button"
+              aria-pressed={currentRole === key}
               onClick={() => onNavigate({ type: 'set-god-lens', lens: key as RoleKey })}
               className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
                 currentRole === key

@@ -164,3 +164,20 @@ test('P6-W0-GLOBAL Settings exposes the existing selected configuration tab', as
   await expect(securityTab).toHaveAttribute('aria-selected', 'true');
   await expect(securityTab).toBeFocused();
 });
+
+test('P6-GOD-01 God Mode exposes the existing selected role lens', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Explore the entire Architex ecosystem' }).click();
+
+  const lenses = page.getByRole('group', { name: 'Role lenses' });
+  const architect = lenses.getByRole('button', { name: /Architect/ });
+  const contractor = lenses.getByRole('button', { name: /Contractor/ });
+  await expect(architect).toHaveAttribute('aria-pressed', 'true');
+  await expect(contractor).toHaveAttribute('aria-pressed', 'false');
+
+  await contractor.click();
+  await expect(contractor).toHaveAttribute('aria-pressed', 'true');
+  await expect(architect).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.getByText(/Demo lens: Contractor/)).toBeVisible();
+});
