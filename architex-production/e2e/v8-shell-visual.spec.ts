@@ -108,5 +108,7 @@ test('P6-W0-GLOBAL Datum renders the existing tool order as a mobile sequence', 
   const sequence = page.getByTestId('datum-mobile-sequence');
   await expect(sequence).toBeVisible();
   await expect(sequence.getByTestId('datum-mobile-tool')).toHaveCount(8);
+  await sequence.getByTestId('datum-mobile-tool').first().click();
+  await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
