@@ -7,7 +7,7 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 
-interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
+interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onNavigateTool?: (toolId: string) => void; onTabChange?: (key: string) => void }
 
 const TABS = [
   { key:'search', label:'Universal Search', group:'Explore', icon:'project_explorer' },
@@ -25,7 +25,7 @@ const entities = [
   ['Approval','APR-001','Architectural Set','Pending'],
 ];
 
-export function ProjectExplorerModule({ activeProject, currentRole, activeTabKey = 'search', onTabChange }: Props) {
+export function ProjectExplorerModule({ activeProject, currentRole, activeTabKey = 'search', onNavigateTool, onTabChange }: Props) {
   const [tab, setTab] = useControlledToolTab(activeTabKey, TABS, TABS[0]?.key || '0', onTabChange);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export function ProjectExplorerModule({ activeProject, currentRole, activeTabKey
       <div className="mt-4 rounded-xl bg-[#f5faf9] p-3 text-xs text-[#526074]">A-204 is referenced by 1 open RFI, 1 published meeting, and 1 pending approval. 2 markups are attached. This graph is derived from the audit-linked records, not a separate data store.</div>
     </div>}
 
-    {tab === 'entities' && <div className="grid gap-4 lg:grid-cols-2">{[['Drawing Register','14 items · 12 current-set'],['Documents','128 records · revisioned'],['Contracts','3 active · 1 draft'],['RFIs & Issues','8 open · 6 closed'],['Meetings','12 scheduled · 9 published'],['Approvals','2 pending · 5 decided']].map(([name,meta]) => <div key={name} className="rounded-2xl border bg-white p-5 shadow-sm"><h3 className="text-sm font-bold">{name}</h3><p className="mt-1 text-xs text-[#657287]">{meta}</p><button className="mt-3 rounded-lg border px-2.5 py-1 text-[10px] font-bold text-[#167E79]">Browse →</button></div>)}</div>}
+    {tab === 'entities' && <div className="grid gap-4 lg:grid-cols-2">{[['Drawing Register','14 items · 12 current-set','documents_drawings'],['Documents','128 records · revisioned','documents_drawings'],['Contracts','3 active · 1 draft','contract_admin'],['RFIs & Issues','8 open · 6 closed','issues_rfis'],['Meetings','12 scheduled · 9 published','meetings'],['Approvals','2 pending · 5 decided','approvals_queue']].map(([name,meta,toolId]) => <div key={name} className="rounded-2xl border bg-white p-5 shadow-sm"><h3 className="text-sm font-bold">{name}</h3><p className="mt-1 text-xs text-[#657287]">{meta}</p><button type="button" onClick={() => onNavigateTool?.(toolId)} className="mt-3 rounded-lg border px-2.5 py-1 text-[10px] font-bold text-[#167E79]">Browse →</button></div>)}</div>}
 
     {tab === 'timeline' && <div className="rounded-2xl border bg-white p-5 shadow-sm space-y-3"><h2 className="text-base font-bold">Project Timeline</h2>{[['20 Aug','RFI-014 raised · Design coordination meeting published'],['19 Aug','Fire strategy report approved · ITP-002 hold point set'],['18 Aug','Structural drawings issued Rev B · NCR-005 resolved'],['15 Aug','Topographic survey approved']].map(([date,event]) => <div key={date} className="flex gap-3 rounded-xl border p-4"><span className="shrink-0 rounded-lg bg-[#DFF5F2] px-2 py-1 font-mono text-[10px] font-bold text-[#167E79]">{date}</span><p className="text-xs leading-5 text-[#526074]">{event}</p></div>)}</div>}
   </section>;
