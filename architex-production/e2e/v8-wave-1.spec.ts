@@ -35,4 +35,12 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Practice & Project Command Centre');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Live Operations & KPI Dashboard');
   });
+
+  test('P6-W1-03 wingman renders its AI workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'wingman');
+
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Architex Wingman AI Workspace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Statutory & Document Intelligence');
+  });
 });

@@ -5,6 +5,9 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS, ROLE_PROFILES } from '@/lib/data';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { WingmanProvider, PROVIDER_PRESETS, isValidProviderConfig } from '@/lib/wingman-providers';
 import type { WingmanProviderConfig } from '@/lib/wingman-providers';
 
@@ -572,43 +575,27 @@ export const WingmanModule: React.FC<WingmanModuleProps> = ({
   return (
     <div className="space-y-4">
       {/* Module Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6]">
-            <OrigamiIcon name="wingman" size={26} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#102033] tracking-tight">Architex Wingman AI Workspace</h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs font-bold">
-                Statutory & Document Intelligence
-              </span>
-            </div>
-            <p className="text-[13px] text-[#657287]">
-              Context-grounded assistant for South African statutory compliance, contract administration, RFI drafting, and auditable AI document summarization.
-            </p>
-          </div>
-        </div>
-
-        {/* Canonical Wingman Navigation */}
-        <div className="flex bg-white p-1 rounded-2xl border border-[#102033]/15 shadow-sm overflow-x-auto max-w-full">
+      <PageHeader
+        title="Architex Wingman AI Workspace"
+        origami={<OrigamiIcon name="wingman" size={26} />}
+        metadata={<div className="flex flex-wrap items-center gap-2"><StatusBadge tone="exploration" label="Statutory & Document Intelligence" /><p>Context-grounded assistant for South African statutory compliance, contract administration, RFI drafting, and auditable AI document summarization.</p></div>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Wingman sections">
           {TABS.map((t) => (
-            <button
+            <Button
               key={t.key}
+              type="button"
+              variant={tab === t.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === t.key}
               onClick={() => setTab(t.key || '')}
-              className={`px-3 py-1.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                tab === t.key
-                  ? 'bg-[#8B5CF6] text-white shadow-sm'
-                  : 'text-[#657287] hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               <OrigamiIcon name={t.icon as any} size={14} />
               {t.label}
-            </button>
+            </Button>
           ))}
-        </div>
-      </header>
+        </nav>}
+      />
 
       {/* COMPLIANCE SCAN: DOCUMENT SUMMARIZER & AUDIT VAULT */}
       {tab === 'compliance_scan' && (
