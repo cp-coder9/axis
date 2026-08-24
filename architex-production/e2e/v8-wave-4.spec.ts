@@ -36,4 +36,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Insurance Register');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory and contractual cover');
   });
+
+  test('P6-W4-03 RFQ marketplace renders controlled procurement through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'rfq_marketplace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('RFQ Marketplace');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('controlled requests, transparent comparisons');
+  });
 });
