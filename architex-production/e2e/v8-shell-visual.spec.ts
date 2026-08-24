@@ -31,3 +31,17 @@ test('P6-NAV-01 mobile context drawer opens, traps focus, and restores its trigg
   await expect(trigger).toBeFocused();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-NAV-01 mobile inspector drawer exposes its existing contextual content', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+
+  const trigger = page.getByRole('button', { name: 'Open context inspector' });
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  const drawer = page.getByRole('dialog', { name: 'Context inspector' });
+  await expect(drawer).toContainText('Project Context');
+  await page.keyboard.press('Escape');
+  await expect(trigger).toBeFocused();
+});

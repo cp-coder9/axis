@@ -150,7 +150,8 @@ export const TopBar: React.FC<TopBarProps> = ({
             ? 'bg-[#19B7B0]/15 text-[var(--ax-action-primary)] border-[#19B7B0]/30'
             : 'bg-white text-[#657287] border-[#102033]/10 hover:bg-[#DFF5F2]'
         }`}
-        title="Toggle Contextual Inspector"
+        aria-label={narrowLayout ? (inspectorOpen ? 'Close context inspector' : 'Open context inspector') : 'Toggle Contextual Inspector'}
+        title={narrowLayout ? (inspectorOpen ? 'Close context inspector' : 'Open context inspector') : 'Toggle Contextual Inspector'}
       >
         <OrigamiIcon name="inspector" size={18} />
       </button>
