@@ -71,4 +71,11 @@ test.describe('P6 Wave 4 commercial and procurement contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Payments & Escrow');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('invoice, milestone and release-status tracking');
   });
+
+  test('P6-W4-08 dispute resolution renders its JBCC process through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'dispute_resolution');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Dispute Resolution');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('notices, adjudication, mediation');
+  });
 });
