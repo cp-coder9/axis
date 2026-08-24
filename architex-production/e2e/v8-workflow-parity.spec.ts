@@ -93,6 +93,11 @@ test.describe('P6-BEH-01 frozen V8 workflow contracts', () => {
     await page.locator('aside').getByRole('button', { name: 'Stormwater & Drainage' }).click();
     await expect(calculator).toHaveAttribute('data-calculator-id', 'stormwater-rational');
     await expect(calculator.getByText('Enter inputs and click Calculate to see results.')).toBeVisible();
+
+    await page.locator('aside').getByRole('button', { name: 'Steel Design' }).click();
+    await expect(calculator).toHaveAttribute('data-calculator-id', 'steel-beam');
+    await expect(calculator.getByText('Enter inputs and click Calculate to see results.')).toBeVisible();
+    await expect(calculator.getByRole('button', { name: /Show derivation|Hide derivation/ })).toHaveCount(0);
   });
 
   test('preserves Meetings schedule entry and role-based Approvals decision guards', async ({ page }) => {
