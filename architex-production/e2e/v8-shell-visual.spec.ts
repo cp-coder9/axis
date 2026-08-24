@@ -59,3 +59,17 @@ test('P6-NAV-01 mobile global drawer preserves the selected destination transiti
   await expect(page.getByTestId('datum-canvas')).toBeVisible();
   await assertNoBodyOverflow(page);
 });
+
+test('P6-NAV-01 tablet context drawer keeps the desktop workspace unobscured until opened', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.tablet);
+  await page.goto('/?workspace=v8');
+
+  const trigger = page.getByRole('button', { name: 'Open context navigation' });
+  await expect(trigger).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Context navigation' })).toBeHidden();
+  await expect(page.getByTestId('datum-canvas')).toBeVisible();
+
+  await trigger.click();
+  await expect(page.getByRole('dialog', { name: 'Context navigation' })).toBeVisible();
+  await assertNoBodyOverflow(page);
+});
