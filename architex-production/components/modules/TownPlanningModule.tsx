@@ -5,6 +5,8 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface TownPlanningModuleProps {
   activeProject: ProjectEntity;
@@ -51,34 +53,26 @@ export const TownPlanningModule: React.FC<TownPlanningModuleProps> = ({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#19B7B0]/10 border border-[#19B7B0]/30 flex items-center justify-center text-[#167E79]">
-            <OrigamiIcon name="planning" size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#102033] tracking-tight">Town Planning & SPLUMA Manager</h1>
-            <p className="text-[13px] text-[#657287]">
-              Land use applications, statutory public notices, municipal planning tribunal hearings, and title deed restriction removals.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap bg-white p-1 rounded-2xl border border-[#102033]/15 shadow-sm">
+      <PageHeader
+        title="Town Planning & SPLUMA Manager"
+        origami={<OrigamiIcon name="planning" size={26} />}
+        metadata={<p>Land use applications, statutory public notices, municipal planning tribunal hearings, and title deed restriction removals.</p>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Town Planning sections">
           {TABS.map((t) => (
-            <button
+            <Button
               key={t.key}
+              type="button"
+              variant={tab === t.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === t.key}
               onClick={() => setTab(t.key || '')}
-              className={`px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all whitespace-nowrap ${
-                tab === t.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               {t.label}
-            </button>
+            </Button>
           ))}
-        </div>
-      </div>
+        </nav>}
+      />
 
       {/* Dashboard Tab */}
       {tab === 'dashboard' && (
