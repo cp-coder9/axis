@@ -1,0 +1,54 @@
+name: Deploy test.architex.co.za
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-test-architex
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: architex-production
+
+jobs:
+  frontend:
+    name: Build and upload test frontend
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      NEXT_PUBLIC_API_BASE_URL: https://api.architex.co.za/api/v1
+      ARCHITEX_STATIC_EXPORT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: architex-production/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: test -f out/index.html && test -d out/_next
+      - run: sudo apt-get update && sudo apt-get install --yes lftp
+      - name: Upload latest static artifact
+        env:
+          FTP_SERVER: ${{ secrets.TEST_ARCHITEX_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.TEST_ARCHITEX_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.TEST_ARCHITEX_FTP_PASSWORD }}
+          FTP_DIRECTORY: ${{ secrets.TEST_ARCHITEX_FTP_SERVER_DIR }}
+        run: |
+          test -n "$FTP_SERVER" && test -n "$FTP_USERNAME" && test -n "$FTP_PASSWORD" && test -n "$FTP_DIRECTORY"
+          lftp <<EOF
+          set cmd:fail-exit true
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate no
+          open -u "$FTP_USERNAME","$FTP_PASSWORD" "ftps://$FTP_SERVER"
+          mirror --reverse --only-newer --verbose out/ "$FTP_DIRECTORY"
+          bye
+          EOF
