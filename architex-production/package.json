@@ -13,6 +13,7 @@
     "test": "node scripts/validate-foundation.mjs && php backend/tests/smoke.php",
     "test:e2e": "playwright test",
     "test:e2e:functional": "playwright test e2e/modules-functional.spec.ts --project=chromium --workers=1",
+    "test:calculations:release-status": "node scripts/validate-calculator-release-status.mjs",
     "test:god-mode": "playwright test e2e/god-mode.spec.ts --project=chromium --workers=1",
     "test:god-mode:a11y": "playwright test e2e/god-mode.a11y.spec.ts --project=chromium --workers=1",
     "validate:design-system": "node scripts/validate-design-system.mjs",
