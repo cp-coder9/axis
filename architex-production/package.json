@@ -12,6 +12,7 @@
     "test:unit": "vitest run",
     "test": "node scripts/validate-foundation.mjs && php backend/tests/smoke.php",
     "test:api": "node backend/tests/auth-boundary-api.mjs && node backend/tests/containment-api.mjs",
+    "test:api:preflight": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-api.ps1 -Preflight",
     "test:api:calculator-containment": "node backend/tests/containment-api.mjs",
     "test:e2e": "playwright test",
     "test:e2e:functional": "playwright test e2e/modules-functional.spec.ts --project=chromium --workers=1",

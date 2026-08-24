@@ -10,7 +10,7 @@ const containedCalculatorIds = releaseManifest.calculators
   .filter((calculator) => calculator.releaseState === 'contained')
   .map((calculator) => calculator.id);
 const origin = 'http://127.0.0.1:8091';
-const headers = { 'Content-Type': 'application/json', 'X-Architex-Role': 'bep', 'X-Architex-User': 'user-demo-bep' };
+const headers = { 'Connection': 'close', 'Content-Type': 'application/json', 'X-Architex-Role': 'bep', 'X-Architex-User': 'user-demo-bep' };
 const server = spawn('php', ['-S', '127.0.0.1:8091', 'backend/public/index.php'], { cwd: root, stdio: 'ignore', windowsHide: true });
 const payload = {
   project_id: null, calc_type: 'steel-beam', schemaVersion: 'engineering-calculation/v1', calculatorId: 'steel-beam', formulaVersion: 'steel-beam/1.0.0',
