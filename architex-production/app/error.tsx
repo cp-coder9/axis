@@ -2,6 +2,9 @@
 
 import React, { useEffect } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Surface } from '@/components/ui/Surface';
 
 export default function ErrorBoundary({
   error,
@@ -15,35 +18,26 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#f5faf9] text-[#102033] p-6">
-      <div className="max-w-md w-full bg-white border border-[#102033]/15 rounded-3xl p-6 shadow-xl text-center space-y-4">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600">
-          <OrigamiIcon name="warning" size={30} />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-[#102033]">Session Interruption Handled</h2>
-          <p className="text-xs text-[#657287] mt-1">
-            Architex OS state has been safely preserved in your workspace session.
-          </p>
-        </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl text-left text-[11px] font-mono text-[#526074] break-all max-h-28 overflow-y-auto">
-          {error.message || 'An unexpected state error occurred.'}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => reset()}
-            className="flex-1 py-2.5 bg-[#19B7B0] hover:bg-[#167E79] text-white font-bold rounded-xl text-xs shadow-sm transition-all"
-          >
-            Reload Module
-          </button>
-          <button
-            onClick={() => window.location.reload()}
-            className="flex-1 py-2.5 bg-[#102033] hover:bg-black text-white font-bold rounded-xl text-xs shadow-sm transition-all"
-          >
-            Restart Architex OS
-          </button>
-        </div>
-      </div>
-    </div>
+    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-[var(--ax-canvas)] px-4 py-6 text-[var(--ax-text)]">
+      <Surface level="raised" className="w-full max-w-md text-center">
+        <EmptyState
+          variant="error"
+          title="Session Interruption Handled"
+          guidance="Architex OS state has been safely preserved in your workspace session."
+          icon={<span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--ax-status-warning-border)] bg-[var(--ax-status-warning-bg)] text-[var(--ax-status-warning-fg)]"><OrigamiIcon name="warning" size={30} /></span>}
+          action={
+            <>
+              <div className="mt-4 max-h-28 overflow-y-auto break-all rounded-xl border border-[var(--ax-border)] bg-[var(--ax-surface-2)] p-3 text-left font-mono text-[11px] text-[var(--ax-text-muted)]">
+                {error.message || 'An unexpected state error occurred.'}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button type="button" className="flex-1" onClick={() => reset()}>Reload Module</Button>
+                <Button type="button" variant="ink" className="flex-1" onClick={() => window.location.reload()}>Restart Architex OS</Button>
+              </div>
+            </>
+          }
+        />
+      </Surface>
+    </main>
   );
 }
