@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "test": "node scripts/validate-foundation.mjs && php backend/tests/smoke.php",
+    "test:api:calculator-containment": "node backend/tests/containment-api.mjs",
     "test:e2e": "playwright test",
     "test:e2e:functional": "playwright test e2e/modules-functional.spec.ts --project=chromium --workers=1",
     "test:calculations:release-status": "node scripts/validate-calculator-release-status.mjs",
