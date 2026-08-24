@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -20,11 +22,7 @@ export function NhbrcEnrolmentModule({ activeProject, currentRole, activeTabKey 
   const canEnrol = ['contractor','cpm','admin','platform_admin','developer'].includes(currentRole);
 
   return <section className="space-y-4" aria-label="NHBRC Enrolment">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="nhbrc_enrolment" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Home builder warranty</p><h1 className="text-xl font-bold">NHBRC Enrolment</h1><p className="text-xs text-[#657287]">{activeProject.code} · statutory enrolment for residential units</p></div></div>
-      {enrolled ? <span className="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-green-700">✓ Enrolled</span> : <button disabled={!canEnrol} onClick={() => setEnrolled(true)} className="rounded-xl bg-[#102033] px-4 py-2 text-xs font-bold text-white disabled:opacity-40">Enrol project</button>}
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="NHBRC Enrolment" origami={<OrigamiIcon name="nhbrc_enrolment" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Home builder warranty</p><p>{activeProject.code} · statutory enrolment for residential units</p></>} actions={<div className="flex max-w-full items-center gap-2">{enrolled ? <span className="rounded-full bg-green-100 px-3 py-1.5 text-xs font-bold text-green-700">✓ Enrolled</span> : <Button type="button" variant="ink" size="sm" disabled={!canEnrol} onClick={() => setEnrolled(true)} className="shrink-0">Enrol project</Button>}<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="NHBRC Enrolment sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav></div>} />
 
     {tab === 'enrolment' && <><div className="grid gap-4 md:grid-cols-4">{[['Units', '24'],['Enrolment fee','R 9,720'],['Builder registration','No 10042'],['Status', enrolled ? 'Enrolled' : 'Not enrolled']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className={`rounded-2xl border p-5 shadow-sm ${enrolled ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}><h3 className="text-sm font-bold">{enrolled ? 'Enrolment complete' : 'Not yet enrolled'}</h3><p className="mt-2 text-xs leading-5 text-[#526074]">{enrolled ? 'NHBRC enrolment certificate issued. 24 units covered by the home warranty scheme.' : 'Residential units ≥ 1 storey require NHBRC enrolment before construction commences. Builder registration and fee confirmation pending.'}</p></div></>}

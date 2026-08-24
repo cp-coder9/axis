@@ -55,4 +55,11 @@ test.describe('P6 Wave 3 planning and compliance contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Refuse Area Calculator');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory refuse storage sizing');
   });
+
+  test('P6-W3-05 NHBRC enrolment renders its residential warranty workflow through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'nhbrc_enrolment');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('NHBRC Enrolment');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('statutory enrolment for residential units');
+  });
 });
