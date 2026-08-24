@@ -75,4 +75,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Approvals Queue');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('server-enforced role authority, immutable decisions');
   });
+
+  test('P6-W2-08 documents and drawings renders its revisioned evidence through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'documents_drawings');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Documents & Drawings');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('revisioned evidence shared across modules');
+  });
 });
