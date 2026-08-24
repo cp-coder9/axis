@@ -27,4 +27,12 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
       await assertReducedMotion(page);
     });
   }
+
+  test('P6-W1-02 practice renders its default dashboard through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'practice');
+
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Practice & Project Command Centre');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Live Operations & KPI Dashboard');
+  });
 });

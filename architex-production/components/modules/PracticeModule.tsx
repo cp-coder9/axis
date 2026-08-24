@@ -5,6 +5,9 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 interface PracticeModuleProps {
   activeProject: ProjectEntity;
@@ -228,41 +231,27 @@ export const PracticeModule: React.FC<PracticeModuleProps> = ({
   return (
     <div className="space-y-4">
       {/* Module Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#19B7B0]/10 border border-[#19B7B0]/30 flex items-center justify-center text-[#167E79]">
-            <OrigamiIcon name="practice_management" size={26} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#102033] tracking-tight">Practice & Project Command Centre</h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#DFF5F2] text-[#167E79] text-xs font-bold">
-                Live Operations & KPI Dashboard
-              </span>
-            </div>
-            <p className="text-[13px] text-[#657287]">
-              Multi-discipline project command, executive KPI tracking, deadline monitors, OHS safety audits, and interactive sub-module drill-downs.
-            </p>
-          </div>
-        </div>
-
-        {/* Tab Controls */}
-        <div className="flex bg-white p-1 rounded-2xl border border-[#102033]/15 shadow-sm overflow-x-auto">
+      <PageHeader
+        title="Practice & Project Command Centre"
+        origami={<OrigamiIcon name="practice_management" size={26} />}
+        metadata={<div className="flex flex-wrap items-center gap-2"><StatusBadge tone="success" label="Live Operations & KPI Dashboard" /><p>Multi-discipline project command, executive KPI tracking, deadline monitors, OHS safety audits, and interactive sub-module drill-downs.</p></div>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Practice sections">
           {TABS.map((t) => (
-            <button
+            <Button
               key={t.key}
+              type="button"
+              variant={activeTab === t.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={activeTab === t.key}
               onClick={() => setActiveTab(t.key || '')}
-              className={`px-3 py-1.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                activeTab === t.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               <OrigamiIcon name={t.icon as any} size={14} />
               {t.label}
-            </button>
+            </Button>
           ))}
-        </div>
-      </header>
+        </nav>}
+      />
 
       {/* TAB 1: EXECUTIVE KPI DASHBOARD (FLAGSHIP DRILL-DOWN CAPABLE PROGRESS TRACKING) */}
       {activeTab === 'dashboard' && (
