@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const root = process.cwd();
@@ -6,6 +7,8 @@ const canonical = Object.keys(JSON.parse(readFileSync(resolve(root, '..', 'tools
 const backend = JSON.parse(readFileSync(resolve(root, 'backend/data/modules.json'), 'utf8')).map((row) => row.id);
 const migration = JSON.parse(readFileSync(resolve(root, 'e2e/fixtures/v8-migration-manifest.json'), 'utf8')).waves.flatMap((wave) => wave.modules.map((module) => module.id));
 const registry = [...readFileSync(resolve(root, 'lib/module-registry.tsx'), 'utf8').matchAll(/^\s{2}([a-z_]+): .*Module as/mg)].map((match) => match[1]);
+let database = null;
+try { database = JSON.parse(execFileSync('php', ['backend/tests/registry-parity.php'], { cwd: root, encoding: 'utf8' })); } catch { /* reported below */ }
 
 const findings = [];
 for (const [surface, ids, ordered] of [['backend', backend, true], ['migration', migration, false], ['module-registry', registry, false]]) {
@@ -14,7 +17,8 @@ for (const [surface, ids, ordered] of [['backend', backend, true], ['migration',
     : ids.length === canonical.length && new Set(ids).size === canonical.length && canonical.every((id) => ids.includes(id));
   if (!matches) findings.push(`P8-REGISTRY-${surface.toUpperCase()}-MISMATCH|surface=${surface}|expected=47|observed=${ids.length}`);
 }
-for (const [surface, path] of [['e2e-contracts', 'e2e/fixtures/module-contracts.ts'], ['documentation', 'docs/v8-remediation/MODULE_INVENTORY.md'], ['mariadb', 'docs/v8-remediation/evidence/MARIADB_MODULE_REGISTRY.json']]) {
+if (!database || JSON.stringify([...database].sort()) !== JSON.stringify([...canonical].sort())) findings.push(`P8-REGISTRY-MARIADB-MISMATCH|surface=mariadb|expected=47|observed=${database?.length ?? 'unavailable'}`);
+for (const [surface, path] of [['e2e-contracts', 'e2e/fixtures/module-contracts.ts'], ['documentation', 'docs/v8-remediation/MODULE_INVENTORY.md']]) {
   if (!existsSync(resolve(root, path))) findings.push(`P8-REGISTRY-${surface.toUpperCase()}-UNAVAILABLE|surface=${surface}|evidence=${path}`);
 }
 for (const finding of findings) console.error(finding);
