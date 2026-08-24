@@ -409,7 +409,7 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
                       </div>
                       {!compact && <span className="truncate flex-1 text-left">{tab.label}</span>}
                       {!compact && tab.badge && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#102033]/5 text-[#657287]">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#102033]/5 text-[#102033]">
                           {tab.badge}
                         </span>
                       )}

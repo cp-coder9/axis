@@ -5,6 +5,8 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface BomModuleProps {
   activeProject: ProjectEntity;
@@ -87,51 +89,43 @@ export const BomModule: React.FC<BomModuleProps> = ({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#19B7B0]/10 border border-[#19B7B0]/30 flex items-center justify-center text-[#167E79]">
-            <OrigamiIcon name="bom" size={26} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#102033] tracking-tight">Bill of Quantities (BoM) Engine</h1>
-            <p className="text-[13px] text-[#657287]">
-              Standard System of Measuring Building Work (7th Edition) quantities with live drawing takeoff sync and market rates.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-1 bg-white p-1 rounded-2xl border border-[#102033]/15 shadow-sm md:justify-end">
+      <PageHeader
+        title="Bill of Quantities (BoM) Engine"
+        origami={<OrigamiIcon name="bom" size={26} />}
+        metadata={<p>Standard System of Measuring Building Work (7th Edition) quantities with live drawing takeoff sync and market rates.</p>}
+        actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Bill of quantities sections">
           {TABS.map((t) => (
-            <button
+            <Button
               key={t.key}
+              type="button"
+              variant={tab === t.key ? 'ink' : 'quiet'}
+              size="sm"
               aria-pressed={tab === t.key}
               onClick={() => setTab(t.key || '')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all ${
-                tab === t.key ? 'bg-[#19B7B0] text-white shadow-sm' : 'text-[#657287] hover:text-[#102033]'
-              }`}
+              className="shrink-0"
             >
               {t.icon && <OrigamiIcon name={t.icon} size={13} />}
               {t.label}
               {t.badge && (
                 <span
                   className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                    tab === t.key ? 'bg-white/20 text-white' : 'bg-[#102033]/5 text-[#657287]'
+                    tab === t.key ? 'bg-[#102033] text-white' : 'bg-[#102033]/5 text-[#102033]'
                   }`}
                 >
                   {t.badge}
                 </span>
               )}
-            </button>
+            </Button>
           ))}
-        </div>
-      </div>
+        </nav>}
+      />
 
       {/* Drawing Takeoff */}
       {tab === 'takeoff' && (
         <div data-tool-tab="takeoff" className="space-y-4">
           <div className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div><h3 className="font-bold text-sm text-[#102033]">Revision takeoff register</h3><p className="mt-1 text-xs text-[#657287]">Measured drawing regions linked to current BoM quantities.</p></div>
-            <button className="rounded-xl bg-[#19B7B0] px-4 py-2 text-xs font-bold text-white">Scan latest drawing set</button>
+            <Button type="button" variant="ink" size="sm">Scan latest drawing set</Button>
           </div>
           <div className="grid gap-3 lg:grid-cols-3">
             {[

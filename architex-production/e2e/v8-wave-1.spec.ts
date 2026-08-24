@@ -84,4 +84,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('SpecForge V2');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('coordinated visual, clause, cost and drawing specification workflow');
   });
+
+  test('P6-W1-10 BoM renders its quantity workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'bom');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Bill of Quantities (BoM) Engine');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('live drawing takeoff sync and market rates');
+  });
 });
