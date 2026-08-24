@@ -105,4 +105,11 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('OHS Safety File & Construction Regs');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('SACPCMP client-agent compliance');
   });
+
+  test('P6-W1-13 feedback renders its product intelligence workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'feedback');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Feedback Intelligence');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('severity-scored feedback feeding the roadmap');
+  });
 });

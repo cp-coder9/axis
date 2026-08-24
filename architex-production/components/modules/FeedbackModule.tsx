@@ -5,6 +5,8 @@ import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -26,10 +28,12 @@ export function FeedbackModule({ activeProject, currentRole, activeTabKey = 'ove
   const flagged = items.filter(f => f.severity >= 7).length;
 
   return <section className="space-y-4" aria-label="Feedback Intelligence">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-purple-50 text-purple-700"><OrigamiIcon name="feedback" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-purple-700">Product loop · closed pipeline</p><h1 className="text-xl font-bold">Feedback Intelligence</h1><p className="text-xs text-[#657287]">Clustered, severity-scored feedback feeding the roadmap</p></div></div>
-      <div className="flex gap-2">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-purple-700 text-white' : 'bg-[#f5faf9] text-[#657287]'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
-    </header>
+    <PageHeader
+      title="Feedback Intelligence"
+      origami={<OrigamiIcon name="feedback" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-purple-700">Product loop · closed pipeline</p><p>Clustered, severity-scored feedback feeding the roadmap</p></>}
+      actions={<nav className="flex max-w-full overflow-x-auto" aria-label="Feedback intelligence sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>}
+    />
 
     {tab === 'overview' && <><div className="grid gap-4 md:grid-cols-4">{[['Total submissions',String(items.length)],['Avg severity',avgSeverity],['Flagged (≥7)',String(flagged)],['This week','12']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className="rounded-2xl border bg-white shadow-sm divide-y">{items.map(f => <div key={f.id} className="flex items-center gap-3 p-4"><span className="font-mono text-xs font-bold text-purple-700">{f.id}</span><div className="flex-1 min-w-0"><div className="truncate text-xs font-bold">{f.title}</div><div className="text-[10px] text-[#657287]">{f.date} · {f.sentiment}</div></div><span className="rounded-full bg-purple-50 px-2 py-1 text-[10px] font-bold text-purple-700">{f.category}</span><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${f.severity >= 7 ? 'bg-red-100 text-red-700' : f.severity >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>sev {f.severity}</span></div>)}</div></>}

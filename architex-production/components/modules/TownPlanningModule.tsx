@@ -91,7 +91,7 @@ export const TownPlanningModule: React.FC<TownPlanningModuleProps> = ({
             <div className="bg-white border border-[#102033]/10 rounded-2xl p-5 shadow-sm">
               <div className="text-xs text-[#657287] font-bold uppercase tracking-wider">Open Objections</div>
               <div className="text-3xl font-bold text-[#102033] mt-2">2</div>
-              <div className="text-[11px] text-amber-600 mt-1">Requires response</div>
+              <div className="text-[11px] text-amber-800 mt-1">Requires response</div>
             </div>
             <div className="bg-white border border-[#102033]/10 rounded-2xl p-5 shadow-sm">
               <div className="text-xs text-[#657287] font-bold uppercase tracking-wider">Upcoming Hearings</div>
