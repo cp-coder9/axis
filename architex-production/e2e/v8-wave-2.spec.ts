@@ -40,4 +40,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Project Explorer');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('search across drawings, contracts, RFIs, meetings, approvals');
   });
+
+  test('P6-W2-03 professional directory renders its credential workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'professional_directory');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Professional Directory');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('SACAP · ECSA · SACQSP · SACPLAN · SACPCMP registrations');
+  });
 });
