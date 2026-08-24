@@ -39,4 +39,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Snag Manager');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('zone-based snags toward practical completion');
   });
+
+  test('P6-W5-05 FM Bridge renders its handover pack through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'fm_bridge');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('FM Bridge');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('as-built data to facility managers');
+  });
 });
