@@ -103,6 +103,13 @@ function SettingsView({ currentRole }: { currentRole: RoleKey }) {
   const tabIds: SettingsTab[] = ['users', 'organisation', 'security', 'api', 'retention'];
   const icons = ['team_workspace', 'projects', 'safety', 'integration', 'document'];
   const tabs = tabIds.map((id, index) => ({ id, label: content.tabs![index], icon: icons[index] }));
+  const activeTab = tabs.find((item) => item.id === tab)!;
+  const selectAdjacentTab = (offset: number) => {
+    const currentIndex = tabIds.indexOf(tab);
+    const nextTab = tabIds[(currentIndex + offset + tabIds.length) % tabIds.length];
+    setTab(nextTab);
+    requestAnimationFrame(() => document.getElementById(`settings-tab-${nextTab}`)?.focus());
+  };
   const sections: Record<Exclude<SettingsTab, 'users'>, { title: string; detail: string }[]> = {
     organisation: [
       { title: 'Organisation Profile', detail: 'Your practice, branding, and contact information.' },
@@ -131,18 +138,34 @@ function SettingsView({ currentRole }: { currentRole: RoleKey }) {
         </div>
         <div><h1 className="text-xl font-bold text-[#102033]">{content.heading}</h1><p className="text-xs text-[#657287]">{content.subheading}</p></div>
       </div>
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto" role="tablist" aria-label="Settings sections">
         {tabs.map((item) => (
-          <button key={item.id} onClick={() => setTab(item.id)} className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-[11px] font-bold ${tab === item.id ? 'bg-[#167E79] text-white shadow-sm' : 'bg-white border border-[#102033]/10 text-[#657287]'}`}>
+          <button
+            key={item.id}
+            id={`settings-tab-${item.id}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === item.id}
+            aria-controls={`settings-panel-${item.id}`}
+            tabIndex={tab === item.id ? 0 : -1}
+            onClick={() => setTab(item.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowRight') selectAdjacentTab(1);
+              if (event.key === 'ArrowLeft') selectAdjacentTab(-1);
+            }}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-[11px] font-bold ${tab === item.id ? 'bg-[#167E79] text-white shadow-sm' : 'bg-white border border-[#102033]/10 text-[#657287]'}`}
+          >
             <OrigamiIcon name={item.icon} size={14} />{item.label}
           </button>
         ))}
       </div>
+      <div id={`settings-panel-${tab}`} role="tabpanel" aria-labelledby={`settings-tab-${tab}`} aria-label={activeTab.label}>
       {tab === 'users' ? <UserManagementSection currentRole={currentRole} /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
           {sections[tab].map((section) => <div key={section.title} className="p-4 bg-white border border-[#102033]/10 rounded-2xl shadow-sm"><div className="font-bold text-[#102033] mb-1">{section.title}</div><div className="text-[#657287]">{section.detail}</div></div>)}
         </div>
       )}
+      </div>
     </section>
   );
 }

@@ -141,3 +141,26 @@ test('P6-W0-GLOBAL Tool Registry exposes the existing live filter state', async 
   await expect(liveFilter).toHaveAttribute('aria-pressed', 'true');
   await expect(allFilter).toHaveAttribute('aria-pressed', 'false');
 });
+
+test('P6-W0-GLOBAL Settings exposes the existing selected configuration tab', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Settings' }).click();
+
+  const tablist = page.getByRole('tablist', { name: 'Settings sections' });
+  const usersTab = tablist.getByRole('tab', { name: 'User Management' });
+  const organisationTab = tablist.getByRole('tab', { name: 'Organisation' });
+  await expect(usersTab).toHaveAttribute('aria-selected', 'true');
+  await expect(organisationTab).toHaveAttribute('aria-selected', 'false');
+
+  await organisationTab.click();
+  await expect(organisationTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: 'Organisation' })).toContainText('Organisation Profile');
+
+  await organisationTab.focus();
+  await page.keyboard.press('ArrowRight');
+  const securityTab = tablist.getByRole('tab', { name: 'Security & RBAC' });
+  await expect(securityTab).toHaveAttribute('aria-selected', 'true');
+  await expect(securityTab).toBeFocused();
+});
