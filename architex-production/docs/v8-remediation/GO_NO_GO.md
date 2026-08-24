@@ -6,6 +6,10 @@
 
 The repository has local build, artifact assembly, standalone HTTP readiness, documentation parity, registry parity, contained-calculator API checks, and selected UI coverage. Those results are not substitutes for the mandatory release evidence below.
 
+## Owner authorization
+
+The repository owner authorized continued implementation on 2026-08-24, including work on the currently blocked phases. This authorizes repository changes and local verification only. It is not a substitute for an independent professional calculation review, security assessment, accessibility/design review, DBA recovery evidence, QA acceptance, operations rehearsal, or release-board decision.
+
 ## Mandatory checklist
 
 | Domain | Required decision evidence | Current result | Required approver |
