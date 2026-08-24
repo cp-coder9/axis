@@ -197,8 +197,35 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         </div>
       </section>
 
+      {/* Mobile Datum Sequence — derived from the same ordered activeTools collection as the desktop plane. */}
+      <section data-testid="datum-mobile-sequence" className="md:hidden space-y-2 rounded-3xl border border-[var(--ax-border)] bg-[var(--ax-surface-1)] p-3">
+        <div className="px-1 pb-1">
+          <h2 className="font-[var(--ax-font-display)] text-[var(--ax-text-16)] font-bold">Datum-connected tools</h2>
+          <p className="mt-1 text-[var(--ax-text-12)] text-[var(--ax-text-muted)]">The same stage and role sequence as the Datum plane.</p>
+        </div>
+        {activeTools.map((tool, index) => {
+          const metricInfo = getToolMetric(tool.id);
+          return (
+            <button
+              type="button"
+              key={tool.id}
+              data-testid="datum-mobile-tool"
+              onClick={() => onOpenTool(tool.id)}
+              className="flex w-full items-center gap-3 rounded-2xl border border-[var(--ax-border)] bg-[var(--ax-surface-1)] p-3 text-left hover:border-[#19B7B0]/50"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#DFF5F2] text-[var(--ax-action-primary)]"><OrigamiIcon name={tool.icon} size={18} /></span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[var(--ax-text-13)] font-bold text-[var(--ax-text)]">{index + 1}. {tool.name}</span>
+                <span className="mt-0.5 block truncate text-[var(--ax-text-12)] text-[var(--ax-text-muted)]">{metricInfo[0]}</span>
+              </span>
+              <span className="rounded-full border border-[var(--ax-border)] px-2 py-0.5 text-[10px] font-bold text-[var(--ax-text-muted)]">{tool.status === 'live' ? 'Live' : 'Scaffold'}</span>
+            </button>
+          );
+        })}
+      </section>
+
       {/* 2D Spatial Datum Plane (Desktop / Fluid Canvas) */}
-      <section className="relative bg-white/80 border border-[#102033]/10 rounded-3xl p-6 shadow-md overflow-hidden min-h-[580px] datum-grid-pattern">
+      <section className="relative hidden min-h-[580px] overflow-hidden rounded-3xl border border-[#102033]/10 bg-white/80 p-6 shadow-md datum-grid-pattern md:block">
         {/* Stage & Role Tool Count Badge — informational only, must not intercept clicks */}
         <div className="absolute right-5 top-5 z-20 max-w-[260px] p-3 bg-white/95 border border-[#102033]/10 rounded-2xl text-[11.5px] text-[#657287] shadow-sm leading-snug pointer-events-none">
           <strong className="block text-[#167E79] font-bold mb-0.5">

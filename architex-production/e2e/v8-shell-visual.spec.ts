@@ -100,3 +100,13 @@ test('P6-W0-SYS not-found keeps a landmark and recovery action at mobile width',
   await expect(main.getByRole('link', { name: 'Return to Project Datum' })).toHaveAttribute('href', '/');
   await assertNoBodyOverflow(page);
 });
+
+test('P6-W0-GLOBAL Datum renders the existing tool order as a mobile sequence', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+
+  const sequence = page.getByTestId('datum-mobile-sequence');
+  await expect(sequence).toBeVisible();
+  await expect(sequence.getByTestId('datum-mobile-tool')).toHaveCount(8);
+  await assertNoBodyOverflow(page);
+});
