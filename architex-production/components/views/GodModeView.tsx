@@ -5,6 +5,10 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
 import { RoleKey } from '@/lib/types';
 import { type NavigationEvent } from '@/lib/navigation';
+import { Button } from '@/components/ui/Button';
+import { Card, Surface } from '@/components/ui/Surface';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 interface GodModeViewProps {
   currentRole: RoleKey;
@@ -30,66 +34,52 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
   return (
     <div className="space-y-6">
       {/* God Banner */}
-      <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-[#8B5CF6]/10 to-transparent border border-[#8B5CF6]/20 rounded-2xl">
-        <div className="w-11 h-11 rounded-xl bg-[#8B5CF6]/15 text-[#8B5CF6] flex items-center justify-center flex-shrink-0">
-          <OrigamiIcon name="god_mode" size={24} />
-        </div>
-        <div>
-          <div className="text-sm font-bold text-[#102033]">God Mode · Ecosystem Explorer</div>
-          <p className="text-[11px] text-[#657287] mt-0.5 leading-relaxed">
+      <Surface level="inset" className="flex items-start gap-3">
+        <PageHeader
+          title="God Mode · Ecosystem Explorer"
+          origami={<OrigamiIcon name="god_mode" size={24} />}
+          metadata={<p className="leading-relaxed">
             All Architex workspaces are visible for demonstration, learning and cross-discipline understanding. In production this is an exploration/sandbox layer: it does not grant contractual authority, professional sign-off or access to another party&apos;s protected project data.
-          </p>
-        </div>
-        <div className="ml-auto flex flex-col items-end gap-1.5 flex-shrink-0">
-          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6]">All tools visible</span>
-          <span className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#DFF5F2] text-[#167E79]">Demo lens: {currentProfile.label}</span>
-        </div>
-      </div>
+          </p>}
+          actions={<div className="flex flex-wrap justify-end gap-2"><StatusBadge tone="exploration" label="All tools visible" /><StatusBadge tone="neutral" label={`Demo lens: ${currentProfile.label}`} /></div>}
+        />
+      </Surface>
 
       {/* God Hero */}
-      <section className="p-6 bg-gradient-to-br from-white to-[#DFF5F2]/30 border border-[#102033]/10 rounded-3xl shadow-sm">
-        <h2 className="text-lg font-bold text-[#102033]">See the whole system. Learn where you fit.</h2>
-        <p className="text-[12px] text-[#657287] mt-1.5 max-w-2xl leading-relaxed">
+      <Surface level="raised" className="space-y-4">
+        <h2 className="text-lg font-bold text-[var(--ax-text)]">See the whole system. Learn where you fit.</h2>
+        <p className="max-w-2xl leading-relaxed text-[var(--ax-text-muted)]">
           God Mode intentionally removes the normal UX filtering so any user can explore how clients, professionals, contractors, suppliers and project administrators collaborate across the same project spine. Use the role selector as a viewing lens, then open any workspace to understand inputs, outputs and handoffs.
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-          <div className="p-3 bg-white border border-[#102033]/10 rounded-xl text-center">
-            <div className="text-2xl font-extrabold text-[#167E79]">{Object.keys(ALL_TOOLS).length}</div>
-            <div className="text-[10px] text-[#657287]">Live and scaffolded tools</div>
-          </div>
-          <div className="p-3 bg-white border border-[#102033]/10 rounded-xl text-center">
-            <div className="text-2xl font-extrabold text-[#167E79]">8</div>
-            <div className="text-[10px] text-[#657287]">Project workflow stages</div>
-          </div>
-          <div className="p-3 bg-white border border-[#102033]/10 rounded-xl text-center">
-            <div className="text-2xl font-extrabold text-[#167E79]">{roleEntries.length}</div>
-            <div className="text-[10px] text-[#657287]">User role lenses</div>
-          </div>
-          <div className="p-3 bg-white border border-[#102033]/10 rounded-xl text-center">
-            <div className="text-2xl font-extrabold text-[#167E79]">1</div>
-            <div className="text-[10px] text-[#657287]">Datum / single line of truth</div>
-          </div>
+          {[[Object.keys(ALL_TOOLS).length, 'Live and scaffolded tools'], [8, 'Project workflow stages'], [roleEntries.length, 'User role lenses'], [1, 'Datum / single line of truth']].map(([value, label]) => (
+            <Card key={String(label)} level="flat" className="text-center">
+              <div className="text-2xl font-extrabold text-[var(--ax-action-primary)]">{value}</div>
+              <div className="text-[var(--ax-text-muted)]">{label}</div>
+            </Card>
+          ))}
         </div>
-      </section>
+      </Surface>
 
       {/* Lifecycle Explorer */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-[#102033]">Explore the project lifecycle</h3>
-          <p className="text-[11px] text-[#657287]">Select a stage to open the project datum with every stage-relevant workspace visible.</p>
+          <h3 className="text-sm font-bold text-[var(--ax-text)]">Explore the project lifecycle</h3>
+          <p className="text-[var(--ax-text-muted)]">Select a stage to open the project datum with every stage-relevant workspace visible.</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {STAGES.map((stage, i) => (
-            <button
+            <Button
               key={stage}
+              variant="secondary"
               onClick={() => onNavigate({ type: 'open-god-stage', stage })}
-              className="flex items-center gap-3 p-3 bg-white border border-[#102033]/10 rounded-xl text-left hover:border-[#19B7B0]/40 hover:shadow-sm transition-all"
+              className="h-auto justify-start gap-3 p-3 text-left"
             >
-              <span className="w-7 h-7 rounded-full bg-[#DFF5F2] text-[#167E79] font-bold text-[11px] flex items-center justify-center flex-shrink-0">
+              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                 {i + 1}
               </span>
-              <span className="text-[12px] font-semibold text-[#102033]">{stage}</span>
-            </button>
+              <span className="font-semibold">{stage}</span>
+            </Button>
           ))}
         </div>
       </section>
@@ -97,30 +87,27 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
       {/* Role Grid */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-[#102033]">Understand the ecosystem of roles</h3>
-          <p className="text-[11px] text-[#657287]">Change the selected role lens without losing God Mode access.</p>
+          <h3 className="text-sm font-bold text-[var(--ax-text)]">Understand the ecosystem of roles</h3>
+          <p className="text-[var(--ax-text-muted)]">Change the selected role lens without losing God Mode access.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5" role="group" aria-label="Role lenses">
           {roleEntries.map(([key, profile]) => (
-            <button
+            <Button
               key={key}
               type="button"
+              variant={currentRole === key ? 'quiet' : 'secondary'}
               aria-pressed={currentRole === key}
               onClick={() => onNavigate({ type: 'set-god-lens', lens: key as RoleKey })}
-              className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
-                currentRole === key
-                  ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/5'
-                  : 'border-[#102033]/10 bg-white hover:border-[#8B5CF6]/30'
-              }`}
+              className="h-auto justify-start gap-3 p-3 text-left"
             >
-              <span className="w-8 h-8 rounded-lg bg-[#DFF5F2] text-[#167E79] font-bold text-[10px] flex items-center justify-center flex-shrink-0">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                 {profile.code}
               </span>
               <span className="min-w-0">
-                <span className="block text-[12px] font-bold text-[#102033] truncate">{profile.label}</span>
-                <span className="block text-[10.5px] text-[#657287] mt-0.5 line-clamp-2">{profile.description}</span>
+                <span className="block truncate font-bold">{profile.label}</span>
+                <span className="mt-0.5 block line-clamp-2 text-[var(--ax-text-muted)]">{profile.description}</span>
               </span>
-            </button>
+            </Button>
           ))}
         </div>
       </section>
@@ -128,30 +115,31 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
       {/* Tool Groups */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-[#102033]">Workspace registry by group</h3>
-          <p className="text-[11px] text-[#657287]">Open any workspace in standalone mode to explore its inputs, outputs and handoffs.</p>
+          <h3 className="text-sm font-bold text-[var(--ax-text)]">Workspace registry by group</h3>
+          <p className="text-[var(--ax-text-muted)]">Open any workspace in standalone mode to explore its inputs, outputs and handoffs.</p>
         </div>
         <div className="space-y-4">
           {Object.entries(toolGroups).map(([group, tools]) => (
             <div key={group}>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-[#657287] mb-2">{group}</div>
+              <div className="mb-2 font-bold uppercase tracking-wider text-[var(--ax-text-muted)]">{group}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {tools.map((tool) => (
-                  <button
+                  <Button
                     key={tool.id}
+                    variant="secondary"
                     onClick={() => onNavigate({ type: 'open-tool', toolId: tool.id, mode: 'standalone', origin: 'god' })}
-                    className="flex items-center gap-3 p-2.5 bg-white border border-[#102033]/10 rounded-xl text-left hover:border-[#19B7B0]/40 hover:shadow-sm transition-all"
+                    className="h-auto justify-start gap-3 p-2.5 text-left"
                   >
-                    <span className="w-8 h-8 rounded-lg bg-[#DFF5F2]/60 text-[#167E79] flex items-center justify-center flex-shrink-0">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]">
                       <OrigamiIcon name={tool.icon} size={17} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-[12px] font-semibold text-[#102033] truncate">{tool.name}</span>
-                      <span className="block text-[10px] text-[#657287]">
+                      <span className="block truncate font-semibold">{tool.name}</span>
+                      <span className="block text-[var(--ax-text-muted)]">
                         {tool.status === 'live' ? 'Live workspace' : 'Integration scaffold'}
                       </span>
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -161,18 +149,19 @@ export const GodModeView: React.FC<GodModeViewProps> = ({
 
       {/* CTA */}
       <div className="flex flex-wrap gap-3 pt-2">
-        <button
+        <Button
+          variant="secondary"
           onClick={() => onNavigate({ type: 'open-god-stage', stage: 'Brief' })}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#102033]/15 text-[#102033] text-[12px] font-bold rounded-xl hover:bg-[#DFF5F2]/40 transition-colors"
+          className="gap-2"
         >
           <OrigamiIcon name="projects" size={16} /> Open project datum
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => onNavigate({ type: 'open-tool', toolId: 'engineering_calc', mode: 'standalone', origin: 'god' })}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#167E79] text-white text-[12px] font-bold rounded-xl hover:bg-[#116d68] transition-colors"
+          className="gap-2"
         >
           <OrigamiIcon name="engineering_hub" size={16} /> Engineering hub
-        </button>
+        </Button>
       </div>
     </div>
   );

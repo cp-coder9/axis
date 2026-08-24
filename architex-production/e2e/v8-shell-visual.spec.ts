@@ -195,3 +195,14 @@ test('P6-GOD-01 shell exposes the existing God Mode toggle state', async ({ page
   await exitGodMode.click();
   await expect(page.getByRole('button', { name: 'Explore the entire Architex ecosystem' })).toHaveAttribute('aria-pressed', 'false');
 });
+
+test('P6-GOD-01 God Mode preserves the existing lifecycle-stage action', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Explore the entire Architex ecosystem' }).click();
+  await page.getByRole('button', { name: 'Brief' }).click();
+
+  await expect(page.getByTestId('datum-canvas')).toBeVisible();
+  await expect(page.getByText('Brief')).toBeVisible();
+  await assertNoBodyOverflow(page);
+});
