@@ -82,7 +82,7 @@ export const SpecForgeModule: React.FC<SpecForgeModuleProps> = ({
         title="SpecForge V2"
         origami={<OrigamiIcon name="specification" size={26} />}
         metadata={<p>{activeProject.name} · coordinated visual, clause, cost and drawing specification workflow · {activeProject.revision}</p>}
-        actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" onClick={() => setTab('issue')}>Prepare issue set</Button><nav className="overflow-x-auto" aria-label="SpecForge workflow"><div className="flex min-w-max gap-1"> 
+        actions={<div className="flex max-w-full items-center gap-2"><Button type="button" variant="ink" size="sm" onClick={() => setTab('issue')}>Prepare issue set</Button><nav className="overflow-x-auto" aria-label="SpecForge workflow"><div className="flex min-w-max gap-1">
             {TABS.map((item) => (
               <Button
                 key={item.key}
