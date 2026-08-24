@@ -1,13 +1,13 @@
-# Architex Module Functionality — Full Graduation
+# Architex Module Functionality — Historical Graduation Notes
 
-**All 46 modules are now live with complete multi-tab workflows.** Zero scaffolds remain.
+**Status: partial / historical.** This document predates the canonical 47-module registry and is not release evidence. Phase 8 must replace it with a generated 47-ID inventory before any completion claim is made.
 
 ## Registry-driven dispatch
 
 `app/page.tsx` → `lib/module-registry.tsx` (`ModuleRouter`). Adding or upgrading a
 module is one import + one registry entry + one status change.
 
-## Complete module inventory (46 / 46 live)
+## Historical module inventory (non-authoritative)
 
 ### Platform shell
 - **Datum canvas** — project line-of-truth with stage/role-filtered tool cards
@@ -49,12 +49,12 @@ module is one import + one registry entry + one status change.
 - Passport changes require a **human publish action** to become canonical
 - Payments & Escrow is **workflow-only**; fund holding deferred pending legal review
 
-## Verified
+## Historical verification record (non-authoritative)
 ```bash
-npm test          # all-46-live registry parity + exact-46 smoke test
-npm run typecheck # pass
-npm run lint      # pass
-npm run build     # pass
+npm test          # historical command; current results must be recorded in Phase 8 evidence
+npm run typecheck # historical command
+npm run lint      # historical command
+npm run build     # historical command
 ```
 
 Frontend: http://127.0.0.1:3000 · API: http://127.0.0.1:8080/api/v1
