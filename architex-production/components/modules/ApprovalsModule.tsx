@@ -6,6 +6,8 @@ import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { architexApi, demoIdentity, ApiApproval } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -75,10 +77,12 @@ export function ApprovalsModule({ activeProject, currentRole, activeTabKey = 'pe
   const visible = tab === 'pending' ? pending : tab === 'submitted' ? items.filter(i => i.requester === 'Architex Meetings' || i.requester === 'BEP Coordinator') : decided;
 
   return <section className="space-y-4" aria-label="Approvals Queue">
-    <header className="flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-50 text-[#b77900]"><OrigamiIcon name="approvals_queue" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#b77900]">Human decision gates · {source === 'api' ? 'live' : 'offline seed'}</p><h1 className="text-xl font-bold">Approvals Queue</h1><p className="text-xs text-[#657287]">{activeProject.code} · server-enforced role authority, immutable decisions</p></div></div>
-      <div className="flex gap-2">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#b77900] text-white' : 'bg-[#f5faf9] text-[#657287]'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</button>)}</div>
-    </header>
+    <PageHeader
+      title="Approvals Queue"
+      origami={<OrigamiIcon name="approvals_queue" size={26} />}
+      metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#806000]">Human decision gates · {source === 'api' ? 'live' : 'offline seed'}</p><p>{activeProject.code} · server-enforced role authority, immutable decisions</p></>}
+      actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Approvals Queue sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}{t.badge && <span className="rounded-full bg-[#FF6B6B] px-1.5 text-[9px] text-white">{t.badge}</span>}</Button>)}</nav>}
+    />
 
     {error && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-900"><strong>API error.</strong> {error}</div>}
 

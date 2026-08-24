@@ -68,4 +68,11 @@ test.describe('P6 Wave 2 project record contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Issues & RFIs');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('audited queries with response workflow');
   });
+
+  test('P6-W2-07 approvals queue renders its human decision gates through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'approvals_queue');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Approvals Queue');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('server-enforced role authority, immutable decisions');
+  });
 });
