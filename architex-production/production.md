@@ -1,4 +1,6 @@
-# Architex OS — Production Readiness Log
+# Architex OS — Historical Production Readiness Log
+
+**Status: historical and non-authoritative.** This 2026-08-23 log predates the V8 remediation evidence program and must not be used as release evidence. Current release status is governed by `docs/v8-remediation/` and its fail-closed validators.
 
 **Target:** test.architex.co.za deployment readiness (configuration only — no deploy executed)
 **Plan spec:** `docs/V8_ENGINEERING_GODMODE_INTEGRATION_PLAN.md`
@@ -12,17 +14,17 @@
 
 | Task requirement | State after this session |
 |---|---|
-| 1. Backend & persistence — MariaDB linked, project add/manage functional | ✅ DONE & live-verified (project CRUD on MariaDB write path, calculation records, db-health) |
-| 2. Frontend & UX — menus/workflows consistent & operational | ✅ DONE & verified — 100/100 Playwright e2e tests pass, lint clean, build clean |
+| 1. Backend & persistence — MariaDB linked, project add/manage functional | Historical implementation claim; superseded by Phase 3 evidence requirements. |
+| 2. Frontend & UX — menus/workflows consistent & operational | Historical test result; superseded by the current Phase 8 release suite. |
 | 3. Deployment readiness — test.architex.co.za config (no deploy) | ✅ Config package delivered: `docs/DEPLOYMENT.md`, `backend/.env.example`, `.env.example`, `backend/public/.htaccess`; deploy itself intentionally NOT executed |
 | 4. Agentic workflow (context management) | ✅ Used explore subagents for backend/frontend audits |
 | 5. Continuous log | ✅ this file |
 
 **Validation evidence (2026-08-23):**
-- `php -l` clean (index.php, seed.php, db.php) · `php backend/tests/smoke.php` passed (46 canonical modules)
+- `php -l` clean (index.php, seed.php, db.php) · historical smoke result from a prior registry snapshot
 - `npm run typecheck` clean · `npm run lint` clean (0 errors after 3 fixes) · `npm run build` succeeded (standalone output, 223 kB First Load)
 - Live API: project create 201 / duplicate 409 / RBAC 403 / PATCH verified in DB / stage history rows; calculations create→review verified; all also re-verified through the Next.js `/api/*` rewrite proxy (the deployed path)
-- **Playwright: 100 passed, 0 failed** (rail repair 8, God Mode 2, 47 module opens, meetings workflows, approvals RBAC, 40 role-dashboard tests)
+- Historical Playwright run recorded locally; it is not current release evidence.
 - `npm run test` green — foundation validation + smoke at **47 canonical modules** with tools.json ↔ modules.json ↔ MariaDB parity
 
 ---
@@ -61,10 +63,10 @@
 | F5 | God Mode toggle placement | Moved between project chip and role switcher in `TopBar` (per plan 5B); removed duplicate. | DONE |
 | F6 | Command Centre routing fix | "Datum Project Space" / "Workspace Tool Registry" cards now navigate via the `GLOBAL_DESTINATIONS` contract (`onSelectGlobal`) instead of mis-opening the practice tool. | DONE |
 | F7 | Lint errors fixed | 0 ESLint errors: removed setState-in-effect in `WingmanModule` (draft init on panel open), unescaped apostrophe in `GodModeView`, documented async load effect in `UserManagementSection`; added flat-config `ignores` (.next/out/node_modules/etc.) that were making `npm run lint` scan build output. | DONE |
-| F8 | Playwright config hardened | `webServer` block (auto-start `npm run dev`, skip when `E2E_BASE_URL` set); stale "46 modules" text corrected to 47 in `app.spec.ts`. | DONE |
+| F8 | Playwright config hardened | Historical `webServer` configuration note; current test configuration is governed by `playwright.config.ts`. | HISTORICAL |
 | F9 | Stale rail e2e locators repaired | rail-spec tests fixed for the repaired navigation contract: mode-switch inside a tool stays inside the tool (returns via back guard first), strict-mode `.first()` on duplicate project headings, active-tab assertion scoped to navigator `aside`. | DONE |
-| F10 | E2e suite green | Earlier run: 93/100. After fixes: **100/100 passed** including all 20 roles × 2 dashboard suites and the 47 module-open matrix. | DONE |
-| F11 | God Mode verification | Phase 5 complete: state, TopBar toggle, GodModeView (hero/lifecycle/role grid/tool groups), OsRail conditional god item, Inspector note, ContextNavigator god branch — all verified by tests. | VERIFIED |
+| F10 | E2e suite green | Historical result only; current suite totals and status are recorded by Phase 8 evidence. | HISTORICAL |
+| F11 | God Mode verification | Historical implementation note; current Phase 7 exit remains evidence-bound. | HISTORICAL |
 | F12 | Registry parity → 47 modules | `engineering_calc` was missing from the canonical registries while the frontend rendered 47. Added full definition to `tools.json` + `backend/data/modules.json` (position after `wingman`, matching the e2e/frontend order), re-seeded DB (modules table now 47), updated counters in `scripts/validate-foundation.mjs` (47, engineering_calc assertion) and `backend/tests/smoke.php` (47 + engineering_calc check). API `/health` and `/modules-registry` now report **canonical_modules: 47**; `npm run test` green. | DONE |
 
 ### Deployment readiness (requirement 3 — config only)

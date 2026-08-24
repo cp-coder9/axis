@@ -53,13 +53,12 @@ php -l backend/public/index.php
 - Shared drawing-intelligence jobs for SpecForge, BoM, Municipal and BIM/IFC
 - Meetings publish governance with consent, pending-outcome gates and idempotent revision issue
 
-The canonical registry is exactly **46 modules**, including native Architex Meetings. Payments remain workflow-only; actual fund holding is disabled pending legal review and a licensed partner.
+The canonical registry is exactly **47 modules**, including native Architex Meetings and the Engineering Calculation Hub. Payments remain workflow-only; actual fund holding is disabled pending legal review and a licensed partner.
 
 See `docs/FOUNDATION_BUILD_STATUS.md` for routes, schema and verification evidence.
 
 ## Next implementation slice
 
-1. Replace the local JSON demo store with PDO repositories backed by the included MariaDB migrations.
-2. Add login/refresh endpoints that issue the signed JWT shape already enforced by the production API (`sub`, `role`, `org`, `projects`, `exp`).
-3. Connect the native foundation components to API loading/mutation hooks with optimistic-state rollback.
-4. Add Playwright coverage for the full Meetings and approval lifecycle.
+1. Complete the Phase 3 isolated MariaDB lifecycle, tenancy, RBAC, and recovery evidence suite.
+2. Complete Phase 8 release orchestration, documentation parity, visual, performance, and rollback evidence.
+3. Keep all 17 engineering calculators contained until independent professional approval is recorded.

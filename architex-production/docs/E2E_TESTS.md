@@ -1,22 +1,23 @@
 # E2E Test Suite (Playwright)
 
-End-to-end tests for the Architex OS frontend, covering the app shell, all 46
-modules, and the governed workflows (Meetings consent flow, Approvals RBAC).
+End-to-end tests for the Architex OS frontend, covering the app shell, all 47
+canonical modules, and governed workflows. Current release evidence uses the
+Phase 8 module-contract and V8-wave suites; this page is an orientation guide.
 
 ## Layout
 
 | File | Purpose |
 | --- | --- |
 | `playwright.config.ts` | Config: `e2e/` test dir, 4 parallel workers, Chromium, traces/screenshots on failure |
-| `e2e/app.spec.ts` | Full suite (51 tests) |
+| `e2e/modules-functional.spec.ts` | 47 module-specific action/result contracts plus completeness check |
+| `e2e/v8-wave-1.spec.ts` to `e2e/v8-wave-5.spec.ts` | 47-module responsive, axe, motion, and rendering contracts |
 
 ## Test coverage
 
 1. **App shell** (2 tests) — page loads, role switcher visible and functional.
-2. **All 46 modules open** (46 tests) — each module is opened from the
-   standalone tool registry and must render its "Inside <tool>" tab view with
-   no runtime errors. Standalone mode is used because project mode filters the
-   tool list by role (`ROLE_TOOL_MAP`).
+2. **All 47 modules have functional contracts** — each canonical module opens,
+   performs a named action, and produces an observable result. Standalone mode
+   is used because project mode filters the tool list by role (`ROLE_TOOL_MAP`).
 3. **Meetings governed workflow** (2 tests) — Meet Now opens the consent/pre-join
    screen; Schedule opens the 5-step wizard (Context → Policy).
 4. **Approvals RBAC** (1 test) — a non-owning role (`client`) sees all pending
@@ -58,7 +59,7 @@ Tests target stable `data-testid` attributes — keep these when refactoring:
 | --- | --- |
 | `role-switcher` | TopBar role `<select>` |
 | `mode-project` / `mode-standalone` | ContextNavigator orientation switcher |
-| `tool-<id>` | Navigator button for each of the 46 tools |
+| `tool-<id>` | Navigator button for each of the 47 canonical tools |
 | `meetings-meet-now` / `meetings-schedule` | Meetings hub actions |
 | `approval-approve-<id>` / `approval-reject-<id>` | Approvals gate decisions |
 

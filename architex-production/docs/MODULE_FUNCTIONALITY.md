@@ -11,7 +11,7 @@ module is one import + one registry entry + one status change.
 
 ### Platform shell
 - **Datum canvas** — project line-of-truth with stage/role-filtered tool cards
-- **Workspace Tool Registry** — searchable 46-module catalogue with live/scaffold filters
+- **Workspace Tool Registry** — searchable 47-module catalogue with live/scaffold filters
 
 ### Flagship native modules (12)
 | Module | Tabs | Key workflows |

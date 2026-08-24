@@ -11,7 +11,7 @@ Architex OS JSON fixtures into a real relational schema.
 | `E:\Hermes\mariadb\bin`, `share` | Portable MariaDB 11.4.3 runtime (copied from Program Files) |
 | `E:\Hermes\mariadb\data` | Database files (initialized with `mariadb-install-db`) |
 | `E:\Hermes\mariadb\my-architex.ini` | Server config: port 3306, 127.0.0.1 only, utf8mb4 |
-| `backend/database/migrations/*.sql` | Schema migrations (001 core, 002 foundation, 003/004 user_roles fixes, 005 feedback/team/locale, 006 full Meetings schema, 007 jobs.last_error) |
+| `backend/database/migrations/*.sql` | Ordered schema migrations, including the Phase 3 calculation hardening and engineering permission grants (`010`, `011`) |
 | `backend/database/migrate.php` | Migration runner (tracks `schema_migrations`, idempotent) |
 | `backend/database/seed.php` | Idempotent seeder: JSON fixtures → relational tables + RBAC permission matrix |
 | `backend/lib/db.php` | PDO singleton + `db_health()` |
@@ -35,7 +35,7 @@ php backend/database/seed.php      # clears + reseeds all fixture data
 ```
 
 Seed counts (from `backend/data/*.json` fixtures): 1 org, 20 roles, 5 users,
-2 projects, 46 modules, 1 passport, 3 documents, 2 approvals + 2 steps,
+2 projects, 47 modules, 1 passport, 3 documents, 2 approvals + 2 steps,
 1 AI candidate, 1 meeting, 3 action items, 3 audit entries, 158 role-permission
 grants (RBAC matrix, PRD §10.3).
 

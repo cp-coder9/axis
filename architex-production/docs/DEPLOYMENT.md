@@ -33,9 +33,9 @@ php backend/database/seed.php      # clears + reseeds demo data (idempotent)
 
 Verification: `SELECT COUNT(*) FROM projects;` → 4 (seeded demo register).
 
-The `calculation_records` table (migration 009) is part of this sequence; the
-backend also writes calculation records into the JSON store
-(`backend/data/foundation.json`) until the PDO repository milestone.
+The `calculation_records` table and Phase 3 hardening migrations are part of
+this sequence. Engineering calculation writes are governed by the MariaDB
+repository and all unvalidated calculators remain API-contained.
 
 ---
 
@@ -113,7 +113,7 @@ Environment variables (`.env.local` or host secrets panel):
 - [ ] `APP_ENV=production` (disables header-identity demo mode).
 - [ ] `CORS_ORIGIN` restricted to the deployed frontend origin.
 - [ ] `DB_PASS` set to a non-empty cPanel password.
-- [ ] `backend/data/*.json` is writable by the web user (API's JSON write path)
-      and lives outside the public document root.
+- [ ] No engineering calculation file-backed persistence path is enabled; the MariaDB
+      credentials have been verified against the release-candidate schema.
 - [ ] MariaDB backups: nightly `mysqldump architex_os` retained per POPIA retention policy.
 - [ ] TLS certificates valid for both domains; HSTS enabled on the frontend proxy.

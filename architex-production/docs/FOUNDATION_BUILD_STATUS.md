@@ -5,12 +5,12 @@
 ### Canonical module registry — DB-driven
 
 - `E:/axis-1/tools.json` is the canonical registry.
-- Exactly **46 modules** are registered.
+- Exactly **47 modules** are registered.
 - Native **Architex Meetings** is included explicitly.
 - The MariaDB `modules` table is now the API's source of truth. `modules()` in `backend/public/index.php` reads rows and reproduces the full API contract shape (`id, name, icon, tone, group, stage, summary, tabs, source, status, governance, implementation_status`), falling back to `backend/data/modules.json` when MariaDB is unreachable.
-- Migration `008_module_registry_fidelity.sql` adds `implementation_status` (native|sample|scaffold) and `governance_json` so each DB row is a faithful mirror of the canonical registry (46/46 parity, `{native:35, sample:11}`, `governance` set on `meetings`).
+- Migration `008_module_registry_fidelity.sql` adds `implementation_status` (native|sample|scaffold) and `governance_json` so each DB row is a faithful mirror of the canonical registry; current parity is verified separately by `npm run validate:registry`.
 - Earlier references to 53 tools are treated as superseded planning counts.
-- Backend registry mirrors the same 46 entries in `backend/data/modules.json`.
+- Backend registry mirrors the same 47 entries in `backend/data/modules.json`.
 
 ### Project Passport
 
@@ -136,7 +136,7 @@ php -l backend/public/index.php
 
 API checks confirmed:
 
-- Health reports API v0.2.0 and 46 canonical modules.
+- Health reports canonical registry metadata; current count is verified by `npm run validate:registry`.
 - Registry contains Meetings.
 - Project Passport and Approvals return scoped project data.
 - Client drawing-intelligence request is denied with HTTP 403.
