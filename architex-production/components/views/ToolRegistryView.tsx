@@ -91,6 +91,8 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
             {(['all', 'live', 'scaffold'] as const).map((st) => (
               <button
                 key={st}
+                type="button"
+                aria-pressed={filterStatus === st}
                 onClick={() => setFilterStatus(st)}
                 className={`px-3 py-1.5 rounded-xl text-[12px] font-bold capitalize transition-all ${
                   filterStatus === st
@@ -109,6 +111,8 @@ export const ToolRegistryView: React.FC<ToolRegistryViewProps> = ({
           {groups.map((grp) => (
             <button
               key={grp}
+              type="button"
+              aria-pressed={selectedGroup === grp}
               onClick={() => setSelectedGroup(grp)}
               className={`px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
                 selectedGroup === grp

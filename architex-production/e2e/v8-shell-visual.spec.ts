@@ -125,3 +125,19 @@ test('P6-W0-GLOBAL Tool Registry exposes its existing search control at mobile w
   await expect(page.getByRole('searchbox', { name: 'Search workspace tools' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Practice Management/ })).toBeVisible();
 });
+
+test('P6-W0-GLOBAL Tool Registry exposes the existing live filter state', async ({ page }) => {
+  await page.setViewportSize(VIEWPORTS.mobile);
+  await page.goto('/?workspace=v8');
+  await page.getByRole('button', { name: 'Open global navigation' }).click();
+  await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
+
+  const allFilter = page.getByRole('button', { name: /All \(47\)/ });
+  const liveFilter = page.getByRole('button', { name: /Live \(\d+\)/ });
+  await expect(allFilter).toHaveAttribute('aria-pressed', 'true');
+  await expect(liveFilter).toHaveAttribute('aria-pressed', 'false');
+
+  await liveFilter.click();
+  await expect(liveFilter).toHaveAttribute('aria-pressed', 'true');
+  await expect(allFilter).toHaveAttribute('aria-pressed', 'false');
+});
