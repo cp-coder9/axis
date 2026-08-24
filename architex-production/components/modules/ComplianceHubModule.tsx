@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 import { ProjectEntity, RoleKey } from '@/lib/types';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { Button } from '@/components/ui/Button';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface Props { activeProject: ProjectEntity; currentRole: RoleKey; activeTabKey?: string; isProjectMode?: boolean; onTabChange?: (key: string) => void }
 
@@ -29,10 +31,7 @@ export function ComplianceHubModule({ activeProject, currentRole, activeTabKey =
   const pct = Math.round((compliant / checks.length) * 100);
 
   return <section className="space-y-4" aria-label="Compliance Hub">
-    <header className="flex items-center justify-between rounded-2xl border bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#DFF5F2] text-[#167E79]"><OrigamiIcon name="compliance_hub" size={26} /></div><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#167E79]">Cross-standard statutory aggregation</p><h1 className="text-xl font-bold">Compliance Hub</h1><p className="text-xs text-[#657287]">{activeProject.code} · SANS 10400, NBR, OHS and municipal by-laws</p></div></div>
-    </header>
-    <div className="flex gap-2 overflow-x-auto">{TABS.map(t => <button key={t.key} onClick={() => setTab(t.key || '')} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-bold ${tab === t.key ? 'bg-[#102033] text-white' : 'bg-white text-[#657287] border'}`}>{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</button>)}</div>
+    <PageHeader title="Compliance Hub" origami={<OrigamiIcon name="compliance_hub" size={26} />} metadata={<><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#135f5a]">Cross-standard statutory aggregation</p><p>{activeProject.code} · SANS 10400, NBR, OHS and municipal by-laws</p></>} actions={<nav className="flex max-w-full gap-2 overflow-x-auto" aria-label="Compliance Hub sections">{TABS.map(t => <Button key={t.key} type="button" variant={tab === t.key ? 'ink' : 'quiet'} size="sm" aria-pressed={tab === t.key} onClick={() => setTab(t.key || '')} className="shrink-0">{t.icon && <OrigamiIcon name={t.icon} size={14} />}{t.label}</Button>)}</nav>} />
 
     {tab === 'dashboard' && <><div className="grid gap-4 md:grid-cols-4">{[['Standards tracked',String(checks.length)],['Compliant',String(compliant)],['In review','2'],['Open gaps','1']].map(([l,v]) => <div key={l} className="rounded-2xl border bg-white p-4 shadow-sm"><p className="text-[10px] uppercase text-[#657287]">{l}</p><p className="mt-1 text-2xl font-bold">{v}</p></div>)}</div>
       <div className="rounded-2xl border bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><h3 className="text-sm font-bold">Overall compliance</h3><span className="text-2xl font-bold text-[#167E79]">{pct}%</span></div><div className="mt-3 h-3 rounded-full bg-gray-200"><div className="h-3 rounded-full bg-[#19B7B0]" style={{width:`${pct}%`}} /></div></div>
