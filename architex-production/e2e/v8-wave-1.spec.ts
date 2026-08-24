@@ -57,4 +57,10 @@ test.describe('P6 Wave 1 flagship module contracts', () => {
     await openMigratedTool(page, 'planning');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Town Planning & SPLUMA Manager');
   });
+
+  test('P6-W1-06 municipal renders its submission workspace through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await openMigratedTool(page, 'municipal');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Municipal Submission Manager');
+  });
 });
