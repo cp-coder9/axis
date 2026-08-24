@@ -57,4 +57,10 @@ test.describe('P6 Wave 5 site, close-out and platform contracts', () => {
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('CPD & Learning');
     await expect(page.locator('main [data-ui="page-header"]')).toContainText('Continuing professional development tracking');
   });
+
+  test('P6-W5-08 admin review renders platform operations through the design-system header', async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop); await openMigratedTool(page, 'admin_review');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('Admin Review');
+    await expect(page.locator('main [data-ui="page-header"]')).toContainText('System health, audit inspection, user moderation');
+  });
 });
