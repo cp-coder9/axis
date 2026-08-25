@@ -13,6 +13,7 @@
     "test": "node scripts/validate-foundation.mjs && php backend/tests/smoke.php",
     "test:api": "node backend/tests/auth-boundary-api.mjs && node backend/tests/containment-api.mjs",
     "test:data-policy": "php backend/tests/environment-policy.php && node backend/tests/data-mode-process.mjs && node backend/tests/auth-boundary-api.mjs",
+    "test:auth": "node backend/tests/auth-schema.mjs && php backend/tests/authentication-policy.php && php backend/tests/auth-session-policy.php && vitest run lib/auth-session.test.ts components/providers/AuthProvider.test.tsx",
     "test:api:preflight": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-api.ps1 -Preflight",
     "test:api:calculator-containment": "node backend/tests/containment-api.mjs",
     "test:e2e": "playwright test",
