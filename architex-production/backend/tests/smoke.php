@@ -69,7 +69,8 @@ if (!is_array($releasePolicy) || count($releasePolicy) !== 17) {
 $repository = $root . '/lib/calculation_repository.php';
 $validation = $root . '/lib/calculation_validation.php';
 $hardeningMigration = $root . '/database/migrations/010_engineering_calculation_hardening.sql';
-foreach ([$repository, $validation, $hardeningMigration] as $file) {
+$authMigration = $root . '/database/migrations/012_authentication_sessions.sql';
+foreach ([$repository, $validation, $hardeningMigration, $authMigration] as $file) {
     if (!is_file($file)) {
         fwrite(STDERR, "Phase 3 engineering persistence artifact missing: {$file}\n");
         exit(1);
