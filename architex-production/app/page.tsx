@@ -26,6 +26,7 @@ import {
 import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/lib/api';
 import { AccessGateway } from '@/components/access/AccessGateway';
 import { EngineeringWorkflowProvider } from '@/components/providers/EngineeringWorkflowProvider';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { godModeAvailable } from '@/lib/god-mode';
 import { useWorkspaceTheme } from '@/lib/useWorkspaceTheme';
 
@@ -310,6 +311,6 @@ function ArchitexOSPage() {
 
 export default function ArchitexEntryPage() {
   return (
-    <EngineeringWorkflowProvider><AccessGateway><ArchitexOSPage /></AccessGateway></EngineeringWorkflowProvider>
+    <EngineeringWorkflowProvider><AuthProvider><AccessGateway><ArchitexOSPage /></AccessGateway></AuthProvider></EngineeringWorkflowProvider>
   );
 }

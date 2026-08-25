@@ -1,6 +1,7 @@
 'use client';
 
-import { FormEvent, ReactNode, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useState } from 'react';
+import { useAuth } from '@/components/providers/AuthProvider';
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,27 +30,38 @@ const roles = [
 ];
 
 export function AccessGateway({ children }: { children: ReactNode }) {
+  const { status, login, register, error } = useAuth();
   const [view, setView] = useState<AccessView>('landing');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [dark, setDark] = useState(false);
-  const [entered, setEntered] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return new URLSearchParams(window.location.search).get('workspace') === 'v8' || sessionStorage.getItem('architex-v8-access') === 'granted';
-  });
-  useEffect(() => {
-    const shouldEnter = new URLSearchParams(window.location.search).get('workspace') === 'v8' || sessionStorage.getItem('architex-v8-access') === 'granted';
-    if (!shouldEnter) return;
-    const timer = window.setTimeout(() => setEntered(true), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const enterWorkspace = (event: FormEvent) => {
+  const enterWorkspace = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    sessionStorage.setItem('architex-v8-access', 'granted');
-    setEntered(true);
+    const form = new FormData(event.currentTarget);
+    await login(String(form.get('email') ?? ''), String(form.get('password') ?? '')).catch(() => undefined);
   };
 
-  if (entered) return <>{children}</>;
+  const createAccount = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    try {
+      const result = await register({
+        name: String(form.get('name') ?? ''),
+        organization_name: String(form.get('organization_name') ?? ''),
+        email: String(form.get('email') ?? ''),
+        password: String(form.get('password') ?? ''),
+      });
+      setNotice(result.verification_token
+        ? `Prototype verification token: ${result.verification_token}`
+        : 'Registration received. Check your email to verify the account.');
+    } catch (registrationError) {
+      setNotice(registrationError instanceof Error ? registrationError.message : 'Registration failed');
+    }
+  };
+
+  if (status === 'restoring') return <div className="access-shell" role="status" aria-live="polite"><span className="access-kicker">Restoring secure session…</span></div>;
+  if (status === 'authenticated') return <>{children}</>;
 
   if (view === 'landing') {
     return (
@@ -85,7 +97,7 @@ export function AccessGateway({ children }: { children: ReactNode }) {
   }
 
   if (view === 'signin') {
-    return <V8SignIn onBack={() => setView('landing')} onSubmit={enterWorkspace} />;
+    return <V8SignIn onBack={() => setView('landing')} onSubmit={enterWorkspace} error={error} />;
   }
 
   return (
@@ -127,7 +139,7 @@ export function AccessGateway({ children }: { children: ReactNode }) {
             </div>
           </div>
         ) : (
-          <AccessForm register={view === 'register'} role={selectedRole} onSubmit={enterWorkspace} onBack={() => setView('roles')} />
+          <AccessForm register={view === 'register'} role={selectedRole} onSubmit={view === 'register' ? createAccount : enterWorkspace} onBack={() => setView('roles')} message={notice ?? error} />
         )}
       </section>
     </div>
@@ -138,13 +150,15 @@ function Brand({ compact = false }: { compact?: boolean }) {
   return <div className={`access-brand ${compact ? 'compact' : ''}`}><img src="/logo.png" alt="Architex" /><div><strong>{compact ? 'ARCHITEX' : 'Architex OS'}</strong>{!compact && <span>Built environment access</span>}</div></div>;
 }
 
-function AccessForm({ register, role, onSubmit, onBack }: { register: boolean; role: string | null; onSubmit: (event: FormEvent) => void; onBack: () => void }) {
+function AccessForm({ register, role, onSubmit, onBack, message }: { register: boolean; role: string | null; onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>; onBack: () => void; message: string | null }) {
   return (
     <form className="access-form" onSubmit={onSubmit}>
       <div className="access-form-role"><ShieldCheck size={18} /><span>Role profile</span><strong>{role}</strong></div>
-      {register && <label>Full name<input aria-label="Full name" placeholder="John Doe" required /></label>}
-      <label>Email address<input aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
-      <label>Password<input aria-label="Password" type="password" placeholder="••••••••" required /></label>
+      {register && <label>Full name<input name="name" aria-label="Full name" placeholder="John Doe" required /></label>}
+      {register && <label>Organisation name<input name="organization_name" aria-label="Organisation name" placeholder="Your practice or organisation" required /></label>}
+      <label>Email address<input name="email" aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
+      <label>Password<input name="password" aria-label="Password" type="password" placeholder="••••••••••••" minLength={12} required /></label>
+      {message && <p role="alert">{message}</p>}
       <button className="access-form-submit">{register ? 'Create Account' : 'Login'}</button>
       <button type="button" className="access-form-google">Sign in with Google</button>
       <button type="button" className="access-form-back" onClick={onBack}>Back to Options</button>
@@ -152,7 +166,7 @@ function AccessForm({ register, role, onSubmit, onBack }: { register: boolean; r
   );
 }
 
-function V8SignIn({ onBack, onSubmit }: { onBack: () => void; onSubmit: (event: FormEvent) => void }) {
+function V8SignIn({ onBack, onSubmit, error }: { onBack: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void | Promise<void>; error: string | null }) {
   return (
     <div className="v8-signin">
       <button className="v8-signin-back" onClick={onBack}><ArrowLeft size={16} /> Back to landing</button>
@@ -166,10 +180,11 @@ function V8SignIn({ onBack, onSubmit }: { onBack: () => void; onSubmit: (event: 
         </div>
         <form className="v8-signin-form" onSubmit={onSubmit}>
           <div><span className="v8-step">01 / Authenticate</span><h2>Enter Architex OS</h2><p>Use your organisation credentials to mount the V8 shell.</p></div>
-          <label>Email address<input aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
-          <label>Password<input aria-label="Password" type="password" placeholder="••••••••" required /></label>
+          <label>Email address<input name="email" aria-label="Email address" type="email" placeholder="name@example.com" required /></label>
+          <label>Password<input name="password" aria-label="Password" type="password" placeholder="••••••••" required /></label>
           <div className="v8-form-meta"><label><input type="checkbox" /> Keep this device trusted</label><button type="button">Recover access</button></div>
           <button className="v8-enter-button">Enter workspace <ArrowRight size={17} /></button>
+          {error && <p role="alert">{error}</p>}
           <p className="v8-auth-note"><ShieldCheck size={15} /> Protected by role-based access and immutable session logging.</p>
         </form>
       </section>
