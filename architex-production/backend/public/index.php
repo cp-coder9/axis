@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 $config = require dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/environment_policy.php';
 require_once dirname(__DIR__) . '/lib/calculation_validation.php';
 require_once dirname(__DIR__) . '/lib/calculation_repository.php';
 $calculatorReleasePolicy = require dirname(__DIR__) . '/generated/calculator_release.php';
@@ -198,6 +199,7 @@ function require_permission(string $permission): void {
 
 /** Resolve a role's granted permission strings from the DB (cached per request). */
 function permissions_for_role(string $role): array {
+    global $config;
     static $cache = [];
     if (isset($cache[$role])) return $cache[$role];
 
@@ -216,8 +218,10 @@ function permissions_for_role(string $role): array {
 
     $health = db_health();
     if ($health === null) {
-        // DB unreachable — fall back to the compiled constant.
-        return $cache[$role] = PERMISSIONS[$role] ?? [];
+        if (architex_demo_data_allowed($config)) {
+            return $cache[$role] = PERMISSIONS[$role] ?? [];
+        }
+        json_response(['error' => 'Permission store unavailable'], 503);
     }
     try {
         $pdo = db();
@@ -225,12 +229,16 @@ function permissions_for_role(string $role): array {
         $stmt->execute([$role]);
         $rows = $stmt->fetchAll();
     } catch (PDOException) {
-        return $cache[$role] = PERMISSIONS[$role] ?? [];
+        if (architex_demo_data_allowed($config)) {
+            return $cache[$role] = PERMISSIONS[$role] ?? [];
+        }
+        json_response(['error' => 'Permission store unavailable'], 503);
     }
     if (!$rows) {
-        // No DB grants recorded for this role — fall back to the constant
-        // rather than silently denying everything.
-        return $cache[$role] = PERMISSIONS[$role] ?? [];
+        if (architex_demo_data_allowed($config)) {
+            return $cache[$role] = PERMISSIONS[$role] ?? [];
+        }
+        json_response(['error' => 'Permission store unavailable'], 503);
     }
     $granted = [];
     foreach ($rows as $row) {
@@ -368,27 +376,29 @@ const FALLBACK_PROJECTS = [
  *
  * MariaDB `projects` is the source of truth so POST/PATCH /projects writes are
  * live and durable. Maps schema columns to the API contract shape
- * (stage/progress/client/professional/budget). Falls back to the demo fixture
- * list when MariaDB is unreachable so the API keeps serving. Call
+ * (stage/progress/client/professional/budget). Prototype/local modes may fall
+ * back to demo fixtures; production fails closed when MariaDB is unavailable. Call
  * projects_reset() after any project mutation so subsequent reads in the same
  * request see fresh rows.
  */
 function projects(): array {
+    global $config;
     if (ProjectsCache::has()) return ProjectsCache::get();
     if (db_health() !== null) {
         try {
             $rows = db()->query('SELECT id, code, name, location, lifecycle_stage, progress_percent, client_name, professional_lead, municipality, revision, budget_cents FROM projects ORDER BY created_at ASC, code ASC')->fetchAll();
-            if (count($rows) > 0) {
-                $mapped = array_map('project_row_to_api', $rows);
-                ProjectsCache::set($mapped);
-                return $mapped;
-            }
+            $mapped = array_map('project_row_to_api', $rows);
+            ProjectsCache::set($mapped);
+            return $mapped;
         } catch (PDOException) {
-            // fall through to fixture fallback
+            // Apply the environment policy below.
         }
     }
-    ProjectsCache::set(FALLBACK_PROJECTS);
-    return FALLBACK_PROJECTS;
+    if (architex_demo_data_allowed($config)) {
+        ProjectsCache::set(FALLBACK_PROJECTS);
+        return FALLBACK_PROJECTS;
+    }
+    json_response(['error' => 'Project store unavailable'], 503);
 }
 
 /** Invalidate the per-request project cache (call after project mutations). */

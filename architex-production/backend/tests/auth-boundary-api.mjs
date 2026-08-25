@@ -2,14 +2,22 @@ import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const origin = 'http://127.0.0.1:8092';
+const source = readFileSync(resolve(root, 'backend/public/index.php'), 'utf8');
+const sourceAssert = (condition, message) => { if (!condition) throw new Error(message); };
+sourceAssert(source.includes("require_once dirname(__DIR__) . '/lib/environment_policy.php';"), 'API must load the environment policy');
+sourceAssert(source.includes('architex_demo_data_allowed($config)'), 'API fallbacks must be guarded by the environment policy');
+sourceAssert(source.includes("json_response(['error' => 'Permission store unavailable'], 503)"), 'permissions must fail closed');
+sourceAssert(source.includes("json_response(['error' => 'Project store unavailable'], 503)"), 'projects must fail closed');
+sourceAssert(/if \(architex_demo_data_allowed\(\$config\)\) \{\s*ProjectsCache::set\(FALLBACK_PROJECTS\);\s*return FALLBACK_PROJECTS;\s*\}/.test(source), 'project fixtures must be guarded by the environment policy');
 const server = spawn('php', ['-S', '127.0.0.1:8092', 'backend/public/index.php'], {
   cwd: root,
   stdio: 'ignore',
   windowsHide: true,
-  env: { ...process.env, APP_ENV: 'production', JWT_SECRET: 'p3-auth-boundary-test-secret' },
+  env: { ...process.env, APP_ENV: 'production', ARCHITEX_DATA_MODE: 'production', JWT_SECRET: 'p3-auth-boundary-test-secret' },
 });
 
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
