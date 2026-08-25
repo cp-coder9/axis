@@ -7,15 +7,16 @@ ALTER TABLE users
 INSERT IGNORE INTO roles (role_key, label, description) VALUES
   ('organisation_admin', 'Organisation Administrator', 'Manages organisation users, roles, projects, and governance settings.');
 
-CREATE TABLE email_verification_tokens (
+CREATE TABLE pending_registrations (
   id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36) NOT NULL,
+  name VARCHAR(160) NOT NULL,
+  organization_name VARCHAR(180) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
   token_hash CHAR(64) NOT NULL UNIQUE,
   expires_at DATETIME NOT NULL,
   consumed_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_email_verification_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE organization_invitations (

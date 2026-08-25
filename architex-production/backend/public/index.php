@@ -518,19 +518,18 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/register$#', $path)) {
             $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
             json_response(['error' => 'Public registration is closed; request an organisation invitation'], 409);
         }
-        $organizationId = auth_id('org');
-        $userId = auth_id('user');
-        $verificationId = auth_id('verify');
+        $registrationId = auth_id('registration');
         $verificationToken = auth_new_opaque_token();
-        $pdo->prepare('INSERT INTO organizations (id, name, slug) VALUES (?, ?, ?)')
-            ->execute([$organizationId, $organizationName, auth_slug($organizationName)]);
-        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)')
-            ->execute([$userId, $organizationId, $name, $email, password_hash($password, PASSWORD_DEFAULT), 'pending_verification']);
-        $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')
-            ->execute([$userId, 'organisation_admin']);
-        $pdo->prepare('INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 24 HOUR))')
-            ->execute([$verificationId, $userId, auth_token_hash($verificationToken)]);
-        auth_audit($pdo, $organizationId, $userId, 'user', $userId, 'auth.registration.requested', ['email' => $email]);
+        $pdo->prepare('DELETE FROM pending_registrations WHERE email = ? AND (expires_at <= UTC_TIMESTAMP() OR consumed_at IS NOT NULL)')->execute([$email]);
+        $pending = $pdo->prepare('SELECT id FROM pending_registrations WHERE email = ? LIMIT 1');
+        $pending->execute([$email]);
+        if ($pending->fetchColumn()) {
+            $pdo->rollBack();
+            $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+            json_response(['error' => 'A verification request is already active for this email'], 409);
+        }
+        $pdo->prepare('INSERT INTO pending_registrations (id, name, organization_name, email, password_hash, token_hash, expires_at) VALUES (?, ?, ?, ?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 24 HOUR))')
+            ->execute([$registrationId, $name, $organizationName, $email, password_hash($password, PASSWORD_DEFAULT), auth_token_hash($verificationToken)]);
         if (!auth_send_link($config, $email, 'Verify your Architex account', '/verify-email', $verificationToken)) {
             $pdo->rollBack();
             $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
@@ -553,22 +552,41 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/verify-email$#', $path))
     if (!preg_match('/^[a-f0-9]{64}$/', $token)) json_response(['error' => 'A valid verification token is required'], 422);
     if (db_health() === null) json_response(['error' => 'Verification store unavailable'], 503);
     $pdo = db();
+    $lockHeld = false;
     try {
+        $lockStmt = $pdo->query("SELECT GET_LOCK('architex-first-registration', 10)");
+        $lockHeld = (int) $lockStmt->fetchColumn() === 1;
+        if (!$lockHeld) json_response(['error' => 'Verification is busy; retry shortly'], 503);
         $pdo->beginTransaction();
-        $stmt = $pdo->prepare('SELECT t.id, t.user_id, t.expires_at, t.consumed_at, u.organization_id FROM email_verification_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ? FOR UPDATE');
+        $stmt = $pdo->prepare('SELECT * FROM pending_registrations WHERE token_hash = ? FOR UPDATE');
         $stmt->execute([auth_token_hash($token)]);
         $record = $stmt->fetch();
         if (!$record || $record['consumed_at'] !== null || strtotime($record['expires_at'] . ' UTC') <= time()) {
             $pdo->rollBack();
+            $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
             json_response(['error' => 'Verification token is invalid or expired'], 410);
         }
-        $pdo->prepare('UPDATE email_verification_tokens SET consumed_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$record['id']]);
-        $pdo->prepare("UPDATE users SET status = 'active' WHERE id = ? AND status = 'pending_verification'")->execute([$record['user_id']]);
-        auth_audit($pdo, $record['organization_id'], $record['user_id'], 'user', $record['user_id'], 'auth.email.verified');
+        if ($pdo->query('SELECT id FROM organizations LIMIT 1')->fetchColumn()) {
+            $pdo->rollBack();
+            $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+            json_response(['error' => 'An organisation has already been established; request an invitation'], 409);
+        }
+        $organizationId = auth_id('org');
+        $userId = auth_id('user');
+        $pdo->prepare('INSERT INTO organizations (id, name, slug) VALUES (?, ?, ?)')
+            ->execute([$organizationId, $record['organization_name'], auth_slug($record['organization_name'])]);
+        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)')
+            ->execute([$userId, $organizationId, $record['name'], $record['email'], $record['password_hash'], 'active']);
+        $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')
+            ->execute([$userId, 'organisation_admin']);
+        $pdo->prepare('UPDATE pending_registrations SET consumed_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$record['id']]);
+        auth_audit($pdo, $organizationId, $userId, 'user', $userId, 'auth.email.verified', ['email' => $record['email']]);
         $pdo->commit();
+        $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
         json_response(['status' => 'verified', 'message' => 'Email verified. You can now sign in.']);
     } catch (PDOException) {
         if ($pdo->inTransaction()) $pdo->rollBack();
+        if ($lockHeld) $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
         json_response(['error' => 'Verification could not be completed'], 500);
     }
 }

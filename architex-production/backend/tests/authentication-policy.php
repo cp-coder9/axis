@@ -31,5 +31,10 @@ $source = file_get_contents(dirname(__DIR__) . '/public/index.php');
 foreach (['/auth/register', '/auth/verify-email', '/invitations/([^/]+)/accept', '/users/invitations'] as $route) {
     auth_policy_assert(str_contains($source, $route), "API route missing {$route}");
 }
+$registrationStart = strpos($source, "v1/auth/register$#");
+$verificationStart = strpos($source, "v1/auth/verify-email$#");
+$registrationRoute = substr($source, $registrationStart, $verificationStart - $registrationStart);
+auth_policy_assert(!str_contains($registrationRoute, 'INSERT INTO organizations'), 'unverified registration must not create an organisation');
+auth_policy_assert(str_contains($registrationRoute, 'INSERT INTO pending_registrations'), 'registration must persist a pending verification record');
 
 echo "authentication policy passed\n";
