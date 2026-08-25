@@ -1,4 +1,5 @@
 import type { CalculatorId, EngineeringCalculationPayloadV1 } from '@/lib/calculations/types';
+import { authenticatedFetch } from '@/lib/auth-session';
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api/v1';
 
@@ -7,6 +8,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '/api/v1';
  * APP_ENV=local; production uses bearer JWTs issued by /auth/login.
  */
 export function localIdentityHeaders(role: string, userId: string): Record<string, string> {
+  if (process.env.NEXT_PUBLIC_ARCHITEX_DATA_MODE !== 'local') return {};
   return {
     'X-Architex-Role': role,
     'X-Architex-User': userId,
@@ -28,7 +30,7 @@ export function demoIdentity(role: string): { role: string; userId: string } {
 }
 
 export async function apiGet<T>(path: string, identity?: { role: string; userId: string }): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, {
     headers: {
       Accept: 'application/json',
       ...(identity ? localIdentityHeaders(identity.role, identity.userId) : {}),
@@ -52,7 +54,7 @@ export async function apiPost<T>(
     'Content-Type': 'application/json',
     ...(identity ? localIdentityHeaders(identity.role, identity.userId) : {}),
   };
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
@@ -174,7 +176,7 @@ export async function apiPatch<T>(
     'Content-Type': 'application/json',
     ...(identity ? localIdentityHeaders(identity.role, identity.userId) : {}),
   };
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify(body),
@@ -285,7 +287,7 @@ export type CreateCalculationPayload = EngineeringCalculationPayloadV1 & {
 type ApiIdentity = { role: string; userId: string };
 
 async function engineeringRequest<T>(path: string, method: 'GET' | 'POST' | 'PATCH', identity: ApiIdentity, body?: unknown, headers: Record<string, string> = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { method, headers: { Accept: 'application/json', ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...localIdentityHeaders(identity.role, identity.userId), ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, { method, headers: { Accept: 'application/json', ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...localIdentityHeaders(identity.role, identity.userId), ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
   if (!response.ok) throw new Error(`Architex API ${response.status}: ${await response.text()}`);
   return response.json() as Promise<T>;
 }
