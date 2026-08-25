@@ -2,6 +2,7 @@
 
 import { FormEvent, ReactNode, useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { PublicLandingPage } from './PublicLandingPage';
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,9 +13,7 @@ import {
   Hammer,
   HardHat,
   LockKeyhole,
-  Moon,
   ShieldCheck,
-  Sun,
   Users,
 } from 'lucide-react';
 
@@ -33,7 +32,6 @@ export function AccessGateway({ children }: { children: ReactNode }) {
   const { status, login, register, error } = useAuth();
   const [view, setView] = useState<AccessView>('landing');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [dark, setDark] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const enterWorkspace = async (event: FormEvent<HTMLFormElement>) => {
@@ -64,36 +62,7 @@ export function AccessGateway({ children }: { children: ReactNode }) {
   if (status === 'authenticated') return <>{children}</>;
 
   if (view === 'landing') {
-    return (
-      <div className={`access-landing ${dark ? 'is-dark' : ''}`}>
-        <header className="access-header">
-          <Brand compact />
-          <div className="access-header-actions">
-            <button className="access-icon-button" aria-label="Switch color theme" onClick={() => setDark((value) => !value)}>
-              {dark ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
-            <button className="access-ghost-button" onClick={() => setView('roles')}>Sign up</button>
-            <button className="access-primary-button" onClick={() => setView('signin')}>Enter OS</button>
-          </div>
-        </header>
-
-        <main className="access-hero">
-          <button className="access-mark-button" aria-label="Enter Architex OS" onClick={() => setView('signin')}>
-            <span className="access-mark-orbit" />
-            <img src="/logo.png" alt="" />
-          </button>
-          <h1>The Operating System for the Built Environment</h1>
-          <p>Simplify complexity. Deliver with confidence.</p>
-          <button className="access-hero-cta" onClick={() => setView('signin')}>Enter OS</button>
-        </main>
-
-        <nav className="access-quick-nav" aria-label="Quick navigation">
-          {[['People', Users], ['Projects', Building2], ['Approvals', BadgeCheck], ['Payments', BriefcaseBusiness]].map(([label, Icon]) => (
-            <button key={label as string} onClick={() => setView('signin')}><Icon size={21} /><span>{label as string}</span></button>
-          ))}
-        </nav>
-      </div>
-    );
+    return <PublicLandingPage onSignIn={() => setView('signin')} onSignUp={() => setView('roles')} />;
   }
 
   if (view === 'signin') {
