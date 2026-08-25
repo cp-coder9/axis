@@ -12,4 +12,6 @@ return [
     ],
     'jwt_secret' => getenv('JWT_SECRET') ?: 'change-this-before-production',
     'cors_origin' => getenv('CORS_ORIGIN') ?: '*',
+    'frontend_url' => getenv('FRONTEND_URL') ?: '',
+    'mail_from' => getenv('AUTH_MAIL_FROM') ?: '',
 ];

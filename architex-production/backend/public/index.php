@@ -4,6 +4,7 @@ declare(strict_types=1);
 $config = require dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/lib/db.php';
 require_once dirname(__DIR__) . '/lib/environment_policy.php';
+require_once dirname(__DIR__) . '/lib/authentication.php';
 require_once dirname(__DIR__) . '/lib/calculation_validation.php';
 require_once dirname(__DIR__) . '/lib/calculation_repository.php';
 $calculatorReleasePolicy = require dirname(__DIR__) . '/generated/calculator_release.php';
@@ -22,7 +23,7 @@ const ALLOWED_ROLES = [
     'client', 'architect', 'bep', 'engineer', 'quantity_surveyor', 'town_planner',
     'land_surveyor', 'energy_professional', 'fire_engineer', 'cpm', 'contractor',
     'subcontractor', 'supplier', 'site_manager', 'health_safety', 'developer',
-    'freelancer', 'firm_admin', 'admin', 'platform_admin'
+    'freelancer', 'firm_admin', 'organisation_admin', 'admin', 'platform_admin'
 ];
 
 const PERMISSIONS = [
@@ -37,6 +38,7 @@ const PERMISSIONS = [
     'cpm' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request'],
     'contractor' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view', 'engineering.view', 'engineering.save'],
     'firm_admin' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view'],
+    'organisation_admin' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'users.view', 'users.manage'],
     'developer' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'approvals.view', 'audit.view'],
     'admin' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'users.view', 'users.manage'],
     'site_manager' => ['engineering.view', 'engineering.save', 'engineering.review.request'],
@@ -488,7 +490,125 @@ if ($method === 'GET' && preg_match('#^/(api/)?v1/platform-policy$#', $path)) {
     json_response(read_json_file('platform-policy.json'));
 }
 
-/* ---------- Auth (PRD §12): login + refresh against seeded users ---------- */
+/* ---------- Auth (PRD §12): verified onboarding, login, and sessions ---------- */
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/register$#', $path)) {
+    $body = json_body();
+    $name = trim((string) ($body['name'] ?? ''));
+    $organizationName = trim((string) ($body['organization_name'] ?? ''));
+    $email = auth_normalize_email((string) ($body['email'] ?? ''));
+    $password = (string) ($body['password'] ?? '');
+    if ($name === '' || mb_strlen($name) > 160) json_response(['error' => 'name is required (max 160 characters)'], 422);
+    if ($organizationName === '' || mb_strlen($organizationName) > 180) json_response(['error' => 'organization_name is required (max 180 characters)'], 422);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_response(['error' => 'A valid email is required'], 422);
+    $passwordErrors = auth_validate_password($password);
+    if ($passwordErrors) json_response(['error' => 'Password does not meet policy', 'field_errors' => $passwordErrors], 422);
+    if (db_health() === null) json_response(['error' => 'Registration store unavailable'], 503);
+
+    $pdo = db();
+    $lockHeld = false;
+    try {
+        $lockStmt = $pdo->query("SELECT GET_LOCK('architex-first-registration', 10)");
+        $lockHeld = (int) $lockStmt->fetchColumn() === 1;
+        if (!$lockHeld) json_response(['error' => 'Registration is busy; retry shortly'], 503);
+        $pdo->beginTransaction();
+        if ($pdo->query('SELECT id FROM organizations LIMIT 1')->fetchColumn()) {
+            $pdo->rollBack();
+            $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+            json_response(['error' => 'Public registration is closed; request an organisation invitation'], 409);
+        }
+        $organizationId = auth_id('org');
+        $userId = auth_id('user');
+        $verificationId = auth_id('verify');
+        $verificationToken = auth_new_opaque_token();
+        $pdo->prepare('INSERT INTO organizations (id, name, slug) VALUES (?, ?, ?)')
+            ->execute([$organizationId, $organizationName, auth_slug($organizationName)]);
+        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)')
+            ->execute([$userId, $organizationId, $name, $email, password_hash($password, PASSWORD_DEFAULT), 'pending_verification']);
+        $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')
+            ->execute([$userId, 'organisation_admin']);
+        $pdo->prepare('INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 24 HOUR))')
+            ->execute([$verificationId, $userId, auth_token_hash($verificationToken)]);
+        auth_audit($pdo, $organizationId, $userId, 'user', $userId, 'auth.registration.requested', ['email' => $email]);
+        if (!auth_send_link($config, $email, 'Verify your Architex account', '/verify-email', $verificationToken)) {
+            $pdo->rollBack();
+            $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+            json_response(['error' => 'Verification email could not be sent'], 503);
+        }
+        $pdo->commit();
+        $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+        $response = ['status' => 'verification_required', 'message' => 'Check your email to verify the organisation account.'];
+        if (architex_demo_data_allowed($config)) $response['verification_token'] = $verificationToken;
+        json_response($response, 202);
+    } catch (PDOException) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        if ($lockHeld) $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
+        json_response(['error' => 'Registration could not be completed'], 500);
+    }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/verify-email$#', $path)) {
+    $token = trim((string) (json_body()['token'] ?? ''));
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) json_response(['error' => 'A valid verification token is required'], 422);
+    if (db_health() === null) json_response(['error' => 'Verification store unavailable'], 503);
+    $pdo = db();
+    try {
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('SELECT t.id, t.user_id, t.expires_at, t.consumed_at, u.organization_id FROM email_verification_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ? FOR UPDATE');
+        $stmt->execute([auth_token_hash($token)]);
+        $record = $stmt->fetch();
+        if (!$record || $record['consumed_at'] !== null || strtotime($record['expires_at'] . ' UTC') <= time()) {
+            $pdo->rollBack();
+            json_response(['error' => 'Verification token is invalid or expired'], 410);
+        }
+        $pdo->prepare('UPDATE email_verification_tokens SET consumed_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$record['id']]);
+        $pdo->prepare("UPDATE users SET status = 'active' WHERE id = ? AND status = 'pending_verification'")->execute([$record['user_id']]);
+        auth_audit($pdo, $record['organization_id'], $record['user_id'], 'user', $record['user_id'], 'auth.email.verified');
+        $pdo->commit();
+        json_response(['status' => 'verified', 'message' => 'Email verified. You can now sign in.']);
+    } catch (PDOException) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        json_response(['error' => 'Verification could not be completed'], 500);
+    }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/invitations/([^/]+)/accept$#', $path, $m)) {
+    $token = trim(rawurldecode($m[2]));
+    $body = json_body();
+    $password = (string) ($body['password'] ?? '');
+    $passwordErrors = auth_validate_password($password);
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) json_response(['error' => 'A valid invitation token is required'], 422);
+    if ($passwordErrors) json_response(['error' => 'Password does not meet policy', 'field_errors' => $passwordErrors], 422);
+    if (db_health() === null) json_response(['error' => 'Invitation store unavailable'], 503);
+    $pdo = db();
+    try {
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('SELECT * FROM organization_invitations WHERE token_hash = ? FOR UPDATE');
+        $stmt->execute([auth_token_hash($token)]);
+        $invitation = $stmt->fetch();
+        if (!$invitation || $invitation['accepted_at'] !== null || $invitation['revoked_at'] !== null || strtotime($invitation['expires_at'] . ' UTC') <= time()) {
+            $pdo->rollBack();
+            json_response(['error' => 'Invitation is invalid or expired'], 410);
+        }
+        $duplicate = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $duplicate->execute([$invitation['email']]);
+        if ($duplicate->fetchColumn()) {
+            $pdo->rollBack();
+            json_response(['error' => 'An account already exists for this email'], 409);
+        }
+        $userId = auth_id('user');
+        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)')
+            ->execute([$userId, $invitation['organization_id'], $invitation['name'], $invitation['email'], password_hash($password, PASSWORD_DEFAULT), 'active']);
+        $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')->execute([$userId, $invitation['role_key']]);
+        $pdo->prepare('UPDATE organization_invitations SET accepted_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$invitation['id']]);
+        auth_audit($pdo, $invitation['organization_id'], $userId, 'invitation', $invitation['id'], 'auth.invitation.accepted', ['role' => $invitation['role_key']]);
+        $pdo->commit();
+        json_response(['status' => 'accepted', 'message' => 'Invitation accepted. You can now sign in.'], 201);
+    } catch (PDOException) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        json_response(['error' => 'Invitation could not be accepted'], 500);
+    }
+}
 
 if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/login$#', $path)) {
     $body = json_body();
@@ -1110,8 +1230,8 @@ function require_meeting_chair(array $meeting): void {
 /** User management is restricted to org admins and platform super-admins. */
 function require_user_management(string $action = 'view'): void {
     $role = current_role();
-    if ($role !== 'admin' && $role !== 'platform_admin') {
-        json_response(['error'=>'User management requires an admin or platform_admin role','required'=>'users.'.$action,'role'=>$role], 403);
+    if (!in_array($role, ['organisation_admin', 'admin', 'platform_admin'], true)) {
+        json_response(['error'=>'User management requires an organisation administrator role','required'=>'users.'.$action,'role'=>$role], 403);
     }
     // The role check above is the gate; 'users.*' is a derived permission that
     // cannot be represented as a module row, so no extra require_permission call.
@@ -1445,6 +1565,47 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/engineering/calculations/([^/
 }
 
 /* ---------- User management (admin & platform_admin) ---------- */
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/users/invitations$#', $path)) {
+    require_user_management('manage');
+    $body = json_body();
+    $name = trim((string) ($body['name'] ?? ''));
+    $email = auth_normalize_email((string) ($body['email'] ?? ''));
+    $roleKey = (string) ($body['role_key'] ?? 'client');
+    if ($name === '' || mb_strlen($name) > 160) json_response(['error' => 'name is required (max 160 characters)'], 422);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_response(['error' => 'A valid email is required'], 422);
+    if (!is_allowed_role_key($roleKey) || $roleKey === 'platform_admin') json_response(['error' => 'Invalid role_key'], 422);
+    if (db_health() === null) json_response(['error' => 'Invitation store unavailable'], 503);
+    $identity = current_identity();
+    $pdo = db();
+    try {
+        $pdo->beginTransaction();
+        $existing = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $existing->execute([$email]);
+        if ($existing->fetchColumn()) {
+            $pdo->rollBack();
+            json_response(['error' => 'A user with this email already exists'], 409);
+        }
+        $pdo->prepare('UPDATE organization_invitations SET revoked_at = UTC_TIMESTAMP() WHERE organization_id = ? AND email = ? AND accepted_at IS NULL AND revoked_at IS NULL')
+            ->execute([$identity['org'], $email]);
+        $invitationId = auth_id('invite');
+        $invitationToken = auth_new_opaque_token();
+        $pdo->prepare('INSERT INTO organization_invitations (id, organization_id, email, name, role_key, token_hash, invited_by, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 72 HOUR))')
+            ->execute([$invitationId, $identity['org'], $email, $name, $roleKey, auth_token_hash($invitationToken), $identity['sub']]);
+        auth_audit($pdo, $identity['org'], $identity['sub'], 'invitation', $invitationId, 'auth.invitation.created', ['email' => $email, 'role' => $roleKey]);
+        if (!auth_send_link($config, $email, 'Your Architex organisation invitation', '/register/invitation', $invitationToken)) {
+            $pdo->rollBack();
+            json_response(['error' => 'Invitation email could not be sent'], 503);
+        }
+        $pdo->commit();
+        $response = ['invitation' => ['id' => $invitationId, 'email' => $email, 'name' => $name, 'role_key' => $roleKey, 'expires_in' => 259200]];
+        if (architex_demo_data_allowed($config)) $response['invitation']['token'] = $invitationToken;
+        json_response($response, 201);
+    } catch (PDOException) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        json_response(['error' => 'Invitation could not be created'], 500);
+    }
+}
 
 if ($method === 'GET' && preg_match('#^/(api/)?v1/users$#', $path)) {
     require_user_management('view');
