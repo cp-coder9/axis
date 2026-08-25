@@ -37,6 +37,32 @@ function auth_cookie_header(string $token, int $maxAge): string
         . '; HttpOnly; Secure; SameSite=None';
 }
 
+function auth_clear_cookie_header(): string
+{
+    return 'architex_refresh=; Path=/api/v1/auth; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None';
+}
+
+function auth_refresh_cookie_token(): string
+{
+    if (isset($_COOKIE['architex_refresh'])) return trim((string) $_COOKIE['architex_refresh']);
+    $raw = (string) ($_SERVER['HTTP_COOKIE'] ?? '');
+    foreach (explode(';', $raw) as $part) {
+        [$name, $value] = array_pad(explode('=', trim($part), 2), 2, '');
+        if ($name === 'architex_refresh') return rawurldecode($value);
+    }
+    return '';
+}
+
+function auth_set_refresh_cookie(string $token, int $maxAge = 604800): void
+{
+    header('Set-Cookie: ' . auth_cookie_header($token, $maxAge), false);
+}
+
+function auth_clear_refresh_cookie(): void
+{
+    header('Set-Cookie: ' . auth_clear_cookie_header(), false);
+}
+
 function auth_id(string $prefix): string
 {
     return $prefix . '-' . bin2hex(random_bytes(12));

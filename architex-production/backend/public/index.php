@@ -13,6 +13,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: ' . $config['cors_origin']);
 header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Architex-Role, X-Architex-User');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, OPTIONS');
+header('Access-Control-Allow-Credentials: true');
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(204);
@@ -629,42 +630,80 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/login$#', $path)) {
     $role = $roleStmt->fetchColumn();
     if (!$role) json_response(['error' => 'User has no assigned role'], 403);
     $claims = ['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*']];
+    $refreshToken = auth_new_opaque_token();
+    $sessionId = auth_id('session');
+    $pdo->prepare('INSERT INTO auth_sessions (id, user_id, token_hash, expires_at, created_ip, user_agent) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY), ?, ?)')
+        ->execute([
+            $sessionId,
+            $user['id'],
+            auth_token_hash($refreshToken),
+            substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45) ?: null,
+            substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 500) ?: null,
+        ]);
+    auth_set_refresh_cookie($refreshToken);
     json_response([
         'access_token' => issue_jwt($claims, 3600, 'access'),
-        'refresh_token' => issue_jwt(['sub' => $user['id']], 7 * 86400, 'refresh'),
         'token_type' => 'Bearer',
         'expires_in' => 3600,
         'user' => ['id' => $user['id'], 'name' => $user['name'], 'email' => $user['email'], 'role' => $role],
     ]);
 }
 if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/refresh$#', $path)) {
-    $body = json_body();
-    $token = (string)($body['refresh_token'] ?? '');
-    if ($token === '') json_response(['error' => 'refresh_token is required'], 422);
-    $parts = explode('.', $token);
-    if (count($parts) !== 3) json_response(['error' => 'Malformed refresh token'], 401);
-    [$h, $p, $s] = $parts;
-    $secret = jwt_secret();
-    if ($secret === '') json_response(['error' => 'JWT secret is not configured'], 503);
-    $expected = hash_hmac('sha256', $h . '.' . $p, $secret, true);
-    $signature = base64url_decode_str($s);
-    $payload = json_decode((string) base64url_decode_str($p), true);
-    if ($signature === false || !hash_equals($expected, $signature) || !is_array($payload)) json_response(['error' => 'Invalid refresh token'], 401);
-    if (($payload['type'] ?? '') !== 'refresh' || (int)($payload['exp'] ?? 0) < time()) json_response(['error' => 'Expired or wrong-type refresh token'], 401);
+    $token = auth_refresh_cookie_token();
+    if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+        auth_clear_refresh_cookie();
+        json_response(['error' => 'Refresh session required'], 401);
+    }
+    if (db_health() === null) json_response(['error' => 'Session store unavailable'], 503);
     $pdo = db();
-    $stmt = $pdo->prepare('SELECT id, organization_id, status FROM users WHERE id = ?');
-    $stmt->execute([(string)$payload['sub']]);
-    $user = $stmt->fetch();
-    if (!$user || $user['status'] !== 'active') json_response(['error' => 'User no longer active'], 401);
-    $roleStmt = $pdo->prepare('SELECT role_key FROM user_roles WHERE user_id = ? ORDER BY role_key LIMIT 1');
-    $roleStmt->execute([$user['id']]);
-    $role = $roleStmt->fetchColumn();
-    if (!$role) json_response(['error' => 'User has no assigned role'], 403);
-    json_response([
-        'access_token' => issue_jwt(['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*']], 3600, 'access'),
-        'token_type' => 'Bearer',
-        'expires_in' => 3600,
-    ]);
+    try {
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('SELECT s.id AS session_id, s.expires_at, s.revoked_at, u.id, u.organization_id, u.status FROM auth_sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? FOR UPDATE');
+        $stmt->execute([auth_token_hash($token)]);
+        $user = $stmt->fetch();
+        if (!$user || $user['revoked_at'] !== null || strtotime($user['expires_at'] . ' UTC') <= time() || $user['status'] !== 'active') {
+            $pdo->rollBack();
+            auth_clear_refresh_cookie();
+            json_response(['error' => 'Refresh session is invalid or expired'], 401);
+        }
+        $roleStmt = $pdo->prepare('SELECT role_key FROM user_roles WHERE user_id = ? ORDER BY role_key LIMIT 1');
+        $roleStmt->execute([$user['id']]);
+        $role = $roleStmt->fetchColumn();
+        if (!$role) {
+            $pdo->rollBack();
+            auth_clear_refresh_cookie();
+            json_response(['error' => 'User has no assigned role'], 403);
+        }
+        $replacementId = auth_id('session');
+        $replacementToken = auth_new_opaque_token();
+        $pdo->prepare('INSERT INTO auth_sessions (id, user_id, token_hash, expires_at, created_ip, user_agent) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY), ?, ?)')
+            ->execute([$replacementId, $user['id'], auth_token_hash($replacementToken), substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45) ?: null, substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 500) ?: null]);
+        $pdo->prepare('UPDATE auth_sessions SET revoked_at = UTC_TIMESTAMP(), last_used_at = UTC_TIMESTAMP(), replaced_by = ? WHERE id = ?')
+            ->execute([$replacementId, $user['session_id']]);
+        $pdo->commit();
+        auth_set_refresh_cookie($replacementToken);
+        json_response([
+            'access_token' => issue_jwt(['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*']], 3600, 'access'),
+            'token_type' => 'Bearer',
+            'expires_in' => 3600,
+        ]);
+    } catch (PDOException) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        json_response(['error' => 'Session rotation failed'], 503);
+    }
+}
+if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/logout$#', $path)) {
+    $token = auth_refresh_cookie_token();
+    if (preg_match('/^[a-f0-9]{64}$/', $token) && db_health() !== null) {
+        try {
+            db()->prepare('UPDATE auth_sessions SET revoked_at = COALESCE(revoked_at, UTC_TIMESTAMP()), last_used_at = UTC_TIMESTAMP() WHERE token_hash = ?')
+                ->execute([auth_token_hash($token)]);
+        } catch (PDOException) {
+            // Logout remains idempotent and always clears the browser credential.
+        }
+    }
+    auth_clear_refresh_cookie();
+    json_response(['status' => 'signed_out']);
 }
 if ($method === 'GET' && preg_match('#^/(api/)?v1/me$#', $path)) {
     $identity = current_identity();
