@@ -11,7 +11,9 @@ const paths = [
   'backend/public/index.php',
   'backend/public/.htaccess',
   'backend/generated/calculator_release.php',
-  'backend/lib/db.php',
+  'backend/lib',
+  'backend/database/migrations',
+  'backend/worker.php',
   'backend/data/foundation.json',
   'backend/data/modules.json',
   'backend/data/platform-policy.json',
@@ -26,9 +28,10 @@ for (const source of paths) {
   const relative = source.replace(/^backend\//, '');
   const destination = resolve(output, 'phase0-backend', relative);
   mkdirSync(dirname(destination), { recursive: true });
-  cpSync(resolve(root, source), destination);
+  cpSync(resolve(root, source), destination, { recursive: true });
 }
-cpSync(resolve(root, 'backend/deploy/api-root.htaccess'), resolve(output, '.htaccess'));
+const deployTarget = process.env.ARCHITEX_DEPLOY_TARGET === 'prototype' ? 'api-root.prototype.htaccess' : 'api-root.htaccess';
+cpSync(resolve(root, `backend/deploy/${deployTarget}`), resolve(output, '.htaccess'));
 writeFileSync(resolve(output, 'phase0-deploy-info.json'), `${JSON.stringify({
   revision,
   manifestSha256: '0bd059e4afd23706503ee05ef12d99c6b6c7378ea8fb2347a0fdeb433300f09d',

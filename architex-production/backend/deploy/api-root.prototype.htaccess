@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteRule ^env\.local\.php$ - [F,L]
+  RewriteRule ^api/v1(/.*)?$ phase0-backend/public/index.php [L,QSA]
+  RewriteRule ^api/?$ index.php [L,QSA]
+  RewriteRule ^api/(.*)$ index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+DirectoryIndex index.php
+Options -Indexes
+
+<IfModule mod_env.c>
+  SetEnv APP_ENV production
+  SetEnv ARCHITEX_DATA_MODE prototype
+  SetEnv CORS_ORIGIN https://test.architex.co.za
+  SetEnv FRONTEND_URL https://test.architex.co.za
+  SetEnv AUTH_MAIL_FROM no-reply@architex.co.za
+</IfModule>

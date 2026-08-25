@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Atomically mount the Phase 0 PHP containment API beside the legacy gateway."""
 from ftplib import FTP, FTP_TLS
+from io import BytesIO
 from pathlib import Path, PurePosixPath
 import json
 import os
@@ -72,6 +73,13 @@ try:
         if target in existing:
             raise RuntimeError(f'Remote safety target already exists: {target}')
     upload_tree(local / 'phase0-backend', remote(upload_name))
+    if active_name in existing:
+        # Server config contains DB/JWT credentials that must never be packaged.
+        # Carry it into the inert candidate before the atomic directory swap.
+        server_config = BytesIO()
+        ftp.retrbinary(f'RETR {remote(active_name + "/config.php")}', server_config.write)
+        server_config.seek(0)
+        ftp.storbinary(f'STOR {remote(upload_name + "/config.php")}', server_config)
     uploaded = names(remote(upload_name))
     required_entries = {'public', 'generated', 'lib', 'data', 'config.php'}
     if not required_entries.issubset(uploaded):
