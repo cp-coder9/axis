@@ -12,6 +12,8 @@
 declare(strict_types=1);
 
 $config = require __DIR__ . '/../config.php';
+require_once dirname(__DIR__) . '/lib/environment_policy.php';
+architex_require_demo_seed_allowed($config);
 $db = $config['database'];
 
 try {

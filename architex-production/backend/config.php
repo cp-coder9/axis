@@ -2,6 +2,7 @@
 return [
     'app_name' => 'Architex OS API',
     'environment' => getenv('APP_ENV') ?: 'local',
+    'data_mode' => getenv('ARCHITEX_DATA_MODE') ?: '',
     'database' => [
         'host' => getenv('DB_HOST') ?: 'localhost',
         'name' => getenv('DB_NAME') ?: 'architex_os',
