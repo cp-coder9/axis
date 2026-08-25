@@ -17,6 +17,7 @@ export type RoleKey =
   | 'developer'
   | 'freelancer'
   | 'firm_admin'
+  | 'organisation_admin'
   | 'admin'
   | 'platform_admin';
 

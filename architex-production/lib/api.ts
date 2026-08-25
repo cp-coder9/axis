@@ -318,11 +318,20 @@ export type ApiUpdateUserPayload = {
   status?: 'active' | 'invited' | 'disabled';
 };
 
+export type ApiInvitationRecord = {
+  id: string;
+  name: string;
+  email: string;
+  role_key: string;
+  expires_in: number;
+  token?: string;
+};
+
 export const architexApiUsers = {
   list: (identity: ApiIdentity) =>
     apiGet<{ users: ApiUserRecord[] }>('/users', identity).then((r) => r.users),
   invite: (body: { name: string; email: string; role_key?: string }, identity: ApiIdentity) =>
-    apiPost<{ user: ApiUserRecord }>('/users', body, identity).then((r) => r.user),
+    apiPost<{ invitation: ApiInvitationRecord }>('/users/invitations', body, identity).then((r) => r.invitation),
   update: (id: string, body: ApiUpdateUserPayload, identity: ApiIdentity) =>
     apiPatch<{ user: ApiUserRecord }>(`/users/${id}`, body, identity).then((r) => r.user),
   assignRole: (id: string, roleKey: string, identity: ApiIdentity) =>

@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import {
   authenticatedFetch,
@@ -42,5 +44,10 @@ describe('in-memory authentication session', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ access_token: 'rotated' }), { status: 200 })));
     await expect(refreshAccessToken()).resolves.toBe(true);
     expect(authenticatedHeaders()).toEqual({ Authorization: 'Bearer rotated' });
+  });
+
+  it('uses the audited invitation endpoint', () => {
+    const source = readFileSync(resolve('lib/api.ts'), 'utf8');
+    expect(source).toContain("apiPost<{ invitation: ApiInvitationRecord }>('/users/invitations'");
   });
 });

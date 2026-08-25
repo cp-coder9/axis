@@ -21,7 +21,7 @@ const STATUS_TONES: Record<ApiUserRecord['status'], StatusTone> = {
 };
 
 export const UserManagementSection: React.FC<UserManagementSectionProps> = ({ currentRole }) => {
-  const canManage = currentRole === 'admin' || currentRole === 'platform_admin';
+  const canManage = currentRole === 'organisation_admin' || currentRole === 'admin' || currentRole === 'platform_admin';
   const identity = demoIdentity(currentRole);
 
   const [users, setUsers] = useState<ApiUserRecord[]>([]);
@@ -68,16 +68,15 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({ cu
     if (!inviteName.trim() || !inviteEmail.trim() || !canManage) return;
     setInviting(true);
     try {
-      const user = await architexApiUsers.invite(
+      const invitation = await architexApiUsers.invite(
         { name: inviteName.trim(), email: inviteEmail.trim(), role_key: inviteRole },
         identity,
       );
-      setUsers((prev) => [user, ...prev]);
       setInviteOpen(false);
       setInviteName('');
       setInviteEmail('');
       setInviteRole('client');
-      showToast(`User "${user.name}" invited with ${inviteRole} role.`);
+      showToast(`Invitation sent to "${invitation.name}" with ${inviteRole} role.`);
     } catch (err: any) {
       showToast(err?.message || 'Invite failed.');
     } finally {

@@ -98,6 +98,7 @@ export const ROLES: { key: RoleKey; label: string }[] = [
   { key: 'developer', label: 'Property Developer' },
   { key: 'freelancer', label: 'Specialist Freelancer' },
   { key: 'firm_admin', label: 'Practice Administrator' },
+  { key: 'organisation_admin', label: 'Organisation Administrator' },
   { key: 'admin', label: 'Practice Operations Admin' },
   { key: 'platform_admin', label: 'Platform Super-Administrator' }
 ];
@@ -247,6 +248,14 @@ export const ROLE_PROFILES: Record<RoleKey, RoleProfile> = {
     tags: ['Practice', 'Resources', 'Profit'],
     meetingFocus: 'resource capacity balancing, fee invoicing and profitability metrics'
   },
+  organisation_admin: {
+    code: 'OA',
+    label: 'Organisation Administrator',
+    description: 'Organisation access, users, projects, audit and governance',
+    focus: 'organisation access, invitations, role governance and operational oversight',
+    tags: ['Organisation', 'Access', 'Governance'],
+    meetingFocus: 'organisation governance, membership, project access and audit controls'
+  },
   admin: {
     code: 'AD',
     label: 'Administrator',
@@ -295,6 +304,7 @@ export const ROLE_TOOL_MAP: Record<RoleKey, string[]> = {
   developer: ['meetings', 'practice', 'project_passport', 'planning', 'municipal', 'bom', 'specforge', 'payments_escrow', 'feedback', 'wingman'],
   freelancer: ['meetings', 'practice', 'documents_drawings', 'forms', 'wingman'],
   firm_admin: ['meetings', 'practice', 'fee_proposal', 'payments_escrow', 'forms', 'feedback', 'wingman'],
+  organisation_admin: ['meetings', 'practice', 'fee_proposal', 'payments_escrow', 'forms', 'feedback', 'wingman', 'admin_review'],
   admin: ['meetings', 'practice', 'admin_review', 'project_passport', 'feedback', 'wingman'],
   platform_admin: [
     'practice', 'meetings', 'wingman', 'planning', 'municipal', 'xa', 'forms', 'specforge', 'bom', 'itp', 'safety', 'feedback',
