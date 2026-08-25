@@ -32,6 +32,19 @@
   }
 }
 
+[data-theme='dark'] {
+  --ax-canvas: #0d1c25;
+  --ax-surface-1: #142630;
+  --ax-surface-2: #1a3340;
+  --ax-topbar: #142630;
+  --ax-rail: #10232d;
+  --ax-navigator: #142630;
+  --ax-inspector: #142630;
+  --ax-text: #edf7f8;
+  --ax-text-muted: #a9c2c8;
+  --ax-border: rgba(237, 247, 248, .16);
+}
+
 /* Public access boundary — cloned from the current Architex entry with V8 tokens. */
 .access-landing, .access-shell, .v8-signin { min-height: 100vh; color: #0e2028; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
 .access-landing { --landing-bg:#f3fbf8; position:relative; display:flex; flex-direction:column; overflow:hidden; background-color:var(--landing-bg); background-image:linear-gradient(rgba(22,126,121,.19) 1px,transparent 1px),linear-gradient(90deg,rgba(22,126,121,.19) 1px,transparent 1px),radial-gradient(circle at 70% 43%,rgba(88,200,188,.33),transparent 31%),radial-gradient(circle at 38% 88%,rgba(22,126,121,.24),transparent 24%); background-size:55px 55px,55px 55px,100% 100%,100% 100%; transition:.25s; }

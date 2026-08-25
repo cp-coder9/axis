@@ -27,6 +27,7 @@ import { architexApi, ApiProject, CreateProjectPayload, demoIdentity } from '@/l
 import { AccessGateway } from '@/components/access/AccessGateway';
 import { EngineeringWorkflowProvider } from '@/components/providers/EngineeringWorkflowProvider';
 import { godModeAvailable } from '@/lib/god-mode';
+import { useWorkspaceTheme } from '@/lib/useWorkspaceTheme';
 
 /** Map a MariaDB-backed API project row onto the frontend ProjectEntity shape. */
 function apiProjectToEntity(project: ApiProject): ProjectEntity {
@@ -46,6 +47,7 @@ function apiProjectToEntity(project: ApiProject): ProjectEntity {
 }
 
 function ArchitexOSPage() {
+  const { theme, toggleTheme } = useWorkspaceTheme();
   // Navigation & Spatial State
   const [navigation, setNavigation] = useState<NavigationState>(INITIAL_NAVIGATION_STATE);
   const [projects, setProjects] = useState<ProjectEntity[]>(ALL_PROJECTS);
@@ -133,7 +135,7 @@ function ArchitexOSPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f5faf9] text-[#102033] select-none font-sans">
+    <div data-theme={theme} className="flex h-screen w-screen overflow-hidden bg-[var(--ax-canvas)] text-[var(--ax-text)] select-none font-sans">
       {/* Layer 1: Global OS Rail */}
       {!mobileLayout && <OsRail
         navigation={navigation}
@@ -174,6 +176,8 @@ function ArchitexOSPage() {
           onOpenWingman={() => handleOpenTool('wingman')}
           onNavigate={dispatchNavigation}
           godModeEnabled={godModeEnabled}
+          theme={theme}
+          onToggleTheme={toggleTheme}
           inspectorOpen={narrowLayout ? inspectorDrawerOpen : inspectorOpen}
           narrowLayout={narrowLayout}
         />

@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ROLES, ROLE_PROFILES } from '@/lib/data';
 import { type NavigationEvent, type NavigationState } from '@/lib/navigation';
+import { type WorkspaceTheme } from '@/lib/useWorkspaceTheme';
 
 interface TopBarProps {
   navigation: NavigationState;
@@ -20,6 +22,8 @@ interface TopBarProps {
   inspectorOpen: boolean;
   narrowLayout: boolean;
   godModeEnabled: boolean;
+  theme: WorkspaceTheme;
+  onToggleTheme: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -36,6 +40,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   inspectorOpen,
   narrowLayout,
   godModeEnabled,
+  theme,
+  onToggleTheme,
 }) => {
   const currentProfile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
   const { mode, globalId: activeGlobal } = navigation;
@@ -99,6 +105,17 @@ export const TopBar: React.FC<TopBarProps> = ({
         <span className="w-2 h-2 rounded-full bg-[#19B7B0] animate-pulse" />
         <span>{mode === 'project' ? activeProject.name : 'Portfolio / unassigned'}</span>
       </div>
+
+      <button
+        type="button"
+        data-testid="workspace-theme-toggle"
+        aria-pressed={theme === 'dark'}
+        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        onClick={onToggleTheme}
+        className="w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
+      >
+        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
 
       {/* God Mode Toggle — between project chip and role switcher (plan 5B) */}
       {(godMode || godModeEnabled) && <button

@@ -1,6 +1,16 @@
 import { expect, test } from '@playwright/test';
 import { VIEWPORTS, assertFontReadiness, assertNoBodyOverflow, runAxe } from './helpers/v8-migration';
 
+test('workspace theme top bar control toggles the dashboard to dark mode', async ({ page }) => {
+  await page.goto('/?workspace=v8');
+  const toggle = page.getByTestId('workspace-theme-toggle');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-theme="dark"]')).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('P6-NAV-01 shell baseline preserves role control and responsive overflow contract', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.desktop);
   await page.goto('/?workspace=v8');
