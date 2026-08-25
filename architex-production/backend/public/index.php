@@ -547,7 +547,47 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/refresh$#', $path)) {
     ]);
 }
 if ($method === 'GET' && preg_match('#^/(api/)?v1/me$#', $path)) {
-    json_response(['user'=>['id'=>current_user(),'name'=>'Demo User','email'=>'demo@architex.local'],'organization'=>['id'=>current_identity()['org'],'name'=>'Architex Demo Practice'],'roles'=>[current_role()],'permissions'=>PERMISSIONS[current_role()] ?? []]);
+    $identity = current_identity();
+    if (db_health() === null) {
+        json_response(['error' => 'User profile unavailable'], 503);
+    }
+    try {
+        $pdo = db();
+        $profileStmt = $pdo->prepare(
+            'SELECT u.id, u.name, u.email, u.status, o.id AS organization_id, o.name AS organization_name, o.slug AS organization_slug
+             FROM users u
+             JOIN organizations o ON o.id = u.organization_id
+             WHERE u.id = ? AND u.organization_id = ?
+             LIMIT 1'
+        );
+        $profileStmt->execute([$identity['sub'], $identity['org']]);
+        $profile = $profileStmt->fetch();
+        if (!$profile || $profile['status'] !== 'active') {
+            json_response(['error' => 'Authenticated user profile not found'], 401);
+        }
+        $rolesStmt = $pdo->prepare('SELECT role_key, project_id FROM user_roles WHERE user_id = ? ORDER BY role_key, project_id');
+        $rolesStmt->execute([$identity['sub']]);
+        $roleAssignments = $rolesStmt->fetchAll();
+    } catch (PDOException) {
+        json_response(['error' => 'User profile unavailable'], 503);
+    }
+    json_response([
+        'user' => [
+            'id' => $profile['id'],
+            'name' => $profile['name'],
+            'email' => $profile['email'],
+            'status' => $profile['status'],
+        ],
+        'organization' => [
+            'id' => $profile['organization_id'],
+            'name' => $profile['organization_name'],
+            'slug' => $profile['organization_slug'],
+        ],
+        'roles' => array_values(array_unique(array_column($roleAssignments, 'role_key'))),
+        'project_memberships' => array_values(array_filter(array_column($roleAssignments, 'project_id'))),
+        'active_role' => current_role(),
+        'permissions' => permissions_for_role(current_role()),
+    ]);
 }
 if ($method === 'GET' && preg_match('#^/(api/)?v1/modules-registry$#', $path)) {
     json_response(['modules'=>modules(),'count'=>count(modules()),'canonical'=>true]);

@@ -13,6 +13,8 @@ sourceAssert(source.includes('architex_demo_data_allowed($config)'), 'API fallba
 sourceAssert(source.includes("json_response(['error' => 'Permission store unavailable'], 503)"), 'permissions must fail closed');
 sourceAssert(source.includes("json_response(['error' => 'Project store unavailable'], 503)"), 'projects must fail closed');
 sourceAssert(/if \(architex_demo_data_allowed\(\$config\)\) \{\s*ProjectsCache::set\(FALLBACK_PROJECTS\);\s*return FALLBACK_PROJECTS;\s*\}/.test(source), 'project fixtures must be guarded by the environment policy');
+sourceAssert(!source.includes("'name'=>'Demo User'"), '/me must not return a hard-coded demo profile');
+sourceAssert(source.includes("'User profile unavailable'"), '/me must fail closed when its MariaDB profile store is unavailable');
 const server = spawn('php', ['-S', '127.0.0.1:8092', 'backend/public/index.php'], {
   cwd: root,
   stdio: 'ignore',
