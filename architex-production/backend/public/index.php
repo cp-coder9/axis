@@ -7,6 +7,7 @@ require_once dirname(__DIR__) . '/lib/environment_policy.php';
 require_once dirname(__DIR__) . '/lib/authentication.php';
 require_once dirname(__DIR__) . '/lib/calculation_validation.php';
 require_once dirname(__DIR__) . '/lib/calculation_repository.php';
+require_once dirname(__DIR__) . '/lib/specforge_validation.php';
 $calculatorReleasePolicy = require dirname(__DIR__) . '/generated/calculator_release.php';
 
 header('Content-Type: application/json; charset=utf-8');
