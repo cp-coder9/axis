@@ -40,4 +40,11 @@ describe('Preview 3 public homepage contract', () => {
     expect(source).toContain("querySelector<HTMLCanvasElement>('#datumCanvas')");
     expect(source).not.toContain('<iframe');
   });
+
+  it('does not discover the ShadowRoot through the executing script element', () => {
+    const source = readFileSync(resolve('components/access/PublicLandingPage.tsx'), 'utf8');
+    expect(source).not.toContain('document.currentScript');
+    expect(source).not.toContain('__architexLandingHost');
+    expect(source).toContain('installLandingRuntime(landingRoot, page.runtime)');
+  });
 });

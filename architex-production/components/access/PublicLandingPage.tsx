@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
+import { installLandingRuntime } from './landing-runtime';
 
 type PublicLandingPageProps = { onSignIn: () => void; onSignUp: () => void };
 type LoadedPage = { markup: string; styles: string; runtime: string };
@@ -58,17 +59,10 @@ export function PublicLandingPage({ onSignIn, onSignUp }: PublicLandingPageProps
       }
     };
     landingRoot.addEventListener('click', authCapture, { capture: true });
-    const script = document.createElement('script');
-    script.dataset.preview3Runtime = 'true';
-    script.textContent = page.runtime
-      .replace('(() => {', '(() => { const landingRoot = document.currentScript.getRootNode();')
-      .replaceAll('root = document', 'root = landingRoot')
-      .replaceAll('document.getElementById', 'landingRoot.getElementById')
-      .replaceAll('document.body.contains(canvas)', 'landingRoot.contains(canvas)');
-    landingRoot.appendChild(script);
+    const removeRuntime = installLandingRuntime(landingRoot, page.runtime);
     return () => {
       landingRoot.removeEventListener('click', authCapture, { capture: true });
-      script.remove();
+      removeRuntime();
       landingRoot.innerHTML = '';
     };
   }, [onSignIn, onSignUp, page]);
