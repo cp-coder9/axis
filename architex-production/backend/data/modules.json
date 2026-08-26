@@ -1,6 +1,7 @@
 [
   {
     "id": "meetings",
+    "version": "1.0",
     "name": "Architex Meetings",
     "icon": "meetings",
     "tone": "coral",
@@ -50,6 +51,7 @@
   },
   {
     "id": "practice",
+    "version": "1.0",
     "name": "Practice Management — Project Command Centre",
     "icon": "practice_management",
     "tone": "cobalt",
@@ -111,6 +113,7 @@
   },
   {
     "id": "wingman",
+    "version": "1.0",
     "name": "Wingman AI Workspace",
     "icon": "wingman",
     "tone": "lavender",
@@ -154,6 +157,7 @@
   },
   {
     "id": "engineering_calc",
+    "version": "1.0",
     "name": "Engineer's Calculation Hub",
     "icon": "engineering_hub",
     "tone": "cobalt",
@@ -185,6 +189,7 @@
   },
   {
     "id": "planning",
+    "version": "1.0",
     "name": "Town Planning Tracker",
     "icon": "planning",
     "tone": "cobalt",
@@ -259,6 +264,7 @@
   },
   {
     "id": "municipal",
+    "version": "1.0",
     "name": "Municipal Approval Readiness",
     "icon": "municipal",
     "tone": "coral",
@@ -309,6 +315,7 @@
   },
   {
     "id": "xa",
+    "version": "1.0",
     "name": "SANS 10400-XA Energy",
     "icon": "xa",
     "tone": "coral",
@@ -389,6 +396,7 @@
   },
   {
     "id": "forms",
+    "version": "1.0",
     "name": "Integrated Form System",
     "icon": "forms",
     "tone": "core",
@@ -433,6 +441,7 @@
   },
   {
     "id": "specforge",
+    "version": "1.1",
     "name": "SpecForge",
     "icon": "specification",
     "tone": "core",
@@ -531,6 +540,7 @@
   },
   {
     "id": "bom",
+    "version": "1.0",
     "name": "BoM / BoQ & Tender Builder",
     "icon": "bom",
     "tone": "amber",
@@ -613,6 +623,7 @@
   },
   {
     "id": "itp",
+    "version": "1.0",
     "name": "Inspection Test Plans",
     "icon": "itp",
     "tone": "cobalt",
@@ -661,6 +672,7 @@
   },
   {
     "id": "safety",
+    "version": "1.0",
     "name": "Health & Safety",
     "icon": "safety",
     "tone": "coral",
@@ -715,6 +727,7 @@
   },
   {
     "id": "feedback",
+    "version": "1.0",
     "name": "Feedback Intelligence & Product Roadmap",
     "icon": "feedback",
     "tone": "lavender",
@@ -764,6 +777,7 @@
   },
   {
     "id": "project_passport",
+    "version": "1.0",
     "name": "Project Passport",
     "icon": "project_passport",
     "tone": "core",
@@ -798,6 +812,7 @@
   },
   {
     "id": "project_explorer",
+    "version": "1.0",
     "name": "Project Explorer",
     "icon": "project_explorer",
     "tone": "cobalt",
@@ -832,6 +847,7 @@
   },
   {
     "id": "professional_directory",
+    "version": "1.0",
     "name": "Professional Directory",
     "icon": "professional_directory",
     "tone": "coral",
@@ -866,6 +882,7 @@
   },
   {
     "id": "team_workspace",
+    "version": "1.0",
     "name": "Team Workspace",
     "icon": "team_workspace",
     "tone": "coral",
@@ -900,6 +917,7 @@
   },
   {
     "id": "inbox_action",
+    "version": "1.0",
     "name": "Inbox / Action Centre",
     "icon": "action_centre",
     "tone": "coral",
@@ -934,6 +952,7 @@
   },
   {
     "id": "issues_rfis",
+    "version": "1.0",
     "name": "Issues / RFIs",
     "icon": "issues_rfis",
     "tone": "coral",
@@ -968,6 +987,7 @@
   },
   {
     "id": "documents_drawings",
+    "version": "1.0",
     "name": "Documents & Drawings",
     "icon": "documents_drawings",
     "tone": "core",
@@ -1002,6 +1022,7 @@
   },
   {
     "id": "fee_proposal",
+    "version": "1.0",
     "name": "Fee Proposal Builder",
     "icon": "fee_proposal",
     "tone": "amber",
@@ -1036,6 +1057,7 @@
   },
   {
     "id": "council_navigator",
+    "version": "1.0",
     "name": "Council Drawing Navigator",
     "icon": "council_navigator",
     "tone": "cobalt",
@@ -1070,6 +1092,7 @@
   },
   {
     "id": "compliance_hub",
+    "version": "1.0",
     "name": "Compliance Hub",
     "icon": "compliance_hub",
     "tone": "coral",
@@ -1104,6 +1127,7 @@
   },
   {
     "id": "municipal_tracker",
+    "version": "1.0",
     "name": "Municipal Tracker",
     "icon": "municipal_tracker",
     "tone": "cobalt",
@@ -1138,6 +1162,7 @@
   },
   {
     "id": "environmental_heritage",
+    "version": "1.0",
     "name": "Environmental & Heritage",
     "icon": "environmental_heritage",
     "tone": "coral",
@@ -1172,6 +1197,7 @@
   },
   {
     "id": "eia_workspace",
+    "version": "1.0",
     "name": "EIA Workspace",
     "icon": "eia_workspace",
     "tone": "coral",
@@ -1206,6 +1232,7 @@
   },
   {
     "id": "refuse_calculator",
+    "version": "1.0",
     "name": "Refuse Area Calculator",
     "icon": "refuse_calculator",
     "tone": "cobalt",
@@ -1240,6 +1267,7 @@
   },
   {
     "id": "survey_geomatics",
+    "version": "1.0",
     "name": "Survey & Geomatics",
     "icon": "survey_geomatics",
     "tone": "cobalt",
@@ -1274,6 +1302,7 @@
   },
   {
     "id": "nhbrc_enrolment",
+    "version": "1.0",
     "name": "NHBRC Enrolment",
     "icon": "nhbrc_enrolment",
     "tone": "coral",
@@ -1308,6 +1337,7 @@
   },
   {
     "id": "insurance_register",
+    "version": "1.0",
     "name": "Insurance Register",
     "icon": "insurance_register",
     "tone": "coral",
@@ -1342,6 +1372,7 @@
   },
   {
     "id": "bim_ifc",
+    "version": "1.0",
     "name": "BIM / IFC Extraction",
     "icon": "bim_ifc",
     "tone": "cobalt",
@@ -1376,6 +1407,7 @@
   },
   {
     "id": "rfq_marketplace",
+    "version": "1.0",
     "name": "RFQ Marketplace",
     "icon": "rfq_marketplace",
     "tone": "amber",
@@ -1410,6 +1442,7 @@
   },
   {
     "id": "supplier_catalog",
+    "version": "1.0",
     "name": "Supplier Catalogue",
     "icon": "supplier_catalog",
     "tone": "amber",
@@ -1444,6 +1477,7 @@
   },
   {
     "id": "market_insights",
+    "version": "1.0",
     "name": "Market Insights",
     "icon": "market_insights",
     "tone": "cobalt",
@@ -1478,6 +1512,7 @@
   },
   {
     "id": "contract_admin",
+    "version": "1.0",
     "name": "Contract Administration",
     "icon": "contract_admin",
     "tone": "coral",
@@ -1512,6 +1547,7 @@
   },
   {
     "id": "contractor_compliance",
+    "version": "1.0",
     "name": "Contractor Compliance",
     "icon": "contractor_compliance",
     "tone": "coral",
@@ -1546,6 +1582,7 @@
   },
   {
     "id": "approvals_queue",
+    "version": "1.0",
     "name": "Approvals Queue",
     "icon": "approvals_queue",
     "tone": "coral",
@@ -1580,6 +1617,7 @@
   },
   {
     "id": "payments_escrow",
+    "version": "1.0",
     "name": "Payments & Escrow (Workflow Only)",
     "icon": "payments_escrow",
     "tone": "amber",
@@ -1616,6 +1654,7 @@
   },
   {
     "id": "dispute_resolution",
+    "version": "1.0",
     "name": "Dispute Resolution",
     "icon": "dispute_resolution",
     "tone": "coral",
@@ -1650,6 +1689,7 @@
   },
   {
     "id": "site_instructions",
+    "version": "1.0",
     "name": "Site Instructions",
     "icon": "site_instructions",
     "tone": "coral",
@@ -1684,6 +1724,7 @@
   },
   {
     "id": "ncr_manager",
+    "version": "1.0",
     "name": "NCR Manager",
     "icon": "ncr_manager",
     "tone": "coral",
@@ -1718,6 +1759,7 @@
   },
   {
     "id": "snag_manager",
+    "version": "1.0",
     "name": "Snag Manager",
     "icon": "snag_manager",
     "tone": "amber",
@@ -1752,6 +1794,7 @@
   },
   {
     "id": "fm_bridge",
+    "version": "1.0",
     "name": "FM Bridge",
     "icon": "fm_bridge",
     "tone": "cobalt",
@@ -1786,6 +1829,7 @@
   },
   {
     "id": "remote_desktop",
+    "version": "1.0",
     "name": "Remote Desktop",
     "icon": "remote_desktop",
     "tone": "cobalt",
@@ -1820,6 +1864,7 @@
   },
   {
     "id": "cpd_learning",
+    "version": "1.0",
     "name": "CPD & Learning",
     "icon": "cpd_learning",
     "tone": "amber",
@@ -1854,6 +1899,7 @@
   },
   {
     "id": "admin_review",
+    "version": "1.0",
     "name": "Admin Review",
     "icon": "admin_review",
     "tone": "coral",
@@ -1888,6 +1934,7 @@
   },
   {
     "id": "iconography_registry",
+    "version": "1.0",
     "name": "Iconography Registry",
     "icon": "iconography_registry",
     "tone": "core",

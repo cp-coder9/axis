@@ -5,6 +5,7 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { OrientationMode, ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_PROJECTS, ALL_TOOLS, ROLE_PROFILES, STAGES } from '@/lib/data';
 import { groupTabsByGroup, tabKeyAt, type GlobalDestinationId, type NavigationEvent } from '@/lib/navigation';
+import { ToolVersionBadge } from '@/components/ui/ToolVersionBadge';
 
 interface ContextNavigatorProps {
   mode: OrientationMode;
@@ -127,8 +128,9 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
             <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ax-action-primary)]">
               {activeTool ? (mode === 'project' ? 'Project Tool' : 'Standalone Tool') : mode === 'project' ? 'Active Project' : 'Standalone Tools'}
             </div>
-            <div className="text-[15px] font-bold text-[#102033] mt-0.5 truncate">
-              {activeTool ? activeTool.name : mode === 'project' ? activeProject.name : 'Workspace Tool Registry'}
+            <div className="text-[15px] font-bold text-[#102033] mt-0.5 flex min-w-0 items-center gap-1.5">
+              <span className="truncate">{activeTool ? activeTool.name : mode === 'project' ? activeProject.name : 'Workspace Tool Registry'}</span>
+              {activeTool && <ToolVersionBadge version={activeTool.version} />}
             </div>
             <div className="text-[11px] text-[var(--ax-text-muted)] mt-0.5 truncate">
               {activeTool

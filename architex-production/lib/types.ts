@@ -34,6 +34,7 @@ export type StageKey =
 export type OrientationMode = 'project' | 'standalone';
 
 export type ToolTone = 'core' | 'teal' | 'cobalt' | 'lavender' | 'coral' | 'amber';
+export type ToolVersion = `${number}.${number}`;
 
 export interface ToolTabConfig {
   key?: string;
@@ -49,6 +50,7 @@ export interface ToolTabConfig {
 
 export interface ToolDefinition {
   id: string;
+  version: ToolVersion;
   name: string;
   icon: string;
   tone: ToolTone;

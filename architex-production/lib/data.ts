@@ -395,6 +395,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   // 12 FLAGSHIP LIVE MODULES
   meetings: {
     id: 'meetings',
+    version: '1.0',
     name: 'Architex Meetings',
     icon: 'meetings',
     tone: 'coral',
@@ -415,6 +416,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   practice: {
     id: 'practice',
+    version: '1.0',
     name: 'Practice Management — Command Centre',
     icon: 'practice_management',
     tone: 'cobalt',
@@ -445,6 +447,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   wingman: {
     id: 'wingman',
+    version: '1.0',
     name: 'Wingman AI Workspace',
     icon: 'wingman',
     tone: 'lavender',
@@ -464,6 +467,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   planning: {
     id: 'planning',
+    version: '1.0',
     name: 'Town Planning Tracker',
     icon: 'planning',
     tone: 'cobalt',
@@ -485,6 +489,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   municipal: {
     id: 'municipal',
+    version: '1.0',
     name: 'Municipal Approval Readiness',
     icon: 'municipal',
     tone: 'coral',
@@ -504,6 +509,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   xa: {
     id: 'xa',
+    version: '1.0',
     name: 'SANS 10400-XA Energy Compliance',
     icon: 'xa',
     tone: 'coral',
@@ -527,6 +533,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   forms: {
     id: 'forms',
+    version: '1.0',
     name: 'Integrated Form System',
     icon: 'forms',
     tone: 'core',
@@ -545,6 +552,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   specforge: {
     id: 'specforge',
+    version: '1.1',
     name: 'SpecForge V2',
     icon: 'specification',
     tone: 'core',
@@ -568,6 +576,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   bom: {
     id: 'bom',
+    version: '1.0',
     name: 'BoM / BoQ & Tender Builder',
     icon: 'bom',
     tone: 'amber',
@@ -589,6 +598,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   itp: {
     id: 'itp',
+    version: '1.0',
     name: 'Inspection Test Plans (ITP)',
     icon: 'itp',
     tone: 'cobalt',
@@ -608,6 +618,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   safety: {
     id: 'safety',
+    version: '1.0',
     name: 'Health & Safety Module',
     icon: 'safety',
     tone: 'coral',
@@ -629,6 +640,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   feedback: {
     id: 'feedback',
+    version: '1.0',
     name: 'Feedback Intelligence & Product Roadmap',
     icon: 'feedback',
     tone: 'lavender',
@@ -647,6 +659,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   engineering_calc: {
     id: 'engineering_calc',
+    version: '1.0',
     name: "Engineer's Calculation Hub",
     icon: 'engineering_hub',
     tone: 'cobalt',
@@ -679,6 +692,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   // 34+ STRUCTURED SCAFFOLDED CAPABILITIES
   project_passport: {
     id: 'project_passport',
+    version: '1.0',
     name: 'Project Passport',
     icon: 'project_passport',
     tone: 'core',
@@ -696,6 +710,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   project_explorer: {
     id: 'project_explorer',
+    version: '1.0',
     name: 'Project Explorer',
     icon: 'project_explorer',
     tone: 'cobalt',
@@ -712,6 +727,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   professional_directory: {
     id: 'professional_directory',
+    version: '1.0',
     name: 'Professional Directory',
     icon: 'professional_directory',
     tone: 'coral',
@@ -727,6 +743,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   team_workspace: {
     id: 'team_workspace',
+    version: '1.0',
     name: 'Team Workspace',
     icon: 'team_workspace',
     tone: 'coral',
@@ -742,6 +759,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   inbox_action: {
     id: 'inbox_action',
+    version: '1.0',
     name: 'Inbox / Action Centre',
     icon: 'action_centre',
     tone: 'coral',
@@ -758,6 +776,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   issues_rfis: {
     id: 'issues_rfis',
+    version: '1.0',
     name: 'Issues / RFIs',
     icon: 'issues_rfis',
     tone: 'coral',
@@ -774,6 +793,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   approvals_queue: {
     id: 'approvals_queue',
+    version: '1.0',
     name: 'Approvals Queue',
     icon: 'approvals_queue',
     tone: 'coral',
@@ -789,6 +809,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   compliance_hub: {
     id: 'compliance_hub',
+    version: '1.0',
     name: 'Compliance Hub',
     icon: 'compliance_hub',
     tone: 'coral',
@@ -805,6 +826,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   environmental_heritage: {
     id: 'environmental_heritage',
+    version: '1.0',
     name: 'Environmental & Heritage',
     icon: 'environmental_heritage',
     tone: 'coral',
@@ -822,6 +844,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   eia_workspace: {
     id: 'eia_workspace',
+    version: '1.0',
     name: 'EIA Workspace',
     icon: 'eia_workspace',
     tone: 'coral',
@@ -838,6 +861,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   refuse_calculator: {
     id: 'refuse_calculator',
+    version: '1.0',
     name: 'Refuse Area Calculator',
     icon: 'refuse_calculator',
     tone: 'cobalt',
@@ -853,6 +877,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   nhbrc_enrolment: {
     id: 'nhbrc_enrolment',
+    version: '1.0',
     name: 'NHBRC Enrolment',
     icon: 'nhbrc_enrolment',
     tone: 'coral',
@@ -869,6 +894,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   documents_drawings: {
     id: 'documents_drawings',
+    version: '1.0',
     name: 'Documents & Drawings',
     icon: 'documents_drawings',
     tone: 'core',
@@ -885,6 +911,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   survey_geomatics: {
     id: 'survey_geomatics',
+    version: '1.0',
     name: 'Survey & Geomatics',
     icon: 'survey_geomatics',
     tone: 'cobalt',
@@ -901,6 +928,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   bim_ifc: {
     id: 'bim_ifc',
+    version: '1.0',
     name: 'BIM / IFC Extraction',
     icon: 'bim_ifc',
     tone: 'cobalt',
@@ -918,6 +946,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   fee_proposal: {
     id: 'fee_proposal',
+    version: '1.0',
     name: 'Fee Proposal Builder',
     icon: 'fee_proposal',
     tone: 'amber',
@@ -934,6 +963,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   insurance_register: {
     id: 'insurance_register',
+    version: '1.0',
     name: 'Insurance Register',
     icon: 'insurance_register',
     tone: 'coral',
@@ -949,6 +979,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   rfq_marketplace: {
     id: 'rfq_marketplace',
+    version: '1.0',
     name: 'RFQ Marketplace',
     icon: 'rfq_marketplace',
     tone: 'amber',
@@ -965,6 +996,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   supplier_catalog: {
     id: 'supplier_catalog',
+    version: '1.0',
     name: 'Supplier Catalogue',
     icon: 'supplier_catalog',
     tone: 'amber',
@@ -981,6 +1013,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   market_insights: {
     id: 'market_insights',
+    version: '1.0',
     name: 'Market Insights',
     icon: 'market_insights',
     tone: 'cobalt',
@@ -997,6 +1030,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   contract_admin: {
     id: 'contract_admin',
+    version: '1.0',
     name: 'Contract Administration',
     icon: 'contract_admin',
     tone: 'coral',
@@ -1013,6 +1047,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   payments_escrow: {
     id: 'payments_escrow',
+    version: '1.0',
     name: 'Payments & Escrow (Workflow Only)',
     icon: 'payments_escrow',
     tone: 'amber',
@@ -1029,6 +1064,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   dispute_resolution: {
     id: 'dispute_resolution',
+    version: '1.0',
     name: 'Dispute Resolution',
     icon: 'dispute_resolution',
     tone: 'coral',
@@ -1045,6 +1081,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   contractor_compliance: {
     id: 'contractor_compliance',
+    version: '1.0',
     name: 'Contractor Compliance',
     icon: 'contractor_compliance',
     tone: 'coral',
@@ -1060,6 +1097,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   site_instructions: {
     id: 'site_instructions',
+    version: '1.0',
     name: 'Site Instructions',
     icon: 'site_instructions',
     tone: 'coral',
@@ -1076,6 +1114,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   ncr_manager: {
     id: 'ncr_manager',
+    version: '1.0',
     name: 'NCR Manager',
     icon: 'ncr_manager',
     tone: 'coral',
@@ -1092,6 +1131,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   snag_manager: {
     id: 'snag_manager',
+    version: '1.0',
     name: 'Snag Manager',
     icon: 'snag_manager',
     tone: 'amber',
@@ -1108,6 +1148,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   fm_bridge: {
     id: 'fm_bridge',
+    version: '1.0',
     name: 'FM Bridge',
     icon: 'fm_bridge',
     tone: 'cobalt',
@@ -1124,6 +1165,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   council_navigator: {
     id: 'council_navigator',
+    version: '1.0',
     name: 'Council Drawing Navigator',
     icon: 'council_navigator',
     tone: 'cobalt',
@@ -1140,6 +1182,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   municipal_tracker: {
     id: 'municipal_tracker',
+    version: '1.0',
     name: 'Municipal Tracker',
     icon: 'municipal_tracker',
     tone: 'cobalt',
@@ -1155,6 +1198,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   remote_desktop: {
     id: 'remote_desktop',
+    version: '1.0',
     name: 'Remote Desktop',
     icon: 'remote_desktop',
     tone: 'cobalt',
@@ -1171,6 +1215,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   cpd_learning: {
     id: 'cpd_learning',
+    version: '1.0',
     name: 'CPD & Learning',
     icon: 'cpd_learning',
     tone: 'amber',
@@ -1187,6 +1232,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   admin_review: {
     id: 'admin_review',
+    version: '1.0',
     name: 'Admin Review',
     icon: 'admin_review',
     tone: 'coral',
@@ -1203,6 +1249,7 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
   },
   iconography_registry: {
     id: 'iconography_registry',
+    version: '1.0',
     name: 'Iconography Registry',
     icon: 'iconography_registry',
     tone: 'core',

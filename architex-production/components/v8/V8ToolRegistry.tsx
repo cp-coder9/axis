@@ -2,6 +2,7 @@
 
 import { OrigamiIcon } from '@/lib/origami-icons';
 import type { ToolDefinition } from '@/lib/types';
+import { ToolVersionBadge } from '@/components/ui/ToolVersionBadge';
 
 type V8ToolRegistryProps = {
   tools: ToolDefinition[];
@@ -60,7 +61,10 @@ export function V8ToolRegistry({ tools, onOpenTool, onOpenProjectOrientation }: 
                   onClick={() => onOpenTool(tool.id)}
                 >
                   <span className="v8-registry-tool-icon" aria-hidden="true"><OrigamiIcon name={tool.icon} size={23} /></span>
-                  <span className="v8-registry-tool-copy"><b>{tool.name}</b><small>{tool.stage}</small></span>
+                  <span className="v8-registry-tool-copy">
+                    <span className="v8-registry-tool-name"><b>{tool.name}</b><ToolVersionBadge version={tool.version} /></span>
+                    <small>{tool.stage}</small>
+                  </span>
                   <span className={`v8-registry-status ${tool.status === 'scaffold' ? 'is-scaffold' : ''}`}>
                     {tool.status === 'live' ? 'Live sample' : 'Scaffold'}
                   </span>

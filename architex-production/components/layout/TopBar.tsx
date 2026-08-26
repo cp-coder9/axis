@@ -7,6 +7,7 @@ import { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { ROLES, ROLE_PROFILES } from '@/lib/data';
 import { type NavigationEvent, type NavigationState } from '@/lib/navigation';
 import { type WorkspaceTheme } from '@/lib/useWorkspaceTheme';
+import { ToolVersionBadge } from '@/components/ui/ToolVersionBadge';
 
 interface TopBarProps {
   navigation: NavigationState;
@@ -78,6 +79,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <span>{mode === 'project' ? `Projects › ${activeProject.name}` : 'Workspace Tools'}</span>
             <span className="text-[#102033]/30">›</span>
             <strong className="text-[#102033] font-semibold">{activeTool.name}</strong>
+            <ToolVersionBadge version={activeTool.version} />
           </>
         ) : activeGlobal === 'projects' ? (
           <>

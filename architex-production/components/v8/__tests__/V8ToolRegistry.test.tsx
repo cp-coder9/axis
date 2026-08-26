@@ -30,6 +30,12 @@ describe('V8 Workspace Tool Registry', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Complete workspace tool registry' })).toBeTruthy();
     expect(container.querySelectorAll('[data-v8-registry-tool]')).toHaveLength(47);
 
+    for (const tool of tools) {
+      const row = container.querySelector<HTMLElement>(`[data-tool-id="${tool.id}"]`)!;
+      expect(within(row).getByText(`v${tool.version}`)).toBeTruthy();
+    }
+    expect(within(container.querySelector<HTMLElement>('[data-tool-id="specforge"]')!).getByText('v1.1')).toBeTruthy();
+
     const groups = new Map<string, number>();
     for (const tool of tools) groups.set(tool.group, (groups.get(tool.group) ?? 0) + 1);
     const renderedGroups = Array.from(container.querySelectorAll<HTMLElement>('[data-v8-registry-group]'));
