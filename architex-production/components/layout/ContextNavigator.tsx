@@ -111,7 +111,8 @@ export const ContextNavigator: React.FC<ContextNavigatorProps> = ({
 
   return (
     <aside
-      className={`relative z-10 flex flex-col h-full bg-white/95 border-r border-[#102033]/10 backdrop-blur-md transition-all duration-300 ${
+      data-v8-region="navigator"
+      className={`relative z-10 flex shrink-0 flex-col h-full bg-white/95 border-r border-[#102033]/10 backdrop-blur-md transition-all duration-300 ${
         compact ? 'w-[78px]' : 'w-[306px]'
       }`}
     >

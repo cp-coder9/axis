@@ -100,19 +100,20 @@ function ArchitexOSPage() {
   const [railExpanded, setRailExpanded] = useState<boolean>(false);
   const [navCompact, setNavCompact] = useState<boolean>(false);
   const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
-  const [narrowLayout, setNarrowLayout] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(1600);
   const [globalDrawerOpen, setGlobalDrawerOpen] = useState(false);
   const [navigatorDrawerOpen, setNavigatorDrawerOpen] = useState(false);
   const [inspectorDrawerOpen, setInspectorDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 1279px)');
-    const update = () => setNarrowLayout(media.matches);
+    const update = () => setViewportWidth(window.innerWidth);
     update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
-  const mobileLayout = narrowLayout && typeof window !== 'undefined' && window.innerWidth < 768;
+  const mobileLayout = viewportWidth <= 760;
+  const navigatorInline = viewportWidth > 760;
+  const inspectorInline = viewportWidth > 1400;
 
   // Active Tool Resolution
   const activeTool: ToolDefinition | null = activeToolId ? ALL_TOOLS[activeToolId] || null : null;
@@ -138,17 +139,17 @@ function ArchitexOSPage() {
   return (
     <div data-theme={theme} className="flex h-screen w-screen overflow-hidden bg-[var(--ax-canvas)] text-[var(--ax-text)] select-none font-sans">
       {/* Layer 1: Global OS Rail */}
-      {!mobileLayout && <OsRail
+      <OsRail
         navigation={navigation}
         onNavigate={dispatchNavigation}
         railExpanded={railExpanded}
         onToggleRail={() => setRailExpanded(!railExpanded)}
         currentRole={currentRole}
         totalToolsCount={Object.keys(ALL_TOOLS).length}
-      />}
+      />
 
       {/* Layer 2: Context Navigator */}
-      {!narrowLayout && <ContextNavigator
+      {navigatorInline && <ContextNavigator
         mode={mode}
         onNavigate={dispatchNavigation}
         activeProject={activeProject}
@@ -164,27 +165,27 @@ function ArchitexOSPage() {
       />}
 
       {/* Layer 3: Central Workspace */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <main className="min-w-0 flex-1 flex flex-col h-full overflow-visible relative">
         <TopBar
           navigation={navigation}
           activeProject={activeProject}
           activeTool={activeTool}
           currentRole={currentRole}
           onSetRole={setCurrentRole}
-          onToggleCompactNav={() => narrowLayout ? setNavigatorDrawerOpen(true) : setNavCompact(!navCompact)}
+          onToggleCompactNav={() => navigatorInline ? setNavCompact(!navCompact) : setNavigatorDrawerOpen(true)}
           onOpenGlobalNavigation={() => setGlobalDrawerOpen(true)}
-          onToggleInspector={() => narrowLayout ? setInspectorDrawerOpen(true) : setInspectorOpen(!inspectorOpen)}
+          onToggleInspector={() => inspectorInline ? setInspectorOpen(!inspectorOpen) : setInspectorDrawerOpen(true)}
           onOpenWingman={() => handleOpenTool('wingman')}
           onNavigate={dispatchNavigation}
           godModeEnabled={godModeEnabled}
           theme={theme}
           onToggleTheme={toggleTheme}
-          inspectorOpen={narrowLayout ? inspectorDrawerOpen : inspectorOpen}
-          narrowLayout={narrowLayout}
+          inspectorOpen={inspectorInline ? inspectorOpen : inspectorDrawerOpen}
+          narrowLayout={!navigatorInline}
         />
 
         {/* Dynamic Screen Viewport Container */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div data-v8-region="canvas" className="flex-1 overflow-y-auto p-4 md:p-6">
           {/* Tool Module View — registry-driven dispatch */}
           {activeToolId && activeTool ? (
             <ModuleRouter
@@ -237,7 +238,7 @@ function ArchitexOSPage() {
       </main>
 
       {/* Layer 4: Contextual Inspector */}
-      {!narrowLayout && inspectorOpen && (
+      {inspectorInline && inspectorOpen && (
         <ContextInspector
           mode={mode}
           activeProject={activeProject}
@@ -264,7 +265,7 @@ function ArchitexOSPage() {
         </ResponsiveDrawer>
       )}
 
-      {narrowLayout && (
+      {!navigatorInline && (
         <ResponsiveDrawer open={navigatorDrawerOpen} title="Context navigation" side="start" onClose={() => setNavigatorDrawerOpen(false)}>
           <ContextNavigator
             mode={mode}
@@ -283,7 +284,7 @@ function ArchitexOSPage() {
         </ResponsiveDrawer>
       )}
 
-      {narrowLayout && (
+      {!inspectorInline && (
         <ResponsiveDrawer open={inspectorDrawerOpen} title="Context inspector" side="end" onClose={() => setInspectorDrawerOpen(false)}>
           <ContextInspector
             mode={mode}

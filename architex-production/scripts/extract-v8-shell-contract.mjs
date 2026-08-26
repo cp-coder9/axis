@@ -47,7 +47,10 @@ try {
     }, { selectors, viewport });
   }
 
-  const presentation = await page.evaluate(() => {
+  await page.setViewportSize(viewports.desktop);
+  await page.goto(pathToFileURL(referencePath).href, { waitUntil: 'load', timeout: 120_000 });
+  await page.waitForTimeout(250);
+  const presentation = await page.evaluate((selectors) => {
     const style = getComputedStyle(document.documentElement);
     const labels = Array.from(document.querySelectorAll('.os-label')).map((node) => node.textContent?.trim()).filter(Boolean);
     const workspace = Array.from(document.querySelectorAll('.os-item')).find((node) => node.querySelector('.os-label')?.textContent?.trim() === 'Workspace Tools');
@@ -61,8 +64,22 @@ try {
         canvas: getComputedStyle(document.body).backgroundColor,
         border: style.getPropertyValue('--border').trim(),
       },
+      regionStyles: Object.fromEntries(Object.entries(selectors).map(([name, selector]) => {
+        const node = document.querySelector(selector);
+        if (!node) return [name, null];
+        const computed = getComputedStyle(node);
+        return [name, {
+          backgroundColor: computed.backgroundColor,
+          backgroundImage: computed.backgroundImage,
+          borderRightColor: computed.borderRightColor,
+          borderLeftColor: computed.borderLeftColor,
+          borderBottomColor: computed.borderBottomColor,
+          boxShadow: computed.boxShadow,
+          fontFamily: computed.fontFamily,
+        }];
+      })),
     };
-  });
+  }, selectors);
 
   if (presentation.referenceToolCount !== 45) throw new Error(`Expected 45 reference tools, found ${presentation.referenceToolCount}`);
 

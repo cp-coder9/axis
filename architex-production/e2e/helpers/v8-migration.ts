@@ -20,6 +20,7 @@ export async function assertNoBodyOverflow(page: Page) {
 }
 
 export async function assertFontReadiness(page: Page) {
+  await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => document.fonts.status)).toBe('loaded');
 }
 

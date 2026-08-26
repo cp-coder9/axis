@@ -12,14 +12,19 @@ async function restoreAuthenticatedShell(page: Page) {
         organization: { id: 'org-shell', name: 'Shell Organisation', slug: 'shell-organisation' },
         roles: ['organisation_admin'], project_memberships: [], active_role: 'organisation_admin', permissions: ['projects.read'],
       }) });
+    } else if (path.endsWith('/users')) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ users: [] }) });
     } else {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     }
   });
 }
 
-test('workspace theme top bar control toggles the dashboard to dark mode', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await restoreAuthenticatedShell(page);
+});
+
+test('workspace theme top bar control toggles the dashboard to dark mode', async ({ page }) => {
   await page.goto('/?workspace=v8');
   const toggle = page.getByTestId('workspace-theme-toggle');
   await expect(toggle).toHaveAccessibleName('Switch colour theme');
@@ -94,17 +99,13 @@ test('P6-NAV-01 mobile global drawer preserves the selected destination transiti
   await assertNoBodyOverflow(page);
 });
 
-test('P6-NAV-01 tablet context drawer keeps the desktop workspace unobscured until opened', async ({ page }) => {
+test('P6-NAV-01 tablet preserves the supplied inline context navigator', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.tablet);
   await page.goto('/?workspace=v8');
 
-  const trigger = page.getByRole('button', { name: 'Open context navigation' });
-  await expect(trigger).toBeVisible();
+  await expect(page.locator('[data-v8-region="navigator"]')).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'Context navigation' })).toBeHidden();
   await expect(page.getByTestId('datum-canvas')).toBeVisible();
-
-  await trigger.click();
-  await expect(page.getByRole('dialog', { name: 'Context navigation' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
 
@@ -251,7 +252,7 @@ test('P6-GOD-01 God Mode preserves the existing lifecycle-stage action', async (
   await page.getByRole('button', { name: 'Brief' }).click();
 
   await expect(page.getByTestId('datum-canvas')).toBeVisible();
-  await expect(page.getByText('Brief')).toBeVisible();
+  await expect(page.getByTestId('god-mode-datum')).toContainText('Brief exploration');
   await assertNoBodyOverflow(page);
 });
 

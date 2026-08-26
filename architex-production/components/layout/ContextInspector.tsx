@@ -41,7 +41,7 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
   ];
 
   return (
-    <aside className="w-[344px] flex flex-col h-full bg-white border-l border-[#102033]/10 shadow-lg transition-all">
+    <aside data-v8-region="inspector" className="w-[344px] flex shrink-0 flex-col h-[calc(100%-66px)] mt-[66px] bg-white border-l border-[#102033]/10 shadow-lg transition-all">
       {/* Inspector Header */}
       <div className="p-4 border-b border-[#102033]/10 flex items-start justify-between">
         <div>

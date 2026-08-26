@@ -15,6 +15,7 @@ export type V8ShellContract = {
   referenceToolCount: number;
   fontFamily: string;
   colours: Record<string, string>;
+  regionStyles: Record<string, Record<string, string> | null>;
   viewports: Record<string, { viewport: { width: number; height: number }; regions: Record<string, V8RegionRectangle | null> }>;
 };
 

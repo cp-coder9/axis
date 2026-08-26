@@ -48,7 +48,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const godMode = navigation.godSession !== null;
 
   return (
-    <header className="h-[64px] bg-white/90 border-b border-[#102033]/10 backdrop-blur-md px-4 flex items-center gap-3 z-10">
+    <header data-v8-region="topbar" className="v8-topbar h-[66px] shrink-0 bg-white/90 border-b border-[#102033]/10 backdrop-blur-md px-4 flex items-center gap-3 z-10">
       {/* Mobile global-navigation drawer trigger */}
       <button
         onClick={onOpenGlobalNavigation}
@@ -61,6 +61,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Toggle Navigator Compact / Expand */}
       <button
         onClick={onToggleCompactNav}
+        data-v8-control="navigation"
         className="w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
         aria-label={narrowLayout ? 'Open context navigation' : 'Toggle Context Navigator'}
         title={narrowLayout ? 'Open context navigation' : 'Toggle Context Navigator'}
@@ -69,7 +70,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </button>
 
       {/* Dynamic Breadcrumb Path */}
-      <div className="flex items-center gap-1.5 text-[13px] text-[var(--ax-text-muted)] overflow-hidden whitespace-nowrap">
+      <div data-v8-control="breadcrumb" className="flex items-center gap-1.5 text-[13px] text-[var(--ax-text-muted)] overflow-hidden whitespace-nowrap">
         <span>Architex OS</span>
         <span className="text-[#102033]/30">›</span>
         {activeTool ? (
@@ -92,7 +93,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="flex-1" />
 
       {/* Scope Orientation Pill */}
-      <span className={`hidden sm:inline-flex items-center text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+      <span data-v8-control="scope" className={`hidden sm:inline-flex items-center text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
         godMode
           ? 'bg-[#8B5CF6]/10 text-[#5B21B6] border-[#8B5CF6]/20'
           : 'bg-[#19B7B0]/10 text-[var(--ax-text)] border-[#19B7B0]/20'
@@ -101,7 +102,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </span>
 
       {/* Project Indicator Chip */}
-      <div className="hidden md:flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 bg-[#DFF5F2] text-[var(--ax-text)] border border-[#19B7B0]/20 rounded-lg whitespace-nowrap">
+      <div data-v8-control="project" className="hidden md:flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1 bg-[#DFF5F2] text-[var(--ax-text)] border border-[#19B7B0]/20 rounded-lg whitespace-nowrap">
         <span className="w-2 h-2 rounded-full bg-[#19B7B0] animate-pulse" />
         <span>{mode === 'project' ? activeProject.name : 'Portfolio / unassigned'}</span>
       </div>
@@ -123,6 +124,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {(godMode || godModeEnabled) && <button
           type="button"
           data-testid="god-mode-toggle"
+          data-v8-control="god-mode"
           aria-pressed={godMode}
           onClick={() => onNavigate(godMode ? { type: 'exit-god' } : { type: 'enter-god', initialLens: currentRole })}
           className={`flex items-center gap-1.5 px-3 h-9 rounded-xl border transition-colors shadow-sm ${
@@ -140,7 +142,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         </button>}
 
       {/* 20 Role Personas Switcher */}
-      <div className="flex items-center gap-1.5 bg-white border border-[#102033]/15 rounded-xl px-2 py-1 shadow-sm">
+      <div data-v8-control="role" className="flex items-center gap-1.5 bg-white border border-[#102033]/15 rounded-xl px-2 py-1 shadow-sm">
         <span className="text-[11px] text-[var(--ax-text-muted)] font-semibold hidden lg:inline">Role:</span>
         <select
           data-testid="role-switcher"
@@ -160,6 +162,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Wingman Copilot Quick Trigger */}
       <button
         onClick={onOpenWingman}
+        data-v8-control="wingman"
         className="w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-ref-violet-600)] hover:bg-[#8B5CF6]/10 transition-colors shadow-sm"
         title="Open Wingman AI"
       >
@@ -169,6 +172,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Contextual Inspector Toggle */}
       <button
         onClick={onToggleInspector}
+        data-v8-control="inspector"
         className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-colors shadow-sm ${
           inspectorOpen
             ? 'bg-[#19B7B0]/15 text-[var(--ax-action-primary)] border-[#19B7B0]/30'

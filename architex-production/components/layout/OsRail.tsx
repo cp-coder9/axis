@@ -31,7 +31,8 @@ export const OsRail: React.FC<OsRailProps> = ({
 
   return (
     <aside
-      className={`${variant === 'drawer' ? 'w-full' : `relative z-20 ${railExpanded ? 'w-[264px]' : 'w-[74px]'}`} flex flex-col h-full bg-gradient-to-b from-[#167E79] to-[#0f5854] border-r border-white/20 shadow-xl transition-all duration-300 ${
+      data-v8-region="rail"
+      className={`${variant === 'drawer' ? 'w-full' : `relative z-20 ${railExpanded ? 'w-[264px]' : 'w-[74px]'}`} flex shrink-0 flex-col h-full bg-gradient-to-b from-[#167E79] to-[#0f5854] border-r border-white/20 shadow-xl transition-all duration-300 ${
         variant === 'drawer' ? '' : ''
       }`}
     >

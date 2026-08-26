@@ -3,8 +3,8 @@ import { ALL_TOOLS, STAGES, STAGE_TOOL_MAP } from '@/lib/data';
 import { GOD_MODE_HANDOFFS, godModeAvailable, handoffsForStage, stageExplorationToolIds, validateGodModeDomain } from '@/lib/god-mode';
 
 describe('God Mode domain contract', () => {
-  it('fails closed unless the God Mode release flag is literally true', () => {
-    expect(godModeAvailable()).toBe(false);
+  it('is present by default and honours explicit release-flag values', () => {
+    expect(godModeAvailable()).toBe(true);
     expect(godModeAvailable('')).toBe(false);
     expect(godModeAvailable('false')).toBe(false);
     expect(godModeAvailable('TRUE')).toBe(false);

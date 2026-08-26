@@ -1,0 +1,100 @@
+{
+  "capturedAt": "2026-08-26T11:50:07.974Z",
+  "baseUrl": "http://127.0.0.1:3200",
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "reference": {
+    "title": "Architex OS — Datum UI Integrated Prototype v7 · Meetings",
+    "bodyClass": ""
+  },
+  "implementation": {
+    "rail": {
+      "rectangle": {
+        "x": 0,
+        "y": 0,
+        "width": 74,
+        "height": 1000
+      },
+      "style": {
+        "backgroundColor": "rgb(22, 126, 121)",
+        "backgroundImage": "none",
+        "borderRightColor": "rgba(255, 255, 255, 0.18)",
+        "borderLeftColor": "rgb(16, 32, 51)",
+        "borderBottomColor": "rgb(16, 32, 51)",
+        "boxShadow": "rgba(16, 32, 51, 0.14) 8px 0px 28px 0px",
+        "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      }
+    },
+    "navigator": {
+      "rectangle": {
+        "x": 74,
+        "y": 0,
+        "width": 306,
+        "height": 1000
+      },
+      "style": {
+        "backgroundColor": "rgba(255, 255, 255, 0.93)",
+        "backgroundImage": "none",
+        "borderRightColor": "rgba(16, 32, 51, 0.09)",
+        "borderLeftColor": "rgb(16, 32, 51)",
+        "borderBottomColor": "rgb(16, 32, 51)",
+        "boxShadow": "none",
+        "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      }
+    },
+    "topbar": {
+      "rectangle": {
+        "x": 380,
+        "y": 0,
+        "width": 1220,
+        "height": 66
+      },
+      "style": {
+        "backgroundColor": "rgba(255, 255, 255, 0.87)",
+        "backgroundImage": "none",
+        "borderRightColor": "rgb(16, 32, 51)",
+        "borderLeftColor": "rgb(16, 32, 51)",
+        "borderBottomColor": "rgba(16, 32, 51, 0.09)",
+        "boxShadow": "none",
+        "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      }
+    },
+    "canvas": {
+      "rectangle": {
+        "x": 380,
+        "y": 66,
+        "width": 876,
+        "height": 934
+      },
+      "style": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "backgroundImage": "radial-gradient(circle at 12% 0%, rgba(191, 233, 226, 0.28), rgba(0, 0, 0, 0) 24%)",
+        "borderRightColor": "rgb(16, 32, 51)",
+        "borderLeftColor": "rgb(16, 32, 51)",
+        "borderBottomColor": "rgb(16, 32, 51)",
+        "boxShadow": "none",
+        "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      }
+    },
+    "inspector": {
+      "rectangle": {
+        "x": 1256,
+        "y": 66,
+        "width": 344,
+        "height": 934
+      },
+      "style": {
+        "backgroundColor": "rgba(255, 255, 255, 0.95)",
+        "backgroundImage": "none",
+        "borderRightColor": "rgb(16, 32, 51)",
+        "borderLeftColor": "rgba(16, 32, 51, 0.09)",
+        "borderBottomColor": "rgb(16, 32, 51)",
+        "boxShadow": "none",
+        "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      }
+    }
+  },
+  "consoleErrors": []
+}
