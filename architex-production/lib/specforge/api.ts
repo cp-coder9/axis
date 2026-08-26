@@ -1,0 +1,176 @@
+import { authenticatedFetch } from '@/lib/auth-session';
+import { API_BASE_URL, localIdentityHeaders } from '@/lib/api';
+import type {
+  SpecForgeAggregate,
+  SpecForgeApproval,
+  SpecForgeCommand,
+  SpecForgeDrawingFinding,
+  SpecForgeIssue,
+  SpecForgeItem,
+  SpecForgeSection,
+} from '@/lib/specforge/types';
+import type { RoleKey, StageKey } from '@/lib/types';
+
+export type SpecForgeIdentity = { role: RoleKey; userId: string };
+
+export class SpecForgeApiError extends Error {
+  constructor(readonly status: number, readonly body: Record<string, unknown>) {
+    super(typeof body.error === 'string' ? body.error : `SpecForge API ${status}`);
+    this.name = 'SpecForgeApiError';
+  }
+}
+
+type ApiRecord = Record<string, unknown>;
+
+async function request<T>(path: string, identity: SpecForgeIdentity, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set('Accept', 'application/json');
+  for (const [name, value] of Object.entries(localIdentityHeaders(identity.role, identity.userId))) headers.set(name, value);
+  if (init.body !== undefined && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, { ...init, headers });
+  const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+  if (!response.ok) throw new SpecForgeApiError(response.status, body);
+  return body as T;
+}
+
+const stringValue = (value: unknown, fallback = ''): string => typeof value === 'string' ? value : fallback;
+const nullableString = (value: unknown): string | null => typeof value === 'string' ? value : null;
+const numberValue = (value: unknown): number => typeof value === 'number' ? value : Number(value ?? 0);
+
+function mapSection(row: ApiRecord): SpecForgeSection {
+  return {
+    id: stringValue(row.id), code: stringValue(row.code), title: stringValue(row.title), discipline: stringValue(row.discipline),
+    ownerRole: stringValue(row.owner_role) as RoleKey, reviewerRole: nullableString(row.reviewer_role) as RoleKey | null,
+    status: stringValue(row.status) as SpecForgeSection['status'], lockVersion: numberValue(row.lock_version),
+  };
+}
+
+function mapItem(row: ApiRecord): SpecForgeItem {
+  return {
+    id: stringValue(row.id), sectionId: stringValue(row.section_id), code: stringValue(row.code), title: stringValue(row.title),
+    room: stringValue(row.room), packageName: stringValue(row.package_name), description: stringValue(row.description),
+    imageUrl: nullableString(row.image_url), supplier: nullableString(row.supplier), model: nullableString(row.model),
+    finish: nullableString(row.finish), dimensions: nullableString(row.dimensions), budgetAllowance: numberValue(row.budget_allowance),
+    estimatedCost: numberValue(row.estimated_cost), leadTimeDays: numberValue(row.lead_time_days), clientDecision: Boolean(row.client_decision),
+    ownerRole: stringValue(row.owner_role) as RoleKey, reviewerRole: nullableString(row.reviewer_role) as RoleKey | null,
+    approverRole: nullableString(row.approver_role) as RoleKey | null, status: stringValue(row.status) as SpecForgeItem['status'],
+    sourceRevision: stringValue(row.source_revision), supersededBy: nullableString(row.superseded_by), lockVersion: numberValue(row.lock_version),
+  };
+}
+
+function mapApproval(row: ApiRecord): SpecForgeApproval {
+  return {
+    id: stringValue(row.id), itemId: stringValue(row.item_id), approvalType: stringValue(row.approval_type),
+    requestedRole: stringValue(row.requested_role) as RoleKey, requestedUserId: nullableString(row.requested_user_id),
+    status: stringValue(row.status) as SpecForgeApproval['status'], decisionNote: nullableString(row.decision_note), dueAt: nullableString(row.due_at),
+  };
+}
+
+function mapFinding(row: ApiRecord): SpecForgeDrawingFinding {
+  return {
+    id: stringValue(row.id), itemId: nullableString(row.item_id), drawingRevisionId: stringValue(row.drawing_revision_id),
+    severity: stringValue(row.severity) as SpecForgeDrawingFinding['severity'], finding: stringValue(row.finding),
+    status: stringValue(row.status) as SpecForgeDrawingFinding['status'],
+  };
+}
+
+function mapIssue(row: ApiRecord): SpecForgeIssue {
+  return {
+    id: stringValue(row.id), revision: stringValue(row.revision), title: stringValue(row.title), audience: stringValue(row.audience),
+    status: stringValue(row.status) as SpecForgeIssue['status'], snapshotHash: stringValue(row.snapshot_hash), issuedAt: nullableString(row.issued_at),
+  };
+}
+
+function mapCommand(row: ApiRecord): SpecForgeCommand {
+  return {
+    id: stringValue(row.id), commandType: stringValue(row.route_key), status: stringValue(row.status) as SpecForgeCommand['status'],
+    lastError: nullableString(row.last_error),
+  };
+}
+
+export function mapSpecForgeAggregate(row: ApiRecord): SpecForgeAggregate {
+  return {
+    id: stringValue(row.id), organizationId: stringValue(row.organization_id), projectId: stringValue(row.project_id),
+    projectName: stringValue(row.project_name), profile: stringValue(row.profile), stage: stringValue(row.stage) as StageKey,
+    revision: stringValue(row.revision), issueStatus: stringValue(row.issue_status) as SpecForgeAggregate['issueStatus'],
+    lockVersion: numberValue(row.lock_version), budgetReviewedAt: nullableString(row.budget_reviewed_at),
+    sections: Array.isArray(row.sections) ? row.sections.map(value => mapSection(value as ApiRecord)) : [],
+    items: Array.isArray(row.items) ? row.items.map(value => mapItem(value as ApiRecord)) : [],
+    approvals: Array.isArray(row.approvals) ? row.approvals.map(value => mapApproval(value as ApiRecord)) : [],
+    drawingFindings: Array.isArray(row.drawing_findings) ? row.drawing_findings.map(value => mapFinding(value as ApiRecord)) : [],
+    issues: Array.isArray(row.issues) ? row.issues.map(value => mapIssue(value as ApiRecord)) : [],
+    commands: Array.isArray(row.commands) ? row.commands.map(value => mapCommand(value as ApiRecord)) : [],
+  };
+}
+
+export type CreateSpecForgeWorkspaceInput = {
+  profile: string;
+  stage: StageKey;
+  revision: string;
+  budgetReviewedAt?: string | null;
+};
+
+export type CreateSpecForgeSectionInput = Omit<SpecForgeSection, 'id' | 'lockVersion'> & {
+  standardSource?: string | null;
+  sourceRevision?: string | null;
+};
+
+export type CreateSpecForgeItemInput = Omit<SpecForgeItem, 'id' | 'lockVersion'>;
+export type SpecForgeIssueReadiness = { ready: boolean; codes: string[] };
+
+const commandKey = (): string => globalThis.crypto?.randomUUID?.() ?? `specforge-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const json = (value: unknown): string => JSON.stringify(value);
+
+function sectionBody(input: CreateSpecForgeSectionInput): ApiRecord {
+  return {
+    code: input.code, title: input.title, discipline: input.discipline, owner_role: input.ownerRole, reviewer_role: input.reviewerRole,
+    status: input.status, standard_source: input.standardSource ?? null, source_revision: input.sourceRevision ?? null,
+  };
+}
+
+function itemBody(input: Partial<CreateSpecForgeItemInput>): ApiRecord {
+  const names: Array<[keyof CreateSpecForgeItemInput, string]> = [
+    ['sectionId','section_id'], ['code','code'], ['title','title'], ['room','room'], ['packageName','package_name'], ['description','description'],
+    ['imageUrl','image_url'], ['supplier','supplier'], ['model','model'], ['finish','finish'], ['dimensions','dimensions'],
+    ['budgetAllowance','budget_allowance'], ['estimatedCost','estimated_cost'], ['leadTimeDays','lead_time_days'], ['clientDecision','client_decision'],
+    ['ownerRole','owner_role'], ['reviewerRole','reviewer_role'], ['approverRole','approver_role'], ['status','status'],
+    ['sourceRevision','source_revision'], ['supersededBy','superseded_by'],
+  ];
+  return Object.fromEntries(names.filter(([key]) => key in input).map(([key, apiName]) => [apiName, input[key]]));
+}
+
+export const specForgeApi = {
+  async get(projectId: string, identity: SpecForgeIdentity): Promise<SpecForgeAggregate | null> {
+    try {
+      const result = await request<{ workspace: ApiRecord | null }>(`/projects/${encodeURIComponent(projectId)}/specforge`, identity);
+      return result.workspace ? mapSpecForgeAggregate(result.workspace) : null;
+    } catch (error) {
+      if (error instanceof SpecForgeApiError && error.status === 404 && error.body.code === 'SPECFORGE_WORKSPACE_EMPTY') return null;
+      throw error;
+    }
+  },
+  createWorkspace: (projectId: string, input: CreateSpecForgeWorkspaceInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ profile: input.profile, stage: input.stage, revision: input.revision, budget_reviewed_at: input.budgetReviewedAt ?? null }) }),
+  updateWorkspace: (projectId: string, patch: Partial<Pick<CreateSpecForgeWorkspaceInput, 'profile' | 'stage' | 'budgetReviewedAt'>>, lockVersion: number, identity: SpecForgeIdentity) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json({ ...patch, ...(Object.hasOwn(patch, 'budgetReviewedAt') ? { budget_reviewed_at: patch.budgetReviewedAt } : {}), budgetReviewedAt: undefined }) }),
+  createSection: (projectId: string, input: CreateSpecForgeSectionInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(sectionBody(input)) }),
+  updateSection: (projectId: string, sectionId: string, patch: Partial<CreateSpecForgeSectionInput>, lockVersion: number, identity: SpecForgeIdentity) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections/${encodeURIComponent(sectionId)}`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(sectionBody(patch as CreateSpecForgeSectionInput)) }),
+  createItem: (projectId: string, input: CreateSpecForgeItemInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(itemBody(input)) }),
+  updateItem: (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number, identity: SpecForgeIdentity) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) }),
+  duplicateItem: (projectId: string, itemId: string, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/duplicate`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' }),
+  requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),
+  decideApproval: (projectId: string, approvalId: string, decision: 'approved' | 'rejected', decisionNote: string | null, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/approvals/${encodeURIComponent(approvalId)}/decision`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ decision, decision_note: decisionNote }) }),
+  validateIssue: (projectId: string, identity: SpecForgeIdentity) =>
+    request<SpecForgeIssueReadiness>(`/projects/${encodeURIComponent(projectId)}/specforge/issues/validate`, identity, { method: 'POST', body: '{}' }),
+  issue: (projectId: string, input: { title: string; audience: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/issues`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(input) }),
+  requestDrawingScan: (projectId: string, input: { drawingRevisionId: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/drawing-scans`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ drawing_revision_id: input.drawingRevisionId }) }),
+};
