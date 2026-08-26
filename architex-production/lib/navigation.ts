@@ -102,12 +102,12 @@ export const GLOBAL_DESTINATION_CONTENT: Record<
 > = {
   command: {
     heading: 'Architex OS Command Centre',
-    subheading: 'Platform-wide navigation, project datum, and workspace tools.',
+    subheading: 'The global landing point for work across projects, tools, actions and feedback. This is distinct from the full Practice Management / Project Command Centre tool.',
     cards: [
-      { label: 'Datum Project Space', icon: 'projects', description: 'Stage-driven single line of truth for the active project.', tone: '#19B7B0', action: { type: 'select-global', id: 'projects' } },
-      { label: 'Practice & Command Centre', icon: 'practice_management', description: 'Progress, programme, actions, resources, cost, risk.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'practice', mode: 'project', origin: 'command' } },
-      { label: 'Workspace Tool Registry', icon: 'tools', description: 'All workspace tools across 8 lifecycle stages.', tone: '#8B5CF6', action: { type: 'select-global', id: 'tools' } },
-      { label: 'Feedback Intelligence', icon: 'feedback', description: 'Track friction points, feature requests, and platform roadmap.', tone: '#FF6B6B', action: { type: 'open-tool', toolId: 'feedback', mode: 'standalone', origin: 'command' } },
+      { label: 'Open datum project space', icon: 'projects', description: 'Enter the active project and work through the project’s single line of truth.', tone: '#19B7B0', action: { type: 'select-global', id: 'projects' } },
+      { label: 'Practice / Project Command Centre', icon: 'practice_management', description: 'Open the full supplied operational command centre as a separate tool.', tone: '#2563EB', action: { type: 'open-tool', toolId: 'practice', mode: 'project', origin: 'command' } },
+      { label: 'Workspace tool registry', icon: 'tools', description: 'Browse live and scaffolded capabilities.', tone: '#8B5CF6', action: { type: 'select-global', id: 'tools' } },
+      { label: 'Feedback intelligence', icon: 'feedback', description: 'Review the product feedback loop and roadmap pipeline.', tone: '#FF6B6B', action: { type: 'open-tool', toolId: 'feedback', mode: 'standalone', origin: 'command' } },
     ],
   },
   inbox: {

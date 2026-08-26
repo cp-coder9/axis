@@ -276,7 +276,7 @@ test('P6-W0-GLOBAL Command destination preserves its existing card action', asyn
   await page.getByRole('button', { name: 'Open global navigation' }).click();
   await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: /Command Centre/ }).click();
 
-  await page.getByRole('button', { name: /Practice & Command Centre/ }).click();
+  await page.getByRole('button', { name: /Practice \/ Project Command Centre/ }).click();
   await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });

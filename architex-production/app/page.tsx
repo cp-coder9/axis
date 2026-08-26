@@ -237,6 +237,8 @@ function ArchitexOSPage() {
             <GlobalDestinations
               view={activeGlobal}
               currentRole={currentRole}
+              activeProjectName={activeProject.name}
+              toolCount={Object.keys(ALL_TOOLS).length}
               onNavigate={dispatchNavigation}
             />
           ) : (

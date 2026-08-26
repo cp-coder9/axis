@@ -14,19 +14,23 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card, Surface } from '@/components/ui/Surface';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { V8CommandCentre } from '@/components/v8/V8CommandCentre';
 
 type ContentDestinationId = keyof typeof GLOBAL_DESTINATION_CONTENT;
 
 interface GlobalDestinationsProps {
   view: GlobalDestinationId;
   currentRole: RoleKey;
+  activeProjectName: string;
+  toolCount: number;
   onNavigate: (event: NavigationEvent) => void;
 }
 
-export const GlobalDestinations: React.FC<GlobalDestinationsProps> = ({ view, currentRole, onNavigate }) => {
+export const GlobalDestinations: React.FC<GlobalDestinationsProps> = ({ view, currentRole, activeProjectName, toolCount, onNavigate }) => {
   if (!(view in GLOBAL_DESTINATION_CONTENT)) return null;
   const contentView = view as ContentDestinationId;
   if (contentView === 'settings') return <SettingsView currentRole={currentRole} />;
+  if (contentView === 'command') return <V8CommandCentre activeProjectName={activeProjectName} toolCount={toolCount} onNavigate={onNavigate} />;
   return <DestinationView view={contentView} onNavigate={onNavigate} />;
 };
 

@@ -61,7 +61,7 @@ describe('Phase 1 navigation contract', () => {
 
   it('V8-M03 global destination content and action origins are canonical', () => {
     expect(GLOBAL_DESTINATION_CONTENT.command.cards.map((card) => card.label)).toEqual([
-      'Datum Project Space', 'Practice & Command Centre', 'Workspace Tool Registry', 'Feedback Intelligence',
+      'Open datum project space', 'Practice / Project Command Centre', 'Workspace tool registry', 'Feedback intelligence',
     ]);
     expect(GLOBAL_DESTINATION_CONTENT.command.cards.map((card) => card.action)).toEqual([
       { type: 'select-global', id: 'projects' },

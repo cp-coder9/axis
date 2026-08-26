@@ -1,0 +1,373 @@
+{
+  "capturedAt": "2026-08-26T17:59:10.919Z",
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "reference": {
+    "source": "E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html",
+    "pageHead": {
+      "text": "Architex OS Command CentreThe global landing point for work across projects, tools, actions and feedback. This is distinct from the full Practice Management / Project Command Centre tool.",
+      "rectangle": {
+        "x": 402,
+        "y": 86,
+        "width": 832,
+        "height": 83
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "pageIcon": {
+      "text": "",
+      "rectangle": {
+        "x": 402,
+        "y": 102.5,
+        "width": 39.40625,
+        "height": 50
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "color(srgb 0.918824 0.974588 0.972118)",
+        "borderRadius": "15px",
+        "borderColor": "color(srgb 0.0980392 0.717647 0.690196 / 0.2)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "pageTitle": {
+      "text": "Architex OS Command Centre",
+      "rectangle": {
+        "x": 451.40625,
+        "y": 86,
+        "width": 770.59375,
+        "height": 37
+      },
+      "style": {
+        "fontSize": "28px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "grid": {
+      "text": "Open datum project spaceEnter Faerie Glen Residential and work through the project’s single line of truth.Practice / Project Command CentreOpen the full supplied operational command centre as a separate tool.Workspace tool registryBrowse 47 live and scaffolded capabilities.Feedback intelligenceReview the product feedback loop and roadmap pipeline.",
+      "rectangle": {
+        "x": 402,
+        "y": 185,
+        "width": 832,
+        "height": 278.421875
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "cards": [
+      {
+        "text": "Open datum project spaceEnter Faerie Glen Residential and work through the project’s single line of truth.",
+        "rectangle": {
+          "x": 402,
+          "y": 185,
+          "width": 409,
+          "height": 142.28125
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.06) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Practice / Project Command CentreOpen the full supplied operational command centre as a separate tool.",
+        "rectangle": {
+          "x": 825,
+          "y": 185,
+          "width": 409,
+          "height": 142.28125
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.06) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Workspace tool registryBrowse 47 live and scaffolded capabilities.",
+        "rectangle": {
+          "x": 402,
+          "y": 341.28125,
+          "width": 409,
+          "height": 122.140625
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.06) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Feedback intelligenceReview the product feedback loop and roadmap pipeline.",
+        "rectangle": {
+          "x": 825,
+          "y": 341.28125,
+          "width": 409,
+          "height": 122.140625
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.06) 0px 10px 28px 0px"
+        }
+      }
+    ],
+    "icons": [
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      }
+    ]
+  },
+  "implementation": {
+    "url": "http://127.0.0.1:3100/?workspace=v8-command",
+    "pageHead": {
+      "text": "Architex OS Command CentreThe global landing point for work across projects, tools, actions and feedback. This is distinct from the full Practice Management / Project Command Centre tool.",
+      "rectangle": {
+        "x": 402,
+        "y": 86,
+        "width": 832,
+        "height": 83
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "pageIcon": {
+      "text": "",
+      "rectangle": {
+        "x": 402,
+        "y": 102.5,
+        "width": 39.40625,
+        "height": 50
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "color(srgb 0.918824 0.974588 0.972118)",
+        "borderRadius": "15px",
+        "borderColor": "color(srgb 0.0980392 0.717647 0.690196 / 0.2)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "pageTitle": {
+      "text": "Architex OS Command Centre",
+      "rectangle": {
+        "x": 451.40625,
+        "y": 86,
+        "width": 770.59375,
+        "height": 37
+      },
+      "style": {
+        "fontSize": "28px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "grid": {
+      "text": "Open datum project spaceEnter Faerie Glen Residential and work through the project’s single line of truth.Practice / Project Command CentreOpen the full supplied operational command centre as a separate tool.Workspace tool registryBrowse 47 live and scaffolded capabilities.Feedback intelligenceReview the product feedback loop and roadmap pipeline.",
+      "rectangle": {
+        "x": 402,
+        "y": 185,
+        "width": 832,
+        "height": 278.515625
+      },
+      "style": {
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "color": "rgb(16, 32, 51)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "borderColor": "rgb(16, 32, 51)",
+        "padding": "0px",
+        "boxShadow": "none"
+      }
+    },
+    "cards": [
+      {
+        "text": "Open datum project spaceEnter Faerie Glen Residential and work through the project’s single line of truth.",
+        "rectangle": {
+          "x": 402,
+          "y": 185,
+          "width": 409,
+          "height": 142.375
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.055) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Practice / Project Command CentreOpen the full supplied operational command centre as a separate tool.",
+        "rectangle": {
+          "x": 825,
+          "y": 185,
+          "width": 409,
+          "height": 142.375
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.055) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Workspace tool registryBrowse 47 live and scaffolded capabilities.",
+        "rectangle": {
+          "x": 402,
+          "y": 341.375,
+          "width": 409,
+          "height": 122.140625
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.055) 0px 10px 28px 0px"
+        }
+      },
+      {
+        "text": "Feedback intelligenceReview the product feedback loop and roadmap pipeline.",
+        "rectangle": {
+          "x": 825,
+          "y": 341.375,
+          "width": 409,
+          "height": 122.140625
+        },
+        "style": {
+          "fontSize": "15px",
+          "fontWeight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(16, 32, 51)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderRadius": "15px",
+          "borderColor": "rgba(16, 32, 51, 0.09)",
+          "padding": "18px",
+          "boxShadow": "rgba(16, 32, 51, 0.055) 0px 10px 28px 0px"
+        }
+      }
+    ],
+    "icons": [
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      },
+      {
+        "width": 38,
+        "height": 38
+      }
+    ]
+  }
+}
