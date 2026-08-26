@@ -8,7 +8,7 @@
 .v8-registry-page-head {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -16,7 +16,6 @@
   display: grid;
   width: 50px;
   height: 50px;
-  flex: 0 0 50px;
   place-items: center;
   border: 1px solid color-mix(in srgb, #8b5cf6 20%, transparent);
   border-radius: 15px;
@@ -52,7 +51,7 @@
   min-height: 0;
   margin-left: auto;
   padding: 9px 14px;
-  border: 1px solid var(--ax-border);
+  border: 1px solid rgba(16, 32, 51, .09);
   border-radius: 10px;
   color: var(--ax-text-muted);
   background: var(--ax-surface-1);
@@ -150,17 +149,10 @@
   place-items: center;
 }
 
-.v8-registry-tool-copy {
-  min-width: 0;
-}
-
 .v8-registry-tool-copy b {
   display: block;
-  overflow: hidden;
   font-size: 13px;
   line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .v8-registry-tool-copy small {
@@ -174,7 +166,7 @@
   margin-left: auto;
   padding: 3px 7px;
   border-radius: 99px;
-  color: #1c7b50;
+  color: rgb(40, 168, 107);
   background: rgba(40, 168, 107, .1);
   font-size: 10px;
   white-space: nowrap;

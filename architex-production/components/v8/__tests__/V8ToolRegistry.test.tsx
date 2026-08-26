@@ -11,6 +11,12 @@ import { V8ToolRegistry } from '@/components/v8/V8ToolRegistry';
 afterEach(cleanup);
 
 const tools = Object.values(ALL_TOOLS);
+const referenceGroupOrder = [
+  'Practice & Project Management', 'Intelligence & Improvement', 'Planning & Approvals',
+  'Compliance & Environment', 'Design & Documentation', 'Commercial & Procurement',
+  'Site Execution & Quality', 'Project & Collaboration', 'Platform Services',
+  'Communication & Collaboration', 'Engineering & Technical',
+];
 
 describe('V8 Workspace Tool Registry', () => {
   it('renders the supplied grouped compact catalogue from all 47 canonical tools', () => {
@@ -27,7 +33,7 @@ describe('V8 Workspace Tool Registry', () => {
     const groups = new Map<string, number>();
     for (const tool of tools) groups.set(tool.group, (groups.get(tool.group) ?? 0) + 1);
     const renderedGroups = Array.from(container.querySelectorAll<HTMLElement>('[data-v8-registry-group]'));
-    expect(renderedGroups.map(group => group.dataset.v8RegistryGroup)).toEqual(Array.from(groups.keys()));
+    expect(renderedGroups.map(group => group.dataset.v8RegistryGroup)).toEqual(referenceGroupOrder);
     for (const [group, count] of groups) {
       const region = renderedGroups.find(node => node.dataset.v8RegistryGroup === group)!;
       expect(within(region).getByRole('heading', { level: 3 }).textContent).toBe(`${group}${count} tools`);

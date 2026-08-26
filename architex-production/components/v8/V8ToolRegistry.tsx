@@ -9,9 +9,21 @@ type V8ToolRegistryProps = {
   onOpenProjectOrientation: () => void;
 };
 
+const REFERENCE_GROUP_ORDER = [
+  'Practice & Project Management', 'Intelligence & Improvement', 'Planning & Approvals',
+  'Compliance & Environment', 'Design & Documentation', 'Commercial & Procurement',
+  'Site Execution & Quality', 'Project & Collaboration', 'Platform Services',
+  'Communication & Collaboration', 'Engineering & Technical',
+] as const;
+
 export function V8ToolRegistry({ tools, onOpenTool, onOpenProjectOrientation }: V8ToolRegistryProps) {
   const groups = new Map<string, ToolDefinition[]>();
   for (const tool of tools) groups.set(tool.group, [...(groups.get(tool.group) ?? []), tool]);
+  const orderedGroups = [...groups].sort(([left], [right]) => {
+    const leftIndex = REFERENCE_GROUP_ORDER.indexOf(left as typeof REFERENCE_GROUP_ORDER[number]);
+    const rightIndex = REFERENCE_GROUP_ORDER.indexOf(right as typeof REFERENCE_GROUP_ORDER[number]);
+    return (leftIndex < 0 ? Number.MAX_SAFE_INTEGER : leftIndex) - (rightIndex < 0 ? Number.MAX_SAFE_INTEGER : rightIndex);
+  });
 
   return (
     <section className="v8-tool-registry" data-testid="v8-tool-registry">
@@ -34,7 +46,7 @@ export function V8ToolRegistry({ tools, onOpenTool, onOpenProjectOrientation }: 
           <p>Live modules and future integration scaffolds share one navigation, context and iconography contract.</p>
         </header>
 
-        {Array.from(groups, ([group, groupTools]) => (
+        {orderedGroups.map(([group, groupTools]) => (
           <section key={group} className="v8-registry-group" data-v8-registry-group={group}>
             <h3>{group}<span>{groupTools.length} tools</span></h3>
             <div className="v8-registry-grid">
