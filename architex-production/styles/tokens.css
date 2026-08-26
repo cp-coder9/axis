@@ -90,17 +90,17 @@
 
 /* Theme override fixture: future themes replace aliases, never component tokens. */
 [data-theme='dark'] {
-  --ax-canvas: ;
-  --ax-surface-1: ;
-  --ax-surface-2: ;
-  --ax-text: ;
-  --ax-text-muted: ;
-  --ax-border: ;
-  --ax-border-strong: ;
-  --ax-action-primary: ;
-  --ax-action-primary-hover: ;
-  --ax-action-secondary: ;
-  --ax-focus: ;
-  --ax-selection: ;
-  --ax-datum: ;
+  --ax-canvas: #0d1c25;
+  --ax-surface-1: #142630;
+  --ax-surface-2: #1a3340;
+  --ax-text: #edf7f8;
+  --ax-text-muted: #a9c2c8;
+  --ax-border: rgba(237, 247, 248, .16);
+  --ax-border-strong: rgba(237, 247, 248, .3);
+  --ax-action-primary: #6ed8d0;
+  --ax-action-primary-hover: #8ce3dc;
+  --ax-action-secondary: #edf7f8;
+  --ax-focus: #6ed8d0;
+  --ax-selection: #264b52;
+  --ax-datum: #51d0c5;
 }

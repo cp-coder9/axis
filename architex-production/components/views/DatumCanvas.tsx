@@ -87,7 +87,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
           { id: 'plan-project', label: 'Plan project', icon: 'practice_management', onClick: () => onOpenTool('practice') },
           { id: 'engineering', label: 'Engineering', icon: 'engineering_hub', onClick: () => onOpenTool('engineering_calc') },
           { id: 'meetings', label: 'Meetings', icon: 'meetings', onClick: () => onOpenTool('meetings') },
-          { id: 'feedback', label: 'Give feedback', icon: 'feedback', onClick: onOpenFeedback, primary: true },
+          { id: 'give-feedback', label: 'Give feedback', icon: 'feedback', onClick: onOpenFeedback, primary: true },
         ]}
       />
       <V8RoleBanner
