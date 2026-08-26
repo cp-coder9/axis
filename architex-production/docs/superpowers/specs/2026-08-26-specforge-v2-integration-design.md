@@ -22,6 +22,16 @@ SpecForge is the specification layer connecting clauses, pictorial product selec
 - Existing Architex project, authentication, navigation, and theme contracts remain authoritative. Pack code is adapted to those contracts rather than copied wholesale.
 - Production never derives records from frontend constants. Prototype seed data is inserted into MariaDB by an explicit prototype seed operation and then uses the same API as production.
 
+## Tool versioning contract
+
+- Every tool definition carries an explicit single-decimal version string matching `^\d+\.\d$`.
+- Existing tools establish the baseline at `1.0`.
+- This SpecForge replacement is a material tool update and therefore releases as `1.1`.
+- Every future material change to a tool must increment that tool's minor value by exactly `0.1`; unrelated tool versions remain unchanged.
+- Versions are product metadata, not package versions, and must not be inferred from build timestamps or Git commits.
+- A shared `ToolVersionBadge` renders `v{version}` beside tool names in a very light green treatment using V8 semantic status colors. It appears in the Workspace Tool Registry and the active tool identity without adding duplicate chrome.
+- Automated contracts require all registered tools to have a valid version and require SpecForge to be `1.1` for this delivery.
+
 ## Scope
 
 ### Included
@@ -182,6 +192,7 @@ The existing `ToolHost` remains the only route/workspace host. The new SpecForge
 - Do not use hard-coded `bg-white`, light-only gray surfaces, legacy V7 chrome, or a second type system.
 - Preserve V8 density, 13px working labels, compact 11px metadata, 13px radii for rows, 15px card radii, visible keyboard focus, and reduced-motion behavior.
 - At narrow widths, tables become horizontally contained, cards collapse to one column, actions wrap, and the page must not create body-level horizontal overflow.
+- The tool-version badge uses a pale green surface, green text, a subtle green border, compact 10px type, and a pill radius. It must remain legible in both V8 themes without becoming a dominant status control.
 
 ## Prototype and production behavior
 
@@ -222,18 +233,20 @@ Local certification and live release certification remain separate. A clean buil
 
 ## Delivery sequence
 
-1. Domain types, policies, readiness, and tests.
-2. Additive MariaDB migration, repository, API, and authorization tests.
-3. Authenticated client service and explicit state model.
-4. V8 workspace shell and overview/smart-add flow.
-5. Sections, products, pictorial, approvals, budget, and drawing flows.
-6. Immutable issue/distribution transaction and downstream commands.
-7. Prototype seed, production empty-state proof, browser/visual certification.
-8. Static export, atomic test-host deployment, live API/MariaDB certification, and evidence commit.
+1. Shared tool version metadata, badge, registry/identity placement, and tests.
+2. Domain types, policies, readiness, and tests.
+3. Additive MariaDB migration, repository, API, and authorization tests.
+4. Authenticated client service and explicit state model.
+5. V8 workspace shell and overview/smart-add flow.
+6. Sections, products, pictorial, approvals, budget, and drawing flows.
+7. Immutable issue/distribution transaction and downstream commands.
+8. Prototype seed, production empty-state proof, browser/visual certification.
+9. Static export, atomic test-host deployment, live API/MariaDB certification, and evidence commit.
 
 ## Acceptance criteria
 
 - The current mock-only SpecForge constants no longer provide runtime records.
+- All 47 registered tools expose a valid version, unchanged tools display `v1.0`, and SpecForge displays `v1.1` in the registry and active workspace identity.
 - A permitted user can create or load a workspace, add/edit a specification item, reload, and see the same MariaDB record.
 - An unauthorized role or cross-organization user cannot read or mutate the record.
 - Issued snapshots are immutable and a subsequent edit occurs in a new revision.
