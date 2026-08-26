@@ -29,20 +29,17 @@ test.describe('P6-BEH-01 frozen V8 workflow contracts', () => {
     await assertNoBodyOverflow(page);
   });
 
-  test('preserves Tool Registry search, filters, open, and return path', async ({ page }) => {
+  test('preserves grouped Tool Registry open and return path', async ({ page }) => {
     await page.setViewportSize(VIEWPORTS.desktop);
     await page.goto('/?workspace=v8');
     await page.getByRole('button', { name: /Workspace Tools/ }).first().click();
 
-    const search = page.getByRole('searchbox', { name: 'Search workspace tools' });
-    await search.fill("Engineer's Calculation Hub");
     await page.locator('main').getByRole('button', { name: /Engineer's Calculation Hub/ }).click();
     await expect(page.getByTestId('engineering-calculation')).toBeVisible();
 
-    await page.getByRole('button', { name: /Back to Standalone Registry/ }).click();
-    await expect(search).toBeVisible();
-    await page.getByRole('button', { name: /All \(47\)/ }).click();
-    await expect(page.getByRole('button', { name: /Live \(47\)/ })).toBeVisible();
+    await page.getByRole('button', { name: /Back to Standalone Registry|Back to workspace tools|Back to standalone library/i }).click();
+    await expect(page.getByTestId('v8-tool-registry').locator('[data-v8-registry-tool]')).toHaveCount(47);
+    await expect(page.getByTestId('v8-tool-registry').getByText('Live sample')).toHaveCount(47);
   });
 
   test('preserves God Mode toggle, role lens, and Datum stage return', async ({ page }) => {

@@ -1,0 +1,199 @@
+.v8-tool-registry {
+  width: auto;
+  margin: -4px -2px 0;
+  color: var(--ax-text);
+  font: 15px Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.v8-registry-page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.v8-registry-page-icon {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, #8b5cf6 20%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, #8b5cf6 9%, var(--ax-surface-1));
+}
+
+.v8-registry-page-copy {
+  min-width: 0;
+}
+
+.v8-registry-page-copy h1,
+.v8-registry-intro h2 {
+  margin: 0;
+  color: var(--ax-text);
+  letter-spacing: -.025em;
+}
+
+.v8-registry-page-copy h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.v8-registry-page-copy p,
+.v8-registry-intro p {
+  margin: 4px 0 0;
+  color: var(--ax-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.v8-registry-orientation {
+  min-height: 0;
+  margin-left: auto;
+  padding: 9px 14px;
+  border: 1px solid var(--ax-border);
+  border-radius: 10px;
+  color: var(--ax-text-muted);
+  background: var(--ax-surface-1);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.v8-registry-notice {
+  margin-bottom: 11px;
+  padding: 10px 12px;
+  border: 1px solid rgba(25, 183, 176, .16);
+  border-radius: 11px;
+  color: var(--ax-action-primary);
+  background: color-mix(in srgb, #dff5f2 45%, transparent);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.v8-registry-catalogue {
+  margin-top: 22px;
+}
+
+.v8-registry-intro {
+  margin-bottom: 8px;
+}
+
+.v8-registry-intro h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.v8-registry-group {
+  margin: 18px 0 26px;
+}
+
+.v8-registry-group > h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 11px;
+  color: var(--ax-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.v8-registry-group > h3 span {
+  color: var(--ax-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.v8-registry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.v8-registry-tool {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border: 1px solid var(--ax-border);
+  border-radius: 13px;
+  color: var(--ax-text);
+  background: color-mix(in srgb, var(--ax-surface-1) 88%, transparent);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.v8-registry-tool:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--ax-datum) 30%, transparent);
+  box-shadow: var(--ax-elevation-raised);
+}
+
+.v8-registry-tool:focus-visible,
+.v8-registry-orientation:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ax-datum) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.v8-registry-tool.is-scaffold {
+  border-style: dashed;
+}
+
+.v8-registry-tool-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.v8-registry-tool-copy {
+  min-width: 0;
+}
+
+.v8-registry-tool-copy b {
+  display: block;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v8-registry-tool-copy small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ax-text-muted);
+  font-size: 11px;
+}
+
+.v8-registry-status {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 99px;
+  color: #1c7b50;
+  background: rgba(40, 168, 107, .1);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.v8-registry-status.is-scaffold {
+  color: #7c3aed;
+  background: rgba(139, 92, 246, .09);
+}
+
+@media (max-width: 700px) {
+  .v8-tool-registry { margin: 0; }
+  .v8-registry-page-head { flex-wrap: wrap; }
+  .v8-registry-page-copy { flex: 1 1 calc(100% - 60px); }
+  .v8-registry-page-copy h1 { font-size: 24px; }
+  .v8-registry-orientation { width: 100%; margin-left: 0; }
+  .v8-registry-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v8-registry-tool { transition: none; }
+}

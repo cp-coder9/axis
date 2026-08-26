@@ -166,29 +166,23 @@ test('P6-W0-GLOBAL Datum renders the existing tool order as a mobile sequence', 
   await assertNoBodyOverflow(page);
 });
 
-test('P6-W0-GLOBAL Tool Registry exposes its existing search control at mobile width', async ({ page }) => {
+test('P6-W0-GLOBAL Tool Registry exposes the grouped compact catalogue at mobile width', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.mobile);
   await page.goto('/?workspace=v8');
   await page.getByRole('button', { name: 'Open global navigation' }).click();
   await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
-  await expect(page.getByRole('searchbox', { name: 'Search workspace tools' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Practice Management/ })).toBeVisible();
+  await expect(page.getByTestId('v8-tool-registry').locator('[data-v8-registry-tool]')).toHaveCount(47);
+  await expect(page.getByRole('heading', { name: 'Complete workspace tool registry' })).toBeVisible();
 });
 
-test('P6-W0-GLOBAL Tool Registry exposes the existing live filter state', async ({ page }) => {
+test('P6-W0-GLOBAL Tool Registry exposes canonical live status semantics', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.mobile);
   await page.goto('/?workspace=v8');
   await page.getByRole('button', { name: 'Open global navigation' }).click();
   await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
 
-  const allFilter = page.getByRole('button', { name: /All \(47\)/ });
-  const liveFilter = page.getByRole('button', { name: /Live \(\d+\)/ });
-  await expect(allFilter).toHaveAttribute('aria-pressed', 'true');
-  await expect(liveFilter).toHaveAttribute('aria-pressed', 'false');
-
-  await liveFilter.click();
-  await expect(liveFilter).toHaveAttribute('aria-pressed', 'true');
-  await expect(allFilter).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.getByTestId('v8-tool-registry').getByText('Live sample')).toHaveCount(47);
+  await expect(page.getByRole('searchbox', { name: 'Search workspace tools' })).toHaveCount(0);
 });
 
 test('P6-W0-GLOBAL Settings exposes the existing selected configuration tab', async ({ page }) => {
@@ -256,17 +250,15 @@ test('P6-GOD-01 God Mode preserves the existing lifecycle-stage action', async (
   await assertNoBodyOverflow(page);
 });
 
-test('P6-W0-GLOBAL Tool Registry preserves search and status filtering', async ({ page }) => {
+test('P6-W0-GLOBAL Tool Registry preserves grouped tool navigation', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.mobile);
   await page.goto('/?workspace=v8');
   await page.getByRole('button', { name: 'Open global navigation' }).click();
   await page.getByRole('dialog', { name: 'Global navigation' }).getByRole('button', { name: 'Workspace Tools 47' }).click();
 
-  await page.getByRole('searchbox', { name: 'Search workspace tools' }).fill("Engineer's Calculation Hub");
   await expect(page.getByRole('button', { name: /Engineer's Calculation Hub/ })).toBeVisible();
-
-  await page.getByRole('button', { name: /Scaffold \(\d+\)/ }).click();
-  await expect(page.getByRole('button', { name: /Engineer's Calculation Hub/ })).toBeHidden();
+  await page.getByRole('button', { name: /Engineer's Calculation Hub/ }).click();
+  await expect(page.getByTestId('engineering-calculation')).toBeVisible();
   await assertNoBodyOverflow(page);
 });
 
