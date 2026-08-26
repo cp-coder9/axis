@@ -31,7 +31,8 @@ Architex OS JSON fixtures into a real relational schema.
 
 ```bash
 php backend/database/migrate.php   # applies unapplied migrations in order
-php backend/database/seed.php      # clears + reseeds all fixture data
+ARCHITEX_DATA_MODE=prototype ARCHITEX_ENABLE_DEMO_SEED=1 php backend/database/seed.php
+# Explicit prototype/local operation only; clears + reseeds all fixture data.
 ```
 
 Seed counts (from `backend/data/*.json` fixtures): 1 org, 20 roles, 5 users,

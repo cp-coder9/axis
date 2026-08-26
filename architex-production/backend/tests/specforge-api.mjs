@@ -1,15 +1,51 @@
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const origin = 'http://127.0.0.1:8092';
 const secret = 'specforge-isolated-api-test-secret';
 const database = process.env.SPECFORGE_TEST_DB ?? 'architex_specforge_api_test';
-const projectId = 'proj-faerie-glen';
+const projectId = 'proj-camps-bay';
+
+assert.match(database, /^[A-Za-z0-9_]+_test$/, 'SpecForge API tests require an isolated schema ending in _test');
+assert(!readFileSync(resolve(root, 'backend/public/index.php'), 'utf8').includes('/specforge/seed'), 'the API must not expose a SpecForge seed route');
+
+const databaseEnv = {
+  ...process.env,
+  APP_ENV: 'test',
+  ARCHITEX_DATA_MODE: 'prototype',
+  ARCHITEX_ENABLE_DEMO_SEED: '1',
+  DB_HOST: 'localhost',
+  DB_NAME: database,
+  DB_USER: process.env.SPECFORGE_TEST_DB_USER ?? 'root',
+  DB_PASS: process.env.SPECFORGE_TEST_DB_PASS ?? '',
+};
+
+function runPhp(args, env = databaseEnv) {
+  return spawnSync('php', args, { cwd: root, env, encoding: 'utf8', windowsHide: true });
+}
+
+function specForgeSeedCount() {
+  const result = runPhp(['-r', '$c=require "backend/config.php"; $d=$c["database"]; $p=new PDO("mysql:host={$d[\'host\']};dbname={$d[\'name\']};charset=utf8mb4",$d["user"],$d["pass"]); echo $p->query("SELECT COUNT(*) FROM specforge_items WHERE workspace_id=\'specforge-workspace-faerie-glen\'")->fetchColumn();']);
+  assert.equal(result.status, 0, result.stderr);
+  return Number(result.stdout.trim());
+}
+
+const productionSeed = runPhp(['backend/database/seed.php'], { ...databaseEnv, APP_ENV: 'production', ARCHITEX_DATA_MODE: 'production' });
+assert.notEqual(productionSeed.status, 0, 'production data mode must reject the prototype seeder');
+
+const firstSeed = runPhp(['backend/database/seed.php']);
+assert.equal(firstSeed.status, 0, firstSeed.stderr);
+const firstSeedCount = specForgeSeedCount();
+assert(firstSeedCount > 0, 'prototype seed must persist SpecForge records');
+const secondSeed = runPhp(['backend/database/seed.php']);
+assert.equal(secondSeed.status, 0, secondSeed.stderr);
+assert.equal(specForgeSeedCount(), firstSeedCount, 'prototype seed must be idempotent');
 
 const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
 function token({ sub, role, org = 'org-demo', projects = [projectId], packageNames = [] }) {
@@ -46,12 +82,7 @@ const server = spawn('php', ['-S', '127.0.0.1:8092', 'backend/public/index.php']
   cwd: root,
   env: {
     ...process.env,
-    APP_ENV: 'test',
-    ARCHITEX_DATA_MODE: 'prototype',
-    DB_HOST: 'localhost',
-    DB_NAME: database,
-    DB_USER: process.env.SPECFORGE_TEST_DB_USER ?? 'root',
-    DB_PASS: process.env.SPECFORGE_TEST_DB_PASS ?? '',
+    ...databaseEnv,
     JWT_SECRET: secret,
     CORS_ORIGIN: 'https://test.architex.co.za',
   },
@@ -145,10 +176,32 @@ try {
   const issueBody = { title: 'Tender issue P06', audience: 'Tender' };
   const issued = await request('POST', `/projects/${projectId}/specforge/issues`, identities.architect, issueBody, { 'Idempotency-Key': 'issue-p06-v1' });
   assert.equal(issued.status, 201);
+  assert.equal(issued.body.downstream.length, 7);
+  assert.deepEqual(issued.body.downstream.map(job => job.job_type).sort(), [
+    'specforge.action-centre', 'specforge.bom-sync', 'specforge.document', 'specforge.escrow',
+    'specforge.messaging', 'specforge.programme', 'specforge.rfq',
+  ]);
+  assert(issued.body.downstream.every(job => job.status === 'pending'));
   const replay = await request('POST', `/projects/${projectId}/specforge/issues`, identities.architect, issueBody, { 'Idempotency-Key': 'issue-p06-v1' });
   assert.equal(replay.status, 200);
   assert.equal(replay.body.issue.id, issued.body.issue.id);
   assert.equal(replay.body.idempotent, true);
+  const conflictingReplay = await request('POST', `/projects/${projectId}/specforge/issues`, identities.architect, { ...issueBody, audience: 'Contractor' }, { 'Idempotency-Key': 'issue-p06-v1' });
+  assert.equal(conflictingReplay.status, 409);
+
+  const drawingScan = await request('POST', `/projects/${projectId}/specforge/drawing-scans`, identities.architect, { drawing_revision_id: 'drawing-revision-p06' }, { 'Idempotency-Key': 'drawing-scan-p06-v1' });
+  assert.equal(drawingScan.status, 202);
+  assert.equal(drawingScan.body.job.job_type, 'ai_drawing_scan');
+
+  const worker = runPhp(['backend/worker.php', '--batch=20', '--once']);
+  assert.equal(worker.status, 0, worker.stderr || worker.stdout);
+  const jobs = await request('GET', `/projects/${projectId}/specforge/jobs?issue_id=${issued.body.issue.id}`, identities.architect);
+  assert.equal(jobs.status, 200);
+  assert.equal(jobs.body.jobs.length, 7);
+  assert(jobs.body.jobs.every(job => job.status === 'integration_required'));
+  assert(jobs.body.jobs.every(job => typeof job.last_error === 'string' && job.last_error.includes('not configured')));
+  const clientJobs = await request('GET', `/projects/${projectId}/specforge/jobs?issue_id=${issued.body.issue.id}`, identities.client);
+  assert.equal(clientJobs.status, 403, 'downstream operational jobs require issue capability');
 
   const reload = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
   assert.equal(reload.body.workspace.items.length, 4);

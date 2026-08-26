@@ -14,6 +14,9 @@ declare(strict_types=1);
 $config = require __DIR__ . '/../config.php';
 require_once dirname(__DIR__) . '/lib/environment_policy.php';
 architex_require_demo_seed_allowed($config);
+if (getenv('ARCHITEX_ENABLE_DEMO_SEED') !== '1') {
+    throw new RuntimeException('Demo seed execution requires ARCHITEX_ENABLE_DEMO_SEED=1');
+}
 $db = $config['database'];
 
 try {
@@ -233,6 +236,37 @@ try {
         ]);
     }
 
+    $section = 'specforge_prototype';
+    // Explicit prototype-only SpecForge dataset. Stable identifiers and
+    // upserts keep repeated seed runs deterministic without runtime fixtures.
+    $workspaceId = 'specforge-workspace-faerie-glen';
+    $pdo->prepare('INSERT INTO specforge_workspaces (id,organization_id,project_id,profile,stage,revision,issue_status,budget_reviewed_at,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE profile=VALUES(profile),stage=VALUES(stage),revision=VALUES(revision),issue_status=VALUES(issue_status),budget_reviewed_at=VALUES(budget_reviewed_at),updated_by=VALUES(updated_by)')
+        ->execute([$workspaceId, ORG_ID, 'proj-faerie-glen', 'Residential architectural', 'Design', 'P03', 'draft', '2026-08-26 10:00:00', 'user-demo-architect', 'user-demo-architect']);
+
+    $specSections = [
+        ['specforge-section-finishes', '12', 'Finishes', 'Architecture', 'architect', 'bep', 'approved'],
+        ['specforge-section-joinery', '13', 'Joinery and fittings', 'Architecture', 'architect', 'bep', 'approved'],
+    ];
+    $insSpecSection = $pdo->prepare('INSERT INTO specforge_sections (id,organization_id,workspace_id,code,title,discipline,owner_role,reviewer_role,status,standard_source,source_revision,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),discipline=VALUES(discipline),owner_role=VALUES(owner_role),reviewer_role=VALUES(reviewer_role),status=VALUES(status),standard_source=VALUES(standard_source),source_revision=VALUES(source_revision),updated_by=VALUES(updated_by)');
+    foreach ($specSections as [$id, $code, $title, $discipline, $ownerRole, $reviewerRole, $status]) {
+        $insSpecSection->execute([$id, ORG_ID, $workspaceId, $code, $title, $discipline, $ownerRole, $reviewerRole, $status, 'Project specification basis — professional verification required', 'P03', 'user-demo-architect', 'user-demo-architect']);
+    }
+
+    $specItems = [
+        ['specforge-item-wall-tile', 'specforge-section-finishes', 'FIN-WT-001', 'Large format porcelain wall tile', 'Main Lobby', 'Tiling', 'Rectified porcelain wall tile installed to the approved setting-out drawings.', 'Local tile supplier', '600x1200 matte porcelain', 'Warm limestone', '600 x 1200mm', 115000, 128500, 21, 1, 'needs_decision', 'client'],
+        ['specforge-item-acoustic-panel', 'specforge-section-joinery', 'JNR-AP-001', 'Acoustic oak wall panel', 'Boardroom', 'Joinery', 'Factory-finished acoustic timber wall panel on a coordinated subframe.', null, null, 'Natural oak', 'Module to shop drawing', 95000, 93000, 56, 0, 'approved', 'architect'],
+        ['specforge-item-door-hardware', 'specforge-section-joinery', 'JNR-DH-001', 'Commercial door hardware set', 'Common areas', 'Ironmongery', 'Coordinated door hardware set subject to fire and accessibility schedules.', null, null, 'Brushed stainless steel', 'Schedule based', 78000, 78000, 42, 0, 'issued', 'architect'],
+    ];
+    $insSpecItem = $pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,budget_allowance,estimated_cost,lead_time_days,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE section_id=VALUES(section_id),title=VALUES(title),room=VALUES(room),package_name=VALUES(package_name),description=VALUES(description),supplier=VALUES(supplier),model=VALUES(model),finish=VALUES(finish),dimensions=VALUES(dimensions),budget_allowance=VALUES(budget_allowance),estimated_cost=VALUES(estimated_cost),lead_time_days=VALUES(lead_time_days),client_decision=VALUES(client_decision),owner_role=VALUES(owner_role),reviewer_role=VALUES(reviewer_role),approver_role=VALUES(approver_role),status=VALUES(status),source_revision=VALUES(source_revision),updated_by=VALUES(updated_by)');
+    foreach ($specItems as [$id, $sectionId, $code, $title, $room, $packageName, $description, $supplier, $model, $finish, $dimensions, $allowance, $estimate, $leadDays, $clientDecision, $status, $approverRole]) {
+        $insSpecItem->execute([$id, ORG_ID, $workspaceId, $sectionId, $code, $title, $room, $packageName, $description, $supplier, $model, $finish, $dimensions, $allowance, $estimate, $leadDays, $clientDecision, 'architect', 'bep', $approverRole, $status, 'P03', 'user-demo-architect', 'user-demo-architect']);
+    }
+
+    $pdo->prepare('INSERT INTO specforge_approvals (id,organization_id,workspace_id,item_id,approval_type,requested_role,requested_user_id,status,due_at) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE requested_role=VALUES(requested_role),requested_user_id=VALUES(requested_user_id),status=VALUES(status),due_at=VALUES(due_at)')
+        ->execute(['specforge-approval-wall-tile', ORG_ID, $workspaceId, 'specforge-item-wall-tile', 'client_decision', 'client', 'user-demo-client', 'pending', '2026-08-30 12:00:00']);
+    $pdo->prepare('INSERT INTO specforge_drawing_findings (id,organization_id,workspace_id,drawing_revision_id,item_id,severity,finding,status,source_payload) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE drawing_revision_id=VALUES(drawing_revision_id),item_id=VALUES(item_id),severity=VALUES(severity),finding=VALUES(finding),status=VALUES(status),source_payload=VALUES(source_payload)')
+        ->execute(['specforge-finding-wall-tile', ORG_ID, $workspaceId, 'drawing-revision-a420-p03', 'specforge-item-wall-tile', 'high', 'Lobby elevation module requires coordination with the selected tile dimensions.', 'open', json_encode(['source' => 'prototype_seed', 'human_review_required' => true], JSON_UNESCAPED_SLASHES)]);
+
     $section = 'audit_log';
     // Audit log
     $insAudit = $pdo->prepare('INSERT INTO audit_log (organization_id, actor_user_id, entity_type, entity_id, action_key, after_json) VALUES (?, ?, ?, ?, ?, ?)');
@@ -311,7 +345,7 @@ try {
 
 // Report counts
 $report = [];
-foreach (['organizations', 'roles', 'users', 'projects', 'modules', 'project_passports', 'documents', 'approvals', 'approval_steps', 'ai_candidates', 'meetings', 'action_items', 'audit_log'] as $table) {
+foreach (['organizations', 'roles', 'users', 'projects', 'modules', 'project_passports', 'documents', 'approvals', 'approval_steps', 'ai_candidates', 'meetings', 'action_items', 'specforge_workspaces', 'specforge_sections', 'specforge_items', 'specforge_approvals', 'specforge_drawing_findings', 'audit_log'] as $table) {
     $report[$table] = (int)$pdo->query("SELECT COUNT(*) FROM `$table`")->fetchColumn();
 }
 echo "Seed complete.\n";

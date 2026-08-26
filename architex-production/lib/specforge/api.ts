@@ -5,7 +5,9 @@ import type {
   SpecForgeApproval,
   SpecForgeCommand,
   SpecForgeDrawingFinding,
+  SpecForgeDownstreamJob,
   SpecForgeIssue,
+  SpecForgeIssueResult,
   SpecForgeItem,
   SpecForgeSection,
 } from '@/lib/specforge/types';
@@ -84,6 +86,13 @@ function mapIssue(row: ApiRecord): SpecForgeIssue {
 function mapCommand(row: ApiRecord): SpecForgeCommand {
   return {
     id: stringValue(row.id), commandType: stringValue(row.route_key), status: stringValue(row.status) as SpecForgeCommand['status'],
+    lastError: nullableString(row.last_error),
+  };
+}
+
+function mapDownstreamJob(row: ApiRecord): SpecForgeDownstreamJob {
+  return {
+    id: stringValue(row.id), jobType: stringValue(row.job_type), status: stringValue(row.status) as SpecForgeDownstreamJob['status'],
     lastError: nullableString(row.last_error),
   };
 }
@@ -169,8 +178,14 @@ export const specForgeApi = {
     request(`/projects/${encodeURIComponent(projectId)}/specforge/approvals/${encodeURIComponent(approvalId)}/decision`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ decision, decision_note: decisionNote }) }),
   validateIssue: (projectId: string, identity: SpecForgeIdentity) =>
     request<SpecForgeIssueReadiness>(`/projects/${encodeURIComponent(projectId)}/specforge/issues/validate`, identity, { method: 'POST', body: '{}' }),
-  issue: (projectId: string, input: { title: string; audience: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/issues`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(input) }),
+  listJobs: async (projectId: string, issueId: string, identity: SpecForgeIdentity): Promise<SpecForgeDownstreamJob[]> => {
+    const result = await request<{ jobs: ApiRecord[] }>(`/projects/${encodeURIComponent(projectId)}/specforge/jobs?issue_id=${encodeURIComponent(issueId)}`, identity);
+    return result.jobs.map(mapDownstreamJob);
+  },
+  issue: async (projectId: string, input: { title: string; audience: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()): Promise<SpecForgeIssueResult> => {
+    const result = await request<{ issue: ApiRecord; downstream: ApiRecord[]; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/issues`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(input) });
+    return { issue: mapIssue(result.issue), downstream: result.downstream.map(mapDownstreamJob), idempotent: result.idempotent };
+  },
   requestDrawingScan: (projectId: string, input: { drawingRevisionId: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/drawing-scans`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ drawing_revision_id: input.drawingRevisionId }) }),
 };

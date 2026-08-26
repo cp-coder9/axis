@@ -1618,6 +1618,14 @@ if ($method === 'GET' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/aud
     catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'GET' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/jobs$#', $path, $m)) {
+    specforge_permission('issue');
+    try {
+        $jobs = specforge_repository()->listJobs(current_identity(), $m[2], query_param('issue_id'));
+        json_response(['jobs' => $jobs, 'count' => count($jobs)]);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'GET' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge$#', $path, $m)) {
     specforge_permission('view');
     try { json_response(['workspace' => specforge_repository()->getProjectAggregate(current_identity(), $m[2])]); }
@@ -1708,6 +1716,21 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/ap
     catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/drawing-scans$#', $path, $m)) {
+    specforge_permission('drawing_request');
+    $body = json_body();
+    $drawingRevisionId = trim((string) ($body['drawing_revision_id'] ?? ''));
+    $errors = [];
+    foreach (array_keys($body) as $field) if ($field !== 'drawing_revision_id') $errors[$field] = 'Unexpected field.';
+    if ($drawingRevisionId === '' || mb_strlen($drawingRevisionId) > 180) $errors['drawing_revision_id'] = 'Required within 180 characters.';
+    if ($errors) json_response(['error' => 'Invalid drawing scan request', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->requestDrawingScan(current_identity(), $m[2], $drawingRevisionId, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        json_response(['job' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 202);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/issues/validate$#', $path, $m)) {
     specforge_permission('view');
     try { json_response(specforge_repository()->validateIssue(current_identity(), $m[2])); }
@@ -1722,7 +1745,7 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/is
     try {
         $result = specforge_repository()->createIssue(current_identity(), $m[2], $body, idempotency_key());
         if ($result['idempotent']) header('X-Idempotent-Replay: true');
-        json_response(['issue' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+        json_response(['issue' => $result['record']['issue'], 'downstream' => $result['record']['downstream'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
     } catch (Throwable $error) { specforge_error($error); }
 }
 

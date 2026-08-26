@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ALL_PROJECTS } from '@/lib/data';
@@ -13,7 +13,7 @@ import { SpecForgeModule } from '@/components/modules/SpecForgeModule';
 
 const actions = {
   reload: vi.fn(), setDraft: vi.fn(), clearDrafts: vi.fn(), createWorkspace: vi.fn(), createSection: vi.fn(), createItem: vi.fn(),
-  updateItem: vi.fn(), duplicateItem: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), requestDrawingScan: vi.fn(),
+  updateItem: vi.fn(), duplicateItem: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
 };
 
 const workspace: SpecForgeAggregate = {
@@ -26,7 +26,23 @@ const workspace: SpecForgeAggregate = {
 };
 
 afterEach(cleanup);
-beforeEach(() => { vi.clearAllMocks(); useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace, message: null, retryable: false, drafts: {}, actions }); });
+beforeEach(() => {
+  vi.clearAllMocks();
+  actions.validateIssue.mockResolvedValue({ ready: true, codes: [] });
+  actions.issue.mockResolvedValue({
+    issue: { id: 'issue-1', revision: 'P06', title: 'Specification issue P06', audience: 'Project team', status: 'issued', snapshotHash: 'hash', issuedAt: '2026-08-26T12:00:00Z' },
+    downstream: [
+      { id: 'job-1', jobType: 'specforge.action-centre', status: 'pending', lastError: null },
+      { id: 'job-2', jobType: 'specforge.messaging', status: 'pending', lastError: null },
+    ],
+    idempotent: false,
+  });
+  actions.listJobs.mockResolvedValue([
+    { id: 'job-1', jobType: 'specforge.action-centre', status: 'integration_required', lastError: 'Action Centre integration is not configured.' },
+    { id: 'job-2', jobType: 'specforge.messaging', status: 'integration_required', lastError: 'Messaging integration is not configured.' },
+  ]);
+  useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace, message: null, retryable: false, drafts: {}, actions });
+});
 
 describe('SpecForge V8 workspace', () => {
   it('renders persisted project records, semantic identity and v1.1', () => {
@@ -65,5 +81,29 @@ describe('SpecForge V8 workspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Review draft' }));
     expect(screen.getByText('Acoustic oak wall panel')).toBeTruthy();
     expect(screen.getByText(/manual draft/i)).toBeTruthy();
+  });
+
+  it('lists exact issue blockers and reports only real downstream job states', async () => {
+    const blockedWorkspace: SpecForgeAggregate = {
+      ...workspace,
+      budgetReviewedAt: null,
+      approvals: [{ id: 'approval-1', itemId: 'item-1', approvalType: 'client_decision', requestedRole: 'client', requestedUserId: null, status: 'pending', decisionNote: null, dueAt: null }],
+    };
+    useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace: blockedWorkspace, message: null, retryable: false, drafts: {}, actions });
+    const { rerender } = render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="issue" />);
+    expect(screen.getByText('approvals pending')).toBeTruthy();
+    expect(screen.getByText('budget review pending')).toBeTruthy();
+
+    useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace, message: null, retryable: false, drafts: {}, actions });
+    rerender(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="issue" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and issue P06' }));
+    await waitFor(() => expect(actions.issue).toHaveBeenCalledTimes(1));
+    expect(screen.getByText('Action centre')).toBeTruthy();
+    expect(screen.getByText('Messaging')).toBeTruthy();
+    expect(screen.getAllByText('Queued')).toHaveLength(2);
+    expect(screen.queryByText(/distributed/i)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh statuses' }));
+    await waitFor(() => expect(actions.listJobs).toHaveBeenCalledWith('issue-1'));
+    expect(screen.getAllByText('Integration required')).toHaveLength(2);
   });
 });

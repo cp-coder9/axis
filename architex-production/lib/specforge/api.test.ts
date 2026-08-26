@@ -52,4 +52,13 @@ describe('SpecForge API client', () => {
     await expect(specForgeApi.get('project-1', identity)).resolves.toBeNull();
     await expect(specForgeApi.get('project-1', identity)).rejects.toEqual(expect.objectContaining<Partial<SpecForgeApiError>>({ status: 503 }));
   });
+
+  it('maps real downstream job status from the persistence API', async () => {
+    authenticatedFetch.mockResolvedValue(response({ jobs: [{ id: 'job-1', job_type: 'specforge.messaging', status: 'integration_required', last_error: 'Messaging integration is not configured.' }] }));
+
+    await expect(specForgeApi.listJobs('project-1', 'issue-1', identity)).resolves.toEqual([
+      { id: 'job-1', jobType: 'specforge.messaging', status: 'integration_required', lastError: 'Messaging integration is not configured.' },
+    ]);
+    expect(authenticatedFetch.mock.calls[0][0]).toContain('issue_id=issue-1');
+  });
 });

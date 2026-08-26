@@ -28,10 +28,13 @@ destination to the internal API URL **or** call the API directly through
 # On the database host:
 mysql -u root -p < backend/database/migrations/001_core_schema.sql   # or use migrate.php
 php backend/database/migrate.php   # applies all unapplied migrations (idempotent)
-php backend/database/seed.php      # clears + reseeds demo data (idempotent)
+ARCHITEX_DATA_MODE=prototype ARCHITEX_ENABLE_DEMO_SEED=1 php backend/database/seed.php
+# Explicit prototype/local operation only; clears + reseeds demo data idempotently.
 ```
 
 Verification: `SELECT COUNT(*) FROM projects;` → 4 (seeded demo register).
+The seeder fails closed in production data mode and also requires the explicit
+`ARCHITEX_ENABLE_DEMO_SEED=1` flag. Never set that flag on a production host.
 
 The `calculation_records` table and Phase 3 hardening migrations are part of
 this sequence. Engineering calculation writes are governed by the MariaDB

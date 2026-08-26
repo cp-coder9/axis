@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
+import { SpecForgeIssue } from '@/components/modules/specforge/SpecForgeIssue';
 import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
-import { summarizeSpecBudget, validateIssueReadiness } from '@/lib/specforge/domain';
-import type { SpecForgeAggregate } from '@/lib/specforge/types';
+import { summarizeSpecBudget } from '@/lib/specforge/domain';
+import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult } from '@/lib/specforge/types';
 import type { RoleKey } from '@/lib/types';
 
 const money = (value: number) => `R ${value.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}`;
@@ -15,18 +16,19 @@ interface Props {
   workspace: SpecForgeAggregate;
   role: RoleKey;
   canEdit: boolean;
+  canIssue: boolean;
   onDuplicate: (itemId: string) => Promise<unknown>;
   onDecide: (approvalId: string, decision: 'approved' | 'rejected') => Promise<unknown>;
   onValidateIssue: () => Promise<{ ready: boolean; codes: string[] }>;
-  onIssue: (input: { title: string; audience: string }) => Promise<unknown>;
+  onIssue: (input: { title: string; audience: string }) => Promise<SpecForgeIssueResult>;
+  onListJobs: (issueId: string) => Promise<SpecForgeDownstreamJob[]>;
   onDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
 }
 
-export function SpecForgeRecords({ tab, workspace, role, canEdit, onDuplicate, onDecide, onValidateIssue, onIssue, onDrawingScan }: Props) {
+export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onDuplicate, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [drawingRevision, setDrawingRevision] = useState('');
   const budget = summarizeSpecBudget(workspace.items);
-  const readiness = validateIssueReadiness(workspace);
 
   if (tab === 'pictorial') return <div data-tool-tab={tab} className="specforge-pictorial">{workspace.items.map(item => <Surface as="article" level="raised" key={item.id}><div className="specforge-product-image">{item.imageUrl ? <div className="specforge-product-photo" role="img" aria-label={item.title} style={{ backgroundImage: cssImage(item.imageUrl) }} /> : <div><span>{item.finish ?? 'Product image pending'}</span><small>{item.dimensions ?? item.packageName}</small></div>}</div><div className="specforge-product-copy"><div><code>{item.code}</code>{status(item.status)}</div><h2>{item.title}</h2><p>{item.supplier ?? 'Supplier not assigned'} · {item.model ?? 'performance basis'}</p><small>{item.room} · {item.sourceRevision}</small></div></Surface>)}</div>;
 
@@ -44,7 +46,7 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, onDuplicate, o
 
   if (tab === 'drawings') return <div data-tool-tab={tab} className="specforge-drawing-layout"><Surface level="raised" className="specforge-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Drawing intelligence</span><h2>Coordination findings</h2></div><span>{workspace.drawingFindings.length} findings</span></div>{workspace.drawingFindings.map(finding => <article className="specforge-finding" key={finding.id}>{status(finding.severity)}<div><strong>{finding.drawingRevisionId}</strong><p>{finding.finding}</p><small>{finding.status} · {finding.itemId ? 'linked item' : 'workspace finding'}</small></div></article>)}{workspace.drawingFindings.length === 0 && <p className="specforge-empty-copy">No drawing findings have been persisted.</p>}</Surface><Surface level="inset" className="specforge-scan-card"><span className="specforge-kicker">Request governed scan</span><h2>Analyse a drawing revision</h2><p>The request creates a queued job. Results remain candidates until professional review.</p><label>Drawing revision ID<input value={drawingRevision} onChange={event => setDrawingRevision(event.target.value)} /></label><Button disabled={!drawingRevision.trim()} onClick={() => void onDrawingScan(drawingRevision.trim()).then(() => setMessage('Drawing scan queued.')).catch(error => setMessage(error instanceof Error ? error.message : 'Scan unavailable.'))}>Request scan</Button>{message && <small role="status">{message}</small>}</Surface></div>;
 
-  if (tab === 'issue') return <div data-tool-tab={tab} className="specforge-issue-layout"><Surface level="raised" className="specforge-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Immutable issue history</span><h2>Issue register</h2></div><span>{workspace.issues.length} issues</span></div>{workspace.issues.map(issue => <article className="specforge-issue-row" key={issue.id}><div><code>{issue.revision}</code><strong>{issue.title}</strong><small>{issue.audience} · {issue.issuedAt ?? 'draft'}</small></div>{status(issue.status)}</article>)}{workspace.issues.length === 0 && <p className="specforge-empty-copy">No issue has been created for this workspace.</p>}</Surface><Surface level="inset" className="specforge-issue-gate"><span className="specforge-kicker">Issue gate · {workspace.revision}</span><h2>{readiness.ready ? 'Ready for server validation' : 'Controls require attention'}</h2><p>The server revalidates every gate inside the issue transaction.</p><ul>{readiness.codes.map(code => <li key={code}>{code.replaceAll('_',' ').toLowerCase()}</li>)}{readiness.ready && <li>Local readiness checks complete</li>}</ul>{canEdit && <Button onClick={() => void onValidateIssue().then(result => { if (!result.ready) { setMessage(result.codes.join(', ')); return; } return onIssue({ title: `Specification issue ${workspace.revision}`, audience: 'Project team' }).then(() => setMessage('Issue created and distributed to configured destinations.')); }).catch(error => setMessage(error instanceof Error ? error.message : 'Issue failed.'))}>Validate and issue {workspace.revision}</Button>}{message && <small role="status">{message}</small>}</Surface></div>;
+  if (tab === 'issue') return <SpecForgeIssue workspace={workspace} canIssue={canIssue} onValidate={onValidateIssue} onIssue={onIssue} onListJobs={onListJobs} />;
 
   return <Empty title="Workspace view unavailable" detail="Choose a SpecForge workflow tab." />;
 }

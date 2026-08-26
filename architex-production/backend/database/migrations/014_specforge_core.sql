@@ -1,5 +1,8 @@
 -- SpecForge v1.1 project specification workspace.
 
+ALTER TABLE jobs
+  MODIFY COLUMN status ENUM('pending','processing','done','failed','integration_required') NOT NULL DEFAULT 'pending';
+
 CREATE TABLE IF NOT EXISTS specforge_workspaces (
   id CHAR(36) NOT NULL,
   organization_id CHAR(36) NOT NULL,

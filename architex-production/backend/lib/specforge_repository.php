@@ -200,6 +200,44 @@ final class MariaDbSpecForgeRepository
         return $this->issueReadiness($workspace['id']);
     }
 
+    /** @return list<array<string,mixed>> */
+    public function listJobs(array $identity, string $projectId, ?string $issueId = null): array
+    {
+        $this->workspaceForCapability($identity, $projectId, 'issue');
+        $sql = "SELECT id,job_type,status,result_json,last_error,attempts,created_at,updated_at FROM jobs WHERE organization_id=? AND JSON_UNQUOTE(JSON_EXTRACT(payload_json, '$.project_id'))=? AND (job_type LIKE 'specforge.%' OR job_type='ai_drawing_scan')";
+        $values = [$identity['org'], $projectId];
+        if ($issueId !== null && $issueId !== '') {
+            $sql .= " AND JSON_UNQUOTE(JSON_EXTRACT(payload_json, '$.issue_id'))=?";
+            $values[] = $issueId;
+        }
+        $sql .= ' ORDER BY created_at ASC,id ASC';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+        return array_map(function (array $row): array {
+            $row['attempts'] = (int) $row['attempts'];
+            $row['result'] = $this->decode($row['result_json']);
+            unset($row['result_json']);
+            return $row;
+        }, $stmt->fetchAll());
+    }
+
+    /** @return array{record:array<string,mixed>,idempotent:bool} */
+    public function requestDrawingScan(array $identity, string $projectId, string $drawingRevisionId, string $idempotencyKey): array
+    {
+        $workspace = $this->workspaceForCapability($identity, $projectId, 'drawing_request');
+        $body = ['drawing_revision_id' => $drawingRevisionId];
+        return $this->command($identity, 'drawing_scan.create', $workspace['id'], $drawingRevisionId, $idempotencyKey, $body, function () use ($identity, $projectId, $workspace, $drawingRevisionId): array {
+            $job = $this->enqueueJob($identity['org'], 'ai_drawing_scan', [
+                'consumer' => 'specforge',
+                'project_id' => $projectId,
+                'workspace_id' => $workspace['id'],
+                'drawing_revision_id' => $drawingRevisionId,
+            ]);
+            $this->audit($identity, 'specforge.drawing_scan.requested', 'job', $job['id'], null, $job + ['project_id' => $projectId]);
+            return $job;
+        });
+    }
+
     /** @return array{record:array<string,mixed>,idempotent:bool} */
     public function createIssue(array $identity, string $projectId, array $body, string $idempotencyKey): array
     {
@@ -229,8 +267,18 @@ final class MariaDbSpecForgeRepository
             $nextRevision = $this->nextRevision((string) $locked['revision']);
             $this->pdo->prepare('UPDATE specforge_workspaces SET revision=?, issue_status="issued", lock_version=lock_version+1, updated_by=? WHERE id=? AND organization_id=?')->execute([$nextRevision, $identity['sub'], $locked['id'], $identity['org']]);
             $issue = $this->findRow('specforge_issues', $identity['org'], $issueId);
+            $downstream = [];
+            foreach (['action-centre','messaging','programme','bom-sync','rfq','document','escrow'] as $destination) {
+                $downstream[] = $this->enqueueJob($identity['org'], 'specforge.' . $destination, [
+                    'project_id' => $projectId,
+                    'workspace_id' => $locked['id'],
+                    'issue_id' => $issueId,
+                    'revision' => $locked['revision'],
+                    'requested_by' => $identity['sub'],
+                ]);
+            }
             $this->audit($identity, 'specforge.issue.created', 'specforge_issue', $issueId, null, $issue + ['project_id' => $projectId]);
-            return $issue;
+            return ['issue' => $issue, 'downstream' => $downstream];
         });
     }
 
@@ -440,6 +488,21 @@ final class MariaDbSpecForgeRepository
     private function scalar(string $sql, string $workspaceId): mixed
     {
         $stmt = $this->pdo->prepare($sql); $stmt->execute([$workspaceId]); return $stmt->fetchColumn();
+    }
+
+    /** @return array<string,mixed> */
+    private function enqueueJob(string $organizationId, string $jobType, array $payload): array
+    {
+        $job = [
+            'id' => $this->uuid(),
+            'job_type' => $jobType,
+            'status' => 'pending',
+            'last_error' => null,
+        ];
+        $this->pdo->prepare('INSERT INTO jobs (id,organization_id,job_type,status,payload_json) VALUES (?,?,?,"pending",?)')->execute([
+            $job['id'], $organizationId, $jobType, $this->encode($payload),
+        ]);
+        return $job;
     }
 
     /** @return array<string,list<array<string,mixed>>> */

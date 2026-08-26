@@ -66,11 +66,11 @@ export function useSpecForgeWorkspace(projectId: string | null, identity: SpecFo
       dispatch({ type: 'failure', error });
       return null;
     }
-  }, [enabled, identity.role, identity.userId, projectId]);
+  }, [enabled, identity, projectId]);
 
   useEffect(() => { void reload(); }, [reload]);
 
-  const mutate = useCallback(async (operation: () => Promise<unknown>) => {
+  const mutate = useCallback(async <T,>(operation: () => Promise<T>): Promise<T> => {
     try {
       const result = await operation();
       await reload();
@@ -93,6 +93,7 @@ export function useSpecForgeWorkspace(projectId: string | null, identity: SpecFo
     requestApproval: (itemId: string, input: Parameters<typeof specForgeApi.requestApproval>[2]) => projectId ? mutate(() => specForgeApi.requestApproval(projectId, itemId, input, identity)) : Promise.reject(new Error('Project context is required.')),
     decideApproval: (approvalId: string, decision: 'approved' | 'rejected', note: string | null) => projectId ? mutate(() => specForgeApi.decideApproval(projectId, approvalId, decision, note, identity)) : Promise.reject(new Error('Project context is required.')),
     validateIssue: () => projectId ? specForgeApi.validateIssue(projectId, identity) : Promise.reject(new Error('Project context is required.')),
+    listJobs: (issueId: string) => projectId ? specForgeApi.listJobs(projectId, issueId, identity) : Promise.reject(new Error('Project context is required.')),
     issue: (input: { title: string; audience: string }) => projectId ? mutate(() => specForgeApi.issue(projectId, input, identity)) : Promise.reject(new Error('Project context is required.')),
     requestDrawingScan: (drawingRevisionId: string) => projectId ? mutate(() => specForgeApi.requestDrawingScan(projectId, { drawingRevisionId }, identity)) : Promise.reject(new Error('Project context is required.')),
   }), [identity, mutate, projectId, reload]);

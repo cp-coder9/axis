@@ -18,6 +18,7 @@ export type SpecForgeFindingSeverity = 'low' | 'medium' | 'high' | 'critical';
 export type SpecForgeFindingStatus = 'open' | 'reviewed' | 'resolved';
 export type SpecForgeIssueStatus = 'draft' | 'issued' | 'superseded';
 export type SpecForgeCommandStatus = 'queued' | 'running' | 'completed' | 'failed' | 'integration_required';
+export type SpecForgeJobStatus = 'pending' | 'processing' | 'done' | 'failed' | 'integration_required';
 
 export interface SpecForgeRoleContext {
   role: RoleKey;
@@ -97,6 +98,19 @@ export interface SpecForgeCommand {
   commandType: string;
   status: SpecForgeCommandStatus;
   lastError: string | null;
+}
+
+export interface SpecForgeDownstreamJob {
+  id: string;
+  jobType: string;
+  status: SpecForgeJobStatus;
+  lastError: string | null;
+}
+
+export interface SpecForgeIssueResult {
+  issue: SpecForgeIssue;
+  downstream: SpecForgeDownstreamJob[];
+  idempotent: boolean;
 }
 
 export interface SpecForgeCandidate {
