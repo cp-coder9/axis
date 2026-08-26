@@ -1,0 +1,56 @@
+{
+  "certified_at": "2026-08-26T17:25:39.758Z",
+  "deployment": {
+    "origin": "https://test.architex.co.za",
+    "revision": "5bce3d397f1e22dfa515fee48efa8444c87d5093",
+    "target": "/public_html/architex.co.za/ai/public_html/test.architex.co.za",
+    "rollback": "/public_html/architex.co.za/ai/public_html/test.architex.co.za.pre-v8-datum-20260826-171946",
+    "uploaded_files": 45,
+    "uploaded_bytes": 3175137,
+    "local_index_sha256": "6d5226cf0372b124d2eb0a4ca01fc66e464ed1c9f7a081ade81634dfceabcadc",
+    "live_index_sha256": "6d5226cf0372b124d2eb0a4ca01fc66e464ed1c9f7a081ade81634dfceabcadc",
+    "hash_match": true
+  },
+  "api": {
+    "health_status": 200,
+    "db_health_status": 200,
+    "database_connected": true,
+    "database_server": "11.4.13-MariaDB",
+    "migrations_applied": 13,
+    "authenticated_login_status": 200,
+    "me_status": 200,
+    "projects_status": 200,
+    "refresh_status": 200,
+    "logout_status": 200,
+    "http_5xx_count": 0
+  },
+  "browser": {
+    "engine": "Chromium via Playwright",
+    "network_mocking": false,
+    "landing": true,
+    "authenticated": true,
+    "project_datum": true,
+    "theme_toggle": true,
+    "theme_persists_after_reload": true,
+    "god_mode": true,
+    "session_restores_after_reload": true,
+    "projects_request": true,
+    "logout": true,
+    "failed_requests": 0,
+    "http_5xx_count": 0,
+    "expected_clean_context_refresh_401": true,
+    "detail": "live/browser-certification.json",
+    "screenshots": [
+      "live/landing.png",
+      "live/project-datum.png",
+      "live/god-mode.png"
+    ]
+  },
+  "cache": {
+    "server": "LiteSpeed",
+    "direct_purge_status": 405,
+    "purge_succeeded": false,
+    "certification_used_cache_busting": true
+  },
+  "scope": "Live prototype Project Datum and shell certification only; remaining V8 surfaces require separate migration and page-level parity certification."
+}

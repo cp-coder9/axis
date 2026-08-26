@@ -1,0 +1,52 @@
+{
+  "baseUrl": "https://test.architex.co.za/",
+  "certifiedAt": "2026-08-26T17:25:39.758Z",
+  "landing": true,
+  "authenticated": true,
+  "projectDatum": true,
+  "themeToggle": true,
+  "themePersistsAfterReload": true,
+  "godMode": true,
+  "sessionRestoresAfterReload": true,
+  "projectsRequest": true,
+  "logout": true,
+  "apiResponses": [
+    {
+      "url": "https://api.architex.co.za/api/v1/auth/refresh",
+      "status": 401
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/me",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/projects",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/auth/refresh",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/me",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/projects",
+      "status": 200
+    },
+    {
+      "url": "https://api.architex.co.za/api/v1/auth/logout",
+      "status": 200
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "failedRequests": [],
+  "serverErrors": []
+}
