@@ -1,9 +1,11 @@
 {
   "baseUrl": "https://test.architex.co.za/",
-  "certifiedAt": "2026-08-26T17:25:39.758Z",
+  "certifiedAt": "2026-08-26T18:06:14.897Z",
   "landing": true,
   "authenticated": true,
   "projectDatum": true,
+  "commandCentre": true,
+  "commandCentreDatumAction": true,
   "themeToggle": true,
   "themePersistsAfterReload": true,
   "godMode": true,

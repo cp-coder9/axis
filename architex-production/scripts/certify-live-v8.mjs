@@ -34,6 +34,8 @@ const result = {
   landing: false,
   authenticated: false,
   projectDatum: false,
+  commandCentre: false,
+  commandCentreDatumAction: false,
   themeToggle: false,
   themePersistsAfterReload: false,
   godMode: false,
@@ -59,6 +61,16 @@ try {
   await page.getByTestId('datum-canvas').waitFor();
   result.projectDatum = true;
   await page.screenshot({ path: path.join(outputDir, 'project-datum.png'), fullPage: true });
+
+  await page.getByRole('navigation').getByRole('button', { name: 'Command Centre' }).click();
+  const commandCentre = page.getByTestId('global-destination-command');
+  await commandCentre.getByRole('heading', { level: 1, name: 'Architex OS Command Centre' }).waitFor();
+  if (await commandCentre.locator('[data-v8-command-card]').count() !== 4) throw new Error('Command Centre did not render four cards');
+  result.commandCentre = true;
+  await page.screenshot({ path: path.join(outputDir, 'command-centre.png'), fullPage: true });
+  await commandCentre.getByRole('button', { name: /Open datum project space/i }).click();
+  await page.getByTestId('datum-canvas').waitFor();
+  result.commandCentreDatumAction = true;
 
   const theme = page.getByTestId('workspace-theme-toggle');
   const pressedBefore = await theme.getAttribute('aria-pressed');
@@ -92,5 +104,5 @@ try {
 }
 
 console.log(JSON.stringify(result));
-const required = ['landing', 'authenticated', 'projectDatum', 'themeToggle', 'themePersistsAfterReload', 'godMode', 'sessionRestoresAfterReload', 'projectsRequest', 'logout'];
+const required = ['landing', 'authenticated', 'projectDatum', 'commandCentre', 'commandCentreDatumAction', 'themeToggle', 'themePersistsAfterReload', 'godMode', 'sessionRestoresAfterReload', 'projectsRequest', 'logout'];
 if (required.some(key => result[key] !== true) || serverErrors.length || failedRequests.length) process.exitCode = 1;

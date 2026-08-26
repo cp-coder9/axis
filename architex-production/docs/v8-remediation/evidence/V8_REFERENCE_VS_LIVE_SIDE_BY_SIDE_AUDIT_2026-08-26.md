@@ -11,18 +11,19 @@ This section supersedes the earlier live-entry failure below; that failure is re
 
 | Gate | Current result | Evidence |
 |---|---|---|
-| Atomic test deployment | **Pass** | 45 files / 3,175,137 bytes promoted; prior site retained at `test.architex.co.za.pre-v8-datum-20260826-171946`. |
-| Exact deployed artifact | **Pass** | Local and live `index.html` SHA-256 both `6d5226cf0372b124d2eb0a4ca01fc66e464ed1c9f7a081ade81634dfceabcadc`. |
+| Atomic test deployment | **Pass** | 45 files / 3,179,597 bytes promoted; prior site retained at `test.architex.co.za.pre-v8-datum-20260826-180408`. |
+| Exact deployed artifact | **Pass** | Local and live `index.html` SHA-256 both `f92222101a84aa83c7a63d0327e6960768f21d7065caf256b064e6ee20fc847e`. |
 | Landing and real login | **Pass** | Fresh Chromium session reached the supplied landing, signed in through the live API, and received 200 from login and `/me`. |
 | MariaDB persistence path | **Pass** | `/api/v1/db-health` returned 200, `connected: true`, MariaDB 11.4.13 and 13 applied migrations. |
 | Project Datum | **Pass for this slice** | Eight-stage Datum, spatial world and project context rendered in the authenticated live shell. |
+| OS Command Centre | **Pass for this slice** | Reference heading, copy, four-card hierarchy and Datum action passed live. Local 1600 x 1000 evidence matches the page head, icon and title exactly; cards are 409px with a 14px gap and at most 0.09375px measured height variance. |
 | Theme and session persistence | **Pass** | Theme state and authenticated session survived a browser reload; refresh, `/me`, and `/projects` returned 200. |
 | God Mode | **Pass conceptually** | Explorer opened in the live authenticated session while retaining the selected Architect role lens. |
 | Logout/revocation path | **Pass** | Live logout returned 200 and restored the public landing. |
 | Browser/network gate | **Pass** | No failed requests and no HTTP 5xx. The single clean-context refresh 401 is the expected unauthenticated restore probe before login. |
 | LiteSpeed purge | **Not available through HTTP PURGE** | Server returned 405; certification used a no-cache, cache-busted URL and exact live hash comparison. |
 
-Current evidence: [Project Datum](../../../release/evidence/v8-project-datum/live/project-datum.png), [God Mode](../../../release/evidence/v8-project-datum/live/god-mode.png), and [machine-readable certification](../../../release/evidence/v8-project-datum/live-certification.json).
+Current evidence: [OS Command Centre](../../../release/evidence/v8-project-datum/live/command-centre.png), [Project Datum](../../../release/evidence/v8-project-datum/live/project-datum.png), [God Mode](../../../release/evidence/v8-project-datum/live/god-mode.png), [Command Centre computed styles](../../../release/evidence/v8-command-centre/computed-styles.json), and [machine-readable certification](../../../release/evidence/v8-project-datum/live-certification.json).
 
 ## Direct visual comparison
 

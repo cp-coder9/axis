@@ -1,14 +1,14 @@
 {
-  "certified_at": "2026-08-26T17:25:39.758Z",
+  "certified_at": "2026-08-26T18:06:14.897Z",
   "deployment": {
     "origin": "https://test.architex.co.za",
-    "revision": "5bce3d397f1e22dfa515fee48efa8444c87d5093",
+    "revision": "c7bb3da",
     "target": "/public_html/architex.co.za/ai/public_html/test.architex.co.za",
-    "rollback": "/public_html/architex.co.za/ai/public_html/test.architex.co.za.pre-v8-datum-20260826-171946",
+    "rollback": "/public_html/architex.co.za/ai/public_html/test.architex.co.za.pre-v8-datum-20260826-180408",
     "uploaded_files": 45,
-    "uploaded_bytes": 3175137,
-    "local_index_sha256": "6d5226cf0372b124d2eb0a4ca01fc66e464ed1c9f7a081ade81634dfceabcadc",
-    "live_index_sha256": "6d5226cf0372b124d2eb0a4ca01fc66e464ed1c9f7a081ade81634dfceabcadc",
+    "uploaded_bytes": 3179597,
+    "local_index_sha256": "f92222101a84aa83c7a63d0327e6960768f21d7065caf256b064e6ee20fc847e",
+    "live_index_sha256": "f92222101a84aa83c7a63d0327e6960768f21d7065caf256b064e6ee20fc847e",
     "hash_match": true
   },
   "api": {
@@ -30,6 +30,8 @@
     "landing": true,
     "authenticated": true,
     "project_datum": true,
+    "command_centre": true,
+    "command_centre_datum_action": true,
     "theme_toggle": true,
     "theme_persists_after_reload": true,
     "god_mode": true,
@@ -42,6 +44,7 @@
     "detail": "live/browser-certification.json",
     "screenshots": [
       "live/landing.png",
+      "live/command-centre.png",
       "live/project-datum.png",
       "live/god-mode.png"
     ]
@@ -52,5 +55,5 @@
     "purge_succeeded": false,
     "certification_used_cache_busting": true
   },
-  "scope": "Live prototype Project Datum and shell certification only; remaining V8 surfaces require separate migration and page-level parity certification."
+  "scope": "Live prototype OS Command Centre, Project Datum and shell certification only; remaining V8 surfaces require separate migration and page-level parity certification."
 }
