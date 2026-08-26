@@ -1,0 +1,153 @@
+{
+  "source": "E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html",
+  "regions": {
+    "rail": {
+      "width": 74
+    },
+    "navigator": {
+      "width": 306
+    },
+    "topbar": {
+      "height": 66
+    },
+    "inspector": {
+      "width": 344
+    }
+  },
+  "controls": [
+    "theme",
+    "god-mode",
+    "role"
+  ],
+  "referenceControlOrder": [
+    "navigation",
+    "breadcrumb",
+    "scope",
+    "project",
+    "theme",
+    "god-mode",
+    "role",
+    "wingman",
+    "inspector"
+  ],
+  "labels": [
+    "OS Command Centre",
+    "Project Space",
+    "Workspace Tools",
+    "Inbox & Collaboration",
+    "Documents",
+    "Finance & Payments",
+    "Knowledge & CPD",
+    "Feedback Intelligence",
+    "Settings"
+  ],
+  "referenceToolCount": 45,
+  "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+  "colours": {
+    "teal": "#19B7B0",
+    "ink": "#102033",
+    "canvas": "rgb(245, 250, 249)",
+    "border": "rgba(16,32,51,.09)"
+  },
+  "viewports": {
+    "desktop": {
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      },
+      "regions": {
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 74,
+          "height": 1000
+        },
+        "navigator": {
+          "x": 74,
+          "y": 0,
+          "width": 306,
+          "height": 1000
+        },
+        "topbar": {
+          "x": 380,
+          "y": 0,
+          "width": 1220,
+          "height": 66
+        },
+        "canvas": {
+          "x": 380,
+          "y": 66,
+          "width": 876,
+          "height": 934
+        },
+        "inspector": {
+          "x": 1256,
+          "y": 66,
+          "width": 344,
+          "height": 934
+        }
+      }
+    },
+    "tablet": {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "regions": {
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 74,
+          "height": 768
+        },
+        "navigator": {
+          "x": 74,
+          "y": 0,
+          "width": 306,
+          "height": 768
+        },
+        "topbar": {
+          "x": 380,
+          "y": 0,
+          "width": 644,
+          "height": 66
+        },
+        "canvas": {
+          "x": 380,
+          "y": 66,
+          "width": 644,
+          "height": 702
+        },
+        "inspector": null
+      }
+    },
+    "mobile": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "regions": {
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 74,
+          "height": 844
+        },
+        "navigator": null,
+        "topbar": {
+          "x": 380,
+          "y": 0,
+          "width": 32,
+          "height": 66
+        },
+        "canvas": {
+          "x": 74,
+          "y": 66,
+          "width": 316,
+          "height": 778
+        },
+        "inspector": null
+      }
+    }
+  }
+}
