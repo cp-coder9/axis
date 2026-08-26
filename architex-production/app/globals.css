@@ -4,6 +4,7 @@
 @import "../styles/v8-project-datum.css";
 @import "../styles/v8-command-centre.css";
 @import "../styles/v8-tool-registry.css";
+@import "../styles/specforge-v8.css";
 
 .ax-tool-version {
   display: inline-flex;
