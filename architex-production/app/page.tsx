@@ -48,19 +48,30 @@ function apiProjectToEntity(project: ApiProject): ProjectEntity {
 }
 
 function ArchitexOSPage() {
+  const godModeStorageKey = 'architex:god-mode';
   const { theme, toggleTheme } = useWorkspaceTheme();
   // Navigation & Spatial State
   const [navigation, setNavigation] = useState<NavigationState>(INITIAL_NAVIGATION_STATE);
   const [projects, setProjects] = useState<ProjectEntity[]>(ALL_PROJECTS);
   const [activeProject, setActiveProject] = useState<ProjectEntity>(ALL_PROJECTS[0]);
   const [currentRole, setCurrentRole] = useState<RoleKey>('architect');
+  const godModeRestoredRef = useRef(false);
   const godModeEnabled = godModeAvailable();
   const dispatchNavigation = useCallback((event: NavigationEvent) => {
     if (event.type === 'enter-god' && !godModeEnabled) return;
+    if (event.type === 'enter-god') window.localStorage.setItem(godModeStorageKey, 'true');
+    if (event.type === 'exit-god') window.localStorage.setItem(godModeStorageKey, 'false');
     setNavigation((state) => transitionNavigation(state, event, ALL_TOOLS));
   }, [godModeEnabled]);
   const { mode, globalId: activeGlobal, toolId: activeToolId, tabKey: activeToolTabKey } = navigation;
   const godMode = navigation.godSession !== null;
+
+  useEffect(() => {
+    if (godModeRestoredRef.current) return;
+    godModeRestoredRef.current = true;
+    if (!godModeEnabled || window.localStorage.getItem(godModeStorageKey) !== 'true') return;
+    setNavigation((state) => transitionNavigation(state, { type: 'enter-god', initialLens: currentRole }, ALL_TOOLS));
+  }, [currentRole, godModeEnabled]);
 
   // Hydrate the project register from the MariaDB-backed API; the seeded
   // ALL_PROJECTS list renders immediately and is replaced as soon as the live
