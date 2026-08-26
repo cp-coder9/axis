@@ -8,11 +8,12 @@ require_once dirname(__DIR__) . '/lib/authentication.php';
 require_once dirname(__DIR__) . '/lib/calculation_validation.php';
 require_once dirname(__DIR__) . '/lib/calculation_repository.php';
 require_once dirname(__DIR__) . '/lib/specforge_validation.php';
+require_once dirname(__DIR__) . '/lib/specforge_repository.php';
 $calculatorReleasePolicy = require dirname(__DIR__) . '/generated/calculator_release.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: ' . $config['cors_origin']);
-header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Architex-Role, X-Architex-User');
+header('Access-Control-Allow-Headers: Authorization, Content-Type, Idempotency-Key, If-Match, X-Architex-Role, X-Architex-User');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, OPTIONS');
 header('Access-Control-Allow-Credentials: true');
 
@@ -182,7 +183,14 @@ function current_identity(): array {
     if (!isset($payload['exp'], $payload['sub'], $payload['role'], $payload['org'], $payload['projects']) || (int)$payload['exp'] < time() || !is_array($payload['projects'])) json_response(['error' => 'Expired or incomplete bearer token'], 401);
     $role = strtolower((string)$payload['role']);
     if (!in_array($role, ALLOWED_ROLES, true)) json_response(['error' => 'Unknown token role'], 401);
-    return $identity = ['sub' => (string)$payload['sub'], 'role' => $role, 'org' => (string)$payload['org'], 'projects' => array_map('strval', $payload['projects']), 'auth_mode' => 'jwt'];
+    return $identity = [
+        'sub' => (string)$payload['sub'],
+        'role' => $role,
+        'org' => (string)$payload['org'],
+        'projects' => array_map('strval', $payload['projects']),
+        'package_names' => array_map('strval', is_array($payload['package_names'] ?? null) ? $payload['package_names'] : []),
+        'auth_mode' => 'jwt',
+    ];
 }
 
 function current_role(): string { return current_identity()['role']; }
@@ -218,6 +226,7 @@ function permissions_for_role(string $role): array {
         'meetings' => 'meetings',
         'admin_review' => 'audit',
         'engineering_calc' => 'engineering',
+        'specforge' => 'specforge',
     ];
 
     $health = db_health();
@@ -1551,6 +1560,170 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/bom/([^/]+)/takeoff$#', $path
     ], 'bom.takeoff_requested');
     if ($jobId === null) json_response(['error' => 'Job queue unavailable (MariaDB unreachable)'], 503);
     json_response(['job_id'=>$jobId,'status'=>'pending','poll'=>'GET /api/v1/drawing-intelligence/jobs?project=' . $m[2]], 202);
+}
+
+/* ---------- SpecForge v1.1 project specification workspace ---------- */
+
+function specforge_repository(): MariaDbSpecForgeRepository
+{
+    static $repository = null;
+    return $repository ??= new MariaDbSpecForgeRepository(db());
+}
+
+function specforge_error(Throwable $error): never
+{
+    if ($error instanceof SpecForgeRepositoryError) json_response(['error' => $error->getMessage()], $error->httpStatus);
+    error_log('SpecForge failure: ' . $error->getMessage());
+    json_response(['error' => 'SpecForge store unavailable'], 503);
+}
+
+function specforge_permission(string $capability): void
+{
+    require_permission('specforge.' . $capability);
+}
+
+/** @return array<string,string> */
+function specforge_validate_workspace_payload(array $body, bool $partial = false): array
+{
+    $errors = [];
+    $allowed = $partial ? ['profile','stage','budget_reviewed_at'] : ['profile','stage','revision','budget_reviewed_at'];
+    foreach (array_keys($body) as $field) if (!in_array($field, $allowed, true)) $errors[$field] = 'Unexpected field.';
+    if ((!$partial || array_key_exists('profile', $body)) && (!is_string($body['profile'] ?? null) || trim($body['profile']) === '' || mb_strlen($body['profile']) > 180)) $errors['profile'] = 'Required within 180 characters.';
+    if ((!$partial || array_key_exists('stage', $body)) && (!is_string($body['stage'] ?? null) || !in_array($body['stage'], ['Brief','Appoint','Design','Comply','Procure','Build','Pay','Close-out'], true))) $errors['stage'] = 'Unknown project stage.';
+    if (!$partial && (!is_string($body['revision'] ?? null) || preg_match('/^P\d{2,}$/i', $body['revision']) !== 1)) $errors['revision'] = 'Must be a P-prefixed revision token.';
+    if (isset($body['budget_reviewed_at']) && (!is_string($body['budget_reviewed_at']) || strtotime($body['budget_reviewed_at']) === false)) $errors['budget_reviewed_at'] = 'Must be a valid date-time.';
+    return $errors;
+}
+
+/** @return array<string,string> */
+function specforge_validate_section_payload(array $body, bool $partial = false): array
+{
+    $errors = [];
+    $allowed = ['code','title','discipline','owner_role','reviewer_role','status','standard_source','source_revision','last_reviewed_at'];
+    foreach (array_keys($body) as $field) if (!in_array($field, $allowed, true)) $errors[$field] = 'Unexpected field.';
+    foreach (['code' => 64, 'title' => 220, 'discipline' => 120, 'owner_role' => 64] as $field => $length) {
+        if ((!$partial || array_key_exists($field, $body)) && (!is_string($body[$field] ?? null) || trim($body[$field]) === '' || mb_strlen($body[$field]) > $length)) $errors[$field] = "Required within {$length} characters.";
+    }
+    if ((!$partial || array_key_exists('status', $body)) && (!is_string($body['status'] ?? null) || !in_array($body['status'], ['draft','needs_review','approved','issued'], true))) $errors['status'] = 'Unknown section status.';
+    foreach (['reviewer_role' => 64, 'standard_source' => 255, 'source_revision' => 64] as $field => $length) {
+        if (isset($body[$field]) && (!is_string($body[$field]) || mb_strlen($body[$field]) > $length)) $errors[$field] = "Must be within {$length} characters.";
+    }
+    if (isset($body['last_reviewed_at']) && (!is_string($body['last_reviewed_at']) || strtotime($body['last_reviewed_at']) === false)) $errors['last_reviewed_at'] = 'Must be a valid date-time.';
+    return $errors;
+}
+
+if ($method === 'GET' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/audit$#', $path, $m)) {
+    specforge_permission('view');
+    try { $events = specforge_repository()->auditEvents(current_identity(), $m[2]); json_response(['events' => $events, 'count' => count($events)]); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'GET' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge$#', $path, $m)) {
+    specforge_permission('view');
+    try { json_response(['workspace' => specforge_repository()->getProjectAggregate(current_identity(), $m[2])]); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_workspace_payload($body);
+    if ($errors) json_response(['error' => 'Invalid SpecForge workspace', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->createWorkspace(current_identity(), $m[2], $body, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        header('ETag: "' . $result['record']['lock_version'] . '"');
+        json_response(['workspace' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'PATCH' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge$#', $path, $m)) {
+    $body = json_body(); $errors = specforge_validate_workspace_payload($body, true);
+    if ($errors) json_response(['error' => 'Invalid SpecForge workspace patch', 'field_errors' => $errors], 422);
+    specforge_permission(array_keys($body) === ['budget_reviewed_at'] ? 'review_budget' : 'edit');
+    try { $workspace = specforge_repository()->updateWorkspace(current_identity(), $m[2], $body, if_match_version()); header('ETag: "' . $workspace['lock_version'] . '"'); json_response(['workspace' => $workspace]); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/sections$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_section_payload($body);
+    if ($errors) json_response(['error' => 'Invalid specification section', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->createSection(current_identity(), $m[2], $body, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        header('ETag: "' . $result['record']['lock_version'] . '"');
+        json_response(['section' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'PATCH' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/sections/([^/]+)$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_section_payload($body, true);
+    if ($errors) json_response(['error' => 'Invalid specification section patch', 'field_errors' => $errors], 422);
+    try { $section = specforge_repository()->updateSection(current_identity(), $m[2], $m[3], $body, if_match_version()); header('ETag: "' . $section['lock_version'] . '"'); json_response(['section' => $section]); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_item_payload($body);
+    if ($errors) json_response(['error' => 'Invalid specification item', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->createItem(current_identity(), $m[2], $body, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        header('ETag: "' . $result['record']['lock_version'] . '"');
+        json_response(['item' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'PATCH' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_item_payload($body, true);
+    if ($errors) json_response(['error' => 'Invalid specification item patch', 'field_errors' => $errors], 422);
+    try {
+        $item = specforge_repository()->updateItem(current_identity(), $m[2], $m[3], $body, if_match_version());
+        header('ETag: "' . $item['lock_version'] . '"'); json_response(['item' => $item]);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/duplicate$#', $path, $m)) {
+    specforge_permission('edit');
+    try { $result = specforge_repository()->duplicateItem(current_identity(), $m[2], $m[3], idempotency_key()); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['item' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/approvals$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = [];
+    foreach (array_keys($body) as $field) if (!in_array($field, ['approval_type','requested_role','requested_user_id','due_at'], true)) $errors[$field] = 'Unexpected field.';
+    foreach (['approval_type' => 80, 'requested_role' => 64] as $field => $length) if (!is_string($body[$field] ?? null) || trim($body[$field]) === '' || mb_strlen($body[$field]) > $length) $errors[$field] = "Required within {$length} characters.";
+    if (isset($body['requested_user_id']) && (!is_string($body['requested_user_id']) || strlen($body['requested_user_id']) > 36)) $errors['requested_user_id'] = 'Invalid requested user.';
+    if (isset($body['due_at']) && (!is_string($body['due_at']) || strtotime($body['due_at']) === false)) $errors['due_at'] = 'Must be a valid date-time.';
+    if ($errors) json_response(['error' => 'Invalid approval request', 'field_errors' => $errors], 422);
+    try { $result = specforge_repository()->requestApproval(current_identity(), $m[2], $m[3], $body, idempotency_key()); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['approval' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/approvals/([^/]+)/decision$#', $path, $m)) {
+    specforge_permission('decide'); $body = json_body(); $errors = [];
+    foreach (array_keys($body) as $field) if (!in_array($field, ['decision','decision_note'], true)) $errors[$field] = 'Unexpected field.';
+    if (!is_string($body['decision'] ?? null) || !in_array($body['decision'], ['approved','rejected'], true)) $errors['decision'] = 'Must be approved or rejected.';
+    if (isset($body['decision_note']) && (!is_string($body['decision_note']) || mb_strlen($body['decision_note']) > 65535)) $errors['decision_note'] = 'Decision note exceeds 64KiB.';
+    if ($errors) json_response(['error' => 'Invalid approval decision', 'field_errors' => $errors], 422);
+    try { $result = specforge_repository()->decideApproval(current_identity(), $m[2], $m[3], $body, idempotency_key()); if ($result['idempotent']) header('X-Idempotent-Replay: true'); json_response(['approval' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/issues/validate$#', $path, $m)) {
+    specforge_permission('view');
+    try { json_response(specforge_repository()->validateIssue(current_identity(), $m[2])); }
+    catch (Throwable $error) { specforge_error($error); }
+}
+
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/issues$#', $path, $m)) {
+    specforge_permission('issue'); $body = json_body(); $errors = [];
+    foreach (array_keys($body) as $field) if (!in_array($field, ['title','audience'], true)) $errors[$field] = 'Unexpected field.';
+    foreach (['title' => 220, 'audience' => 255] as $field => $length) if (!is_string($body[$field] ?? null) || trim($body[$field]) === '' || mb_strlen($body[$field]) > $length) $errors[$field] = "Required within {$length} characters.";
+    if ($errors) json_response(['error' => 'Invalid specification issue', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->createIssue(current_identity(), $m[2], $body, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        json_response(['issue' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
 }
 
 /* ---------- Engineering Calculation Hub (v8) ---------- */

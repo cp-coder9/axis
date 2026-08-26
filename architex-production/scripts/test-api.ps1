@@ -73,7 +73,7 @@ if ($PrepareRetained) {
     $php = Require-PhpPdoMysql
     Invoke-PdoAdmin $php ("CREATE DATABASE ``$SchemaName`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     try {
-        $env:APP_ENV = 'test'; $env:DB_HOST = $DbHost; $env:DB_NAME = $SchemaName; $env:DB_USER = $DbUser; $env:DB_PASS = $DbPass; $env:JWT_SECRET = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(([Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'))))
+        $env:APP_ENV = 'test'; $env:ARCHITEX_DATA_MODE = 'prototype'; $env:DB_HOST = $DbHost; $env:DB_NAME = $SchemaName; $env:DB_USER = $DbUser; $env:DB_PASS = $DbPass; $env:JWT_SECRET = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(([Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'))))
         & $php (Join-Path $root 'backend/database/migrate.php'); if ($LASTEXITCODE -ne 0) { Fail 'migration failed for retained schema' }
         & $php (Join-Path $root 'backend/database/seed.php'); if ($LASTEXITCODE -ne 0) { Fail 'seed failed for retained schema' }
         $lease = Write-Lease $LeaseFile $SchemaName

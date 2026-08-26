@@ -58,16 +58,16 @@ function specforge_require_capability(array $identity, string $capability, ?arra
     }
     if ($record === null) return;
 
-    if (in_array($role, ['client', 'developer'], true) && !((bool) ($record['client_decision'] ?? false))) {
+    if (in_array($role, ['client', 'developer'], true) && array_key_exists('client_decision', $record) && !((bool) $record['client_decision'])) {
         throw new SpecForgeRepositoryError(403, 'SpecForge client-decision scope denied.');
     }
-    if (in_array($role, SPECFORGE_ASSIGNED_ROLES, true)) {
+    if (in_array($role, SPECFORGE_ASSIGNED_ROLES, true) && (array_key_exists('owner_role', $record) || array_key_exists('reviewer_role', $record) || array_key_exists('approver_role', $record))) {
         $assignedRoles = [$record['owner_role'] ?? null, $record['reviewer_role'] ?? null, $record['approver_role'] ?? null];
         if (!in_array($role, $assignedRoles, true)) {
             throw new SpecForgeRepositoryError(403, 'SpecForge assignment scope denied.');
         }
     }
-    if (in_array($role, SPECFORGE_PACKAGE_ROLES, true)) {
+    if (in_array($role, SPECFORGE_PACKAGE_ROLES, true) && array_key_exists('package_name', $record)) {
         $packages = array_map('strval', is_array($identity['package_names'] ?? null) ? $identity['package_names'] : []);
         if (!in_array((string) ($record['package_name'] ?? ''), $packages, true)) {
             throw new SpecForgeRepositoryError(403, 'SpecForge package scope denied.');
@@ -76,7 +76,7 @@ function specforge_require_capability(array $identity, string $capability, ?arra
             throw new SpecForgeRepositoryError(403, 'SpecForge issued-scope access denied.');
         }
     }
-    if (in_array($role, ['contractor', 'site_manager'], true) && $capability === 'view'
+    if (in_array($role, ['contractor', 'site_manager'], true) && $capability === 'view' && array_key_exists('status', $record)
         && !in_array((string) ($record['status'] ?? ''), SPECFORGE_ISSUED_STATUSES, true)) {
         throw new SpecForgeRepositoryError(403, 'SpecForge issued-scope access denied.');
     }

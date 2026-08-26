@@ -221,21 +221,26 @@ CREATE TABLE IF NOT EXISTS specforge_commands (
   CONSTRAINT fk_specforge_command_workspace FOREIGN KEY (workspace_id) REFERENCES specforge_workspaces(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO role_permissions (role_key, module_id, action_key, allowed) VALUES
-  ('architect', 'specforge', 'view', 1), ('architect', 'specforge', 'edit', 1), ('architect', 'specforge', 'decide', 1), ('architect', 'specforge', 'issue', 1), ('architect', 'specforge', 'drawing_request', 1),
-  ('bep', 'specforge', 'view', 1), ('bep', 'specforge', 'edit', 1), ('bep', 'specforge', 'decide', 1), ('bep', 'specforge', 'issue', 1), ('bep', 'specforge', 'drawing_request', 1),
-  ('engineer', 'specforge', 'view', 1), ('engineer', 'specforge', 'edit', 1), ('engineer', 'specforge', 'decide', 1),
-  ('energy_professional', 'specforge', 'view', 1), ('energy_professional', 'specforge', 'edit', 1), ('energy_professional', 'specforge', 'decide', 1),
-  ('fire_engineer', 'specforge', 'view', 1), ('fire_engineer', 'specforge', 'edit', 1), ('fire_engineer', 'specforge', 'decide', 1),
-  ('quantity_surveyor', 'specforge', 'view', 1), ('quantity_surveyor', 'specforge', 'review_budget', 1),
-  ('client', 'specforge', 'view', 1), ('client', 'specforge', 'decide', 1),
-  ('developer', 'specforge', 'view', 1), ('developer', 'specforge', 'decide', 1),
-  ('contractor', 'specforge', 'view', 1), ('contractor', 'specforge', 'edit', 1),
-  ('subcontractor', 'specforge', 'view', 1), ('subcontractor', 'specforge', 'edit', 1),
-  ('supplier', 'specforge', 'view', 1), ('supplier', 'specforge', 'edit', 1),
-  ('site_manager', 'specforge', 'view', 1), ('site_manager', 'specforge', 'site_update', 1),
-  ('firm_admin', 'specforge', 'view', 1),
-  ('organisation_admin', 'specforge', 'view', 1), ('organisation_admin', 'specforge', 'govern', 1),
-  ('admin', 'specforge', 'view', 1), ('admin', 'specforge', 'govern', 1),
-  ('platform_admin', 'specforge', 'view', 1), ('platform_admin', 'specforge', 'edit', 1), ('platform_admin', 'specforge', 'review_budget', 1), ('platform_admin', 'specforge', 'decide', 1), ('platform_admin', 'specforge', 'issue', 1), ('platform_admin', 'specforge', 'drawing_request', 1), ('platform_admin', 'specforge', 'site_update', 1), ('platform_admin', 'specforge', 'govern', 1)
+INSERT INTO role_permissions (role_key, module_id, action_key, allowed)
+SELECT grants.role_key, grants.module_id, grants.action_key, 1
+FROM (
+  SELECT 'architect' role_key, 'specforge' module_id, 'view' action_key UNION ALL SELECT 'architect', 'specforge', 'edit' UNION ALL SELECT 'architect', 'specforge', 'decide' UNION ALL SELECT 'architect', 'specforge', 'issue' UNION ALL SELECT 'architect', 'specforge', 'drawing_request' UNION ALL
+  SELECT 'bep', 'specforge', 'view' UNION ALL SELECT 'bep', 'specforge', 'edit' UNION ALL SELECT 'bep', 'specforge', 'decide' UNION ALL SELECT 'bep', 'specforge', 'issue' UNION ALL SELECT 'bep', 'specforge', 'drawing_request' UNION ALL
+  SELECT 'engineer', 'specforge', 'view' UNION ALL SELECT 'engineer', 'specforge', 'edit' UNION ALL SELECT 'engineer', 'specforge', 'decide' UNION ALL
+  SELECT 'energy_professional', 'specforge', 'view' UNION ALL SELECT 'energy_professional', 'specforge', 'edit' UNION ALL SELECT 'energy_professional', 'specforge', 'decide' UNION ALL
+  SELECT 'fire_engineer', 'specforge', 'view' UNION ALL SELECT 'fire_engineer', 'specforge', 'edit' UNION ALL SELECT 'fire_engineer', 'specforge', 'decide' UNION ALL
+  SELECT 'quantity_surveyor', 'specforge', 'view' UNION ALL SELECT 'quantity_surveyor', 'specforge', 'review_budget' UNION ALL
+  SELECT 'client', 'specforge', 'view' UNION ALL SELECT 'client', 'specforge', 'decide' UNION ALL
+  SELECT 'developer', 'specforge', 'view' UNION ALL SELECT 'developer', 'specforge', 'decide' UNION ALL
+  SELECT 'contractor', 'specforge', 'view' UNION ALL SELECT 'contractor', 'specforge', 'edit' UNION ALL
+  SELECT 'subcontractor', 'specforge', 'view' UNION ALL SELECT 'subcontractor', 'specforge', 'edit' UNION ALL
+  SELECT 'supplier', 'specforge', 'view' UNION ALL SELECT 'supplier', 'specforge', 'edit' UNION ALL
+  SELECT 'site_manager', 'specforge', 'view' UNION ALL SELECT 'site_manager', 'specforge', 'site_update' UNION ALL
+  SELECT 'firm_admin', 'specforge', 'view' UNION ALL
+  SELECT 'organisation_admin', 'specforge', 'view' UNION ALL SELECT 'organisation_admin', 'specforge', 'govern' UNION ALL
+  SELECT 'admin', 'specforge', 'view' UNION ALL SELECT 'admin', 'specforge', 'govern' UNION ALL
+  SELECT 'platform_admin', 'specforge', 'view' UNION ALL SELECT 'platform_admin', 'specforge', 'edit' UNION ALL SELECT 'platform_admin', 'specforge', 'review_budget' UNION ALL SELECT 'platform_admin', 'specforge', 'decide' UNION ALL SELECT 'platform_admin', 'specforge', 'issue' UNION ALL SELECT 'platform_admin', 'specforge', 'drawing_request' UNION ALL SELECT 'platform_admin', 'specforge', 'site_update' UNION ALL SELECT 'platform_admin', 'specforge', 'govern'
+) AS grants
+INNER JOIN roles ON roles.role_key = grants.role_key
+INNER JOIN modules ON modules.id = grants.module_id
 ON DUPLICATE KEY UPDATE allowed = VALUES(allowed);

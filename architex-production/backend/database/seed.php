@@ -44,7 +44,8 @@ $roles = [
     'cpm' => 'Construction Project Manager', 'contractor' => 'Contractor', 'subcontractor' => 'Subcontractor',
     'supplier' => 'Supplier', 'site_manager' => 'Site Manager', 'health_safety' => 'Health & Safety Officer',
     'developer' => 'Developer', 'freelancer' => 'Freelancer', 'firm_admin' => 'Firm Administrator',
-    'admin' => 'Administrator', 'platform_admin' => 'Platform Administrator',
+    'organisation_admin' => 'Organisation Administrator', 'admin' => 'Administrator',
+    'platform_admin' => 'Platform Administrator',
 ];
 
 $users = [
@@ -85,6 +86,8 @@ try {
     $section = 'clear';
     // Clear in FK-safe order (children first)
     foreach ([
+        'specforge_issue_items', 'specforge_commands', 'specforge_issues', 'specforge_drawing_findings',
+        'specforge_approvals', 'specforge_item_links', 'specforge_items', 'specforge_sections', 'specforge_workspaces',
         'jobs', 'meeting_write_back_log', 'issued_minutes', 'meeting_outcomes', 'meeting_minute_items',
         'meeting_transcript_segments', 'meeting_recordings', 'meeting_agenda_items', 'meeting_attendees',
         'drawing_intelligence_jobs', 'ai_candidates',
@@ -255,22 +258,26 @@ try {
         'meetings' => 'meetings',
         'audit' => 'admin_review',
         'engineering' => 'engineering_calc',
+        'specforge' => 'specforge',
     ];
     $permissions = [
-        'client' => ['passport.view', 'documents.view', 'actions.view', 'approvals.view'],
-        'architect' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view'],
-        'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request'],
-        'engineer' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
-        'quantity_surveyor' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view'],
+        'client' => ['passport.view', 'documents.view', 'actions.view', 'approvals.view', 'specforge.view', 'specforge.decide'],
+        'architect' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'specforge.view', 'specforge.edit', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
+        'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'specforge.view', 'specforge.edit', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
+        'engineer' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide', 'specforge.view', 'specforge.edit', 'specforge.decide'],
+        'quantity_surveyor' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'specforge.view', 'specforge.review_budget'],
         'town_planner' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'audit.view'],
-        'energy_professional' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
-        'fire_engineer' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide'],
+        'energy_professional' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide', 'specforge.view', 'specforge.edit', 'specforge.decide'],
+        'fire_engineer' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide', 'specforge.view', 'specforge.edit', 'specforge.decide'],
         'cpm' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request'],
-        'contractor' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view', 'engineering.view', 'engineering.save'],
-        'site_manager' => ['engineering.view', 'engineering.save', 'engineering.review.request'],
-        'firm_admin' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view'],
-        'developer' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'approvals.view', 'audit.view'],
-        'admin' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view'],
+        'contractor' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view', 'engineering.view', 'engineering.save', 'specforge.view', 'specforge.edit'],
+        'subcontractor' => ['specforge.view', 'specforge.edit'],
+        'supplier' => ['specforge.view', 'specforge.edit'],
+        'site_manager' => ['engineering.view', 'engineering.save', 'engineering.review.request', 'specforge.view', 'specforge.site_update'],
+        'firm_admin' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'audit.view', 'specforge.view'],
+        'organisation_admin' => ['specforge.view', 'specforge.govern'],
+        'developer' => ['passport.view', 'projects.edit', 'documents.view', 'actions.view', 'approvals.view', 'audit.view', 'specforge.view', 'specforge.decide'],
+        'admin' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'specforge.view', 'specforge.govern'],
         'platform_admin' => ['*'],
     ];
     $allModuleIds = array_column($modules, 'id');
