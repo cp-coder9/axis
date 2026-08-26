@@ -36,6 +36,8 @@ const result = {
   projectDatum: false,
   commandCentre: false,
   commandCentreDatumAction: false,
+  toolRegistry: false,
+  toolRegistryNavigation: false,
   themeToggle: false,
   themePersistsAfterReload: false,
   godMode: false,
@@ -72,6 +74,18 @@ try {
   await page.getByTestId('datum-canvas').waitFor();
   result.commandCentreDatumAction = true;
 
+  await page.getByRole('navigation').getByRole('button', { name: 'Workspace Tools' }).click();
+  const toolRegistry = page.getByTestId('v8-tool-registry');
+  await toolRegistry.getByRole('heading', { level: 1, name: 'Workspace Tool Registry' }).waitFor();
+  if (await toolRegistry.locator('[data-v8-registry-tool]').count() !== 47) throw new Error('Workspace Tool Registry did not render 47 tools');
+  result.toolRegistry = true;
+  await page.screenshot({ path: path.join(outputDir, 'tool-registry.png'), fullPage: true });
+  await toolRegistry.locator('[data-v8-registry-tool]').first().click();
+  await page.getByRole('button', { name: /Back to (workspace tools|standalone (library|registry))/i }).click();
+  await page.getByRole('button', { name: 'Open project orientation' }).click();
+  await page.getByTestId('datum-canvas').waitFor();
+  result.toolRegistryNavigation = true;
+
   const theme = page.getByTestId('workspace-theme-toggle');
   const pressedBefore = await theme.getAttribute('aria-pressed');
   await theme.click();
@@ -104,5 +118,5 @@ try {
 }
 
 console.log(JSON.stringify(result));
-const required = ['landing', 'authenticated', 'projectDatum', 'commandCentre', 'commandCentreDatumAction', 'themeToggle', 'themePersistsAfterReload', 'godMode', 'sessionRestoresAfterReload', 'projectsRequest', 'logout'];
+const required = ['landing', 'authenticated', 'projectDatum', 'commandCentre', 'commandCentreDatumAction', 'toolRegistry', 'toolRegistryNavigation', 'themeToggle', 'themePersistsAfterReload', 'godMode', 'sessionRestoresAfterReload', 'projectsRequest', 'logout'];
 if (required.some(key => result[key] !== true) || serverErrors.length || failedRequests.length) process.exitCode = 1;
