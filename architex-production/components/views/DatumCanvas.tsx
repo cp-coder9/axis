@@ -57,6 +57,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   onOpenFeedback,
 }) => {
   const profile = ROLE_PROFILES[currentRole] || ROLE_PROFILES.architect;
+  const roleInitials = profile.label.split(/\s+/).map((word) => word[0]).join('').slice(0, 2);
   const displayedStage = presentationStage ?? project.stage;
 
   // God Mode is a presentation-only branch: it shows the complete selected
@@ -91,7 +92,7 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         ]}
       />
       <V8RoleBanner
-        code={profile.code}
+        code={roleInitials}
         label={profile.label}
         description={profile.description}
         godMode={presentationStage !== null}

@@ -24,7 +24,6 @@
   display: grid;
   width: 50px;
   height: 50px;
-  flex: 0 0 50px;
   place-items: center;
   border: 1px solid rgba(25, 183, 176, .2);
   border-radius: 15px;
@@ -60,10 +59,7 @@
 }
 
 .v8-datum-page-actions .ax-button {
-  display: inline-flex;
   min-height: 0;
-  align-items: center;
-  gap: 6px;
   padding: 9px 14px;
   border: 1px solid rgba(16, 32, 51, .09);
   border-radius: 10px;
@@ -76,7 +72,7 @@
 
 .v8-datum-page-actions .ax-button--primary {
   border-color: rgba(25, 183, 176, .2);
-  color: #167e79;
+  color: #106b67;
   background: #dff5f2;
 }
 
@@ -155,6 +151,7 @@
 .v8-project-top h2 {
   margin: 0;
   font-size: 20px;
+  font-weight: 700;
 }
 
 .v8-project-top p {
@@ -282,7 +279,7 @@
 .v8-datum-world {
   position: relative;
   width: 100%;
-  min-width: 1020px;
+  min-width: 1120px;
   height: 610px;
   transform-origin: 50% 50%;
   transition: transform .18s ease;
@@ -364,7 +361,6 @@
 .v8-datum-slot {
   position: absolute;
   width: 215px;
-  transform: translateX(-50%);
 }
 
 .v8-datum-slot.is-above {
@@ -459,20 +455,13 @@
 
 .v8-datum-node {
   position: absolute;
-  left: calc(50% - 5px);
+  z-index: 2;
+  top: calc(50% - 5px);
   width: 11px;
   height: 11px;
   border: 2px solid #19b7b0;
   border-radius: 50%;
   background: #fff;
-}
-
-.v8-datum-slot.is-above .v8-datum-node {
-  top: calc(100% + 50px);
-}
-
-.v8-datum-slot.is-below .v8-datum-node {
-  top: -61px;
 }
 
 .v8-datum-controls {
@@ -537,6 +526,44 @@
 [data-theme='dark'] .v8-datum-stage-badge {
   border-color: var(--ax-border);
   background: var(--ax-surface-1);
+}
+
+[data-theme='dark'] .v8-datum-page-copy p,
+[data-theme='dark'] .v8-role-copy > span,
+[data-theme='dark'] .v8-project-top p,
+[data-theme='dark'] .v8-stage-help,
+[data-theme='dark'] .v8-datum-label span,
+[data-theme='dark'] .v8-datum-stage-badge,
+[data-theme='dark'] .v8-datum-card p,
+[data-theme='dark'] .v8-datum-controls output {
+  color: var(--ax-text-muted);
+}
+
+[data-theme='dark'] .v8-stage.is-active,
+[data-theme='dark'] .v8-stage-help b,
+[data-theme='dark'] .v8-datum-stage-badge b,
+[data-theme='dark'] .v8-datum-label {
+  color: var(--ax-action-primary);
+}
+
+[data-theme='dark'] .v8-stage.is-active i {
+  border-color: #167e79;
+  color: #fff;
+  background: #167e79;
+}
+
+[data-theme='dark'] .v8-project-status,
+[data-theme='dark'] .v8-datum-sequence button > i {
+  color: #75c996;
+}
+
+[data-theme='dark'] .v8-role-tags i {
+  color: #106b67;
+}
+
+html[data-theme='dark'] [data-testid='workspace-theme-toggle'],
+html[data-theme='dark'] [data-testid='workspace-theme-toggle'] * {
+  color: #102033;
 }
 
 @media (max-width: 760px) {

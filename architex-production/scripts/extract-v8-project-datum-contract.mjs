@@ -54,6 +54,22 @@ try {
       labels: {
         stages: [...document.querySelectorAll('.main .stage span')].map((node) => (node.textContent || '').trim()),
       },
+      details: {
+        pageIcon: rectangle('.main .page-icon'),
+        actions: [...document.querySelectorAll('.main .page-head .btn')].map((node) => ({
+          id: actionKey(node.textContent || ''),
+          rectangle: rectangle(`.main .page-head .btn:nth-of-type(${[...node.parentElement.children].indexOf(node) + 1})`),
+        })),
+        roleAvatar: {
+          text: required('.main .role-avatar').textContent.trim(),
+          rectangle: rectangle('.main .role-avatar'),
+        },
+        projectTitleFontWeight: getComputedStyle(required('.main .project-top h2')).fontWeight,
+        datumCards: [...document.querySelectorAll('.main .datum-card')].map((node) => {
+          const box = node.getBoundingClientRect();
+          return { x: box.x, y: box.y, width: box.width };
+        }),
+      },
       computedStyles: {
         pageTitle: computedStyle('.main .page-head h1'),
         roleBanner: computedStyle('.main .role-banner'),

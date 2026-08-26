@@ -5,7 +5,7 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import type { StageKey, ToolDefinition } from '@/lib/types';
 import { V8DatumCard } from '@/components/v8/V8DatumCard';
 
-const position = (index: number, count: number) => `${12 + ((index + 1) * 82) / (count + 1)}%`;
+const rowPosition = (index: number, count: number) => `${count < 2 ? 45 : 7 + (index * 86) / (count - 1)}%`;
 const fallbackMetric = ['Project connected', 'Integration ready'] as const;
 
 interface V8DatumWorldProps {
@@ -19,10 +19,17 @@ interface V8DatumWorldProps {
 
 export function V8DatumWorld({ tools, metrics, stage, roleLabel, godMode, onOpenTool }: V8DatumWorldProps) {
   const [zoom, setZoom] = useState(1);
+  const topCount = Math.ceil(tools.length / 2);
+  const positions = tools.map((_, index) => {
+    const above = index < topCount;
+    const rowIndex = above ? index : index - topCount;
+    const rowCount = above ? topCount : tools.length - topCount;
+    return { orientation: above ? 'above' as const : 'below' as const, left: rowPosition(rowIndex, rowCount) };
+  });
 
   return (
     <section data-v8-datum-region="datum-viewport" className="v8-datum-viewport">
-      <div className="v8-datum-world" style={{ transform: `scale(${zoom})` }}>
+      <div className="v8-datum-world" style={{ minWidth: `${godMode ? 1450 : 1120}px`, transform: `scale(${zoom})` }}>
         <div className="v8-datum-line" aria-hidden="true" />
         <div className="v8-datum-origin">
           <img src="/logo.png" alt="Architex bird" />
@@ -32,13 +39,16 @@ export function V8DatumWorld({ tools, metrics, stage, roleLabel, godMode, onOpen
           <b>{stage} · {godMode ? 'God Mode' : roleLabel}</b>
           {tools.length} {godMode ? 'stage-relevant' : 'role-relevant'} workspaces are active here.
         </div>
+        {positions.map((position, index) => (
+          <i key={`node-${tools[index].id}`} className="v8-datum-node" style={{ left: position.left }} aria-hidden="true" />
+        ))}
         {tools.map((tool, index) => {
-          const orientation = index % 2 === 0 ? 'above' : 'below';
+          const { orientation, left } = positions[index];
           return (
             <div
               key={tool.id}
               className={`v8-datum-slot is-${orientation}`}
-              style={{ left: position(index, tools.length) }}
+              style={{ left }}
             >
               <V8DatumCard
                 tool={tool}
@@ -46,7 +56,6 @@ export function V8DatumWorld({ tools, metrics, stage, roleLabel, godMode, onOpen
                 orientation={orientation}
                 onOpen={onOpenTool}
               />
-              <i className="v8-datum-node" aria-hidden="true" />
             </div>
           );
         })}

@@ -48,6 +48,104 @@
       "Close-out"
     ]
   },
+  "details": {
+    "pageIcon": {
+      "x": 402,
+      "y": 102.5,
+      "width": 32.34375,
+      "height": 50
+    },
+    "actions": [
+      {
+        "id": "plan-project",
+        "rectangle": {
+          "x": 1014.8125,
+          "y": 86,
+          "width": 106.078125,
+          "height": 54
+        }
+      },
+      {
+        "id": "engineering",
+        "rectangle": {
+          "x": 1127.890625,
+          "y": 86,
+          "width": 106.109375,
+          "height": 54
+        }
+      },
+      {
+        "id": "meetings",
+        "rectangle": {
+          "x": 1018.578125,
+          "y": 147,
+          "width": 89.09375,
+          "height": 54
+        }
+      },
+      {
+        "id": "give-feedback",
+        "rectangle": {
+          "x": 1114.671875,
+          "y": 147,
+          "width": 119.328125,
+          "height": 54
+        }
+      }
+    ],
+    "roleAvatar": {
+      "text": "A",
+      "rectangle": {
+        "x": 416,
+        "y": 237,
+        "width": 38,
+        "height": 38
+      }
+    },
+    "projectTitleFontWeight": "700",
+    "datumCards": [
+      {
+        "x": 481.390625,
+        "y": 564.484375,
+        "width": 215
+      },
+      {
+        "x": 802.453125,
+        "y": 564.484375,
+        "width": 215
+      },
+      {
+        "x": 1123.53125,
+        "y": 564.484375,
+        "width": 215
+      },
+      {
+        "x": 1444.59375,
+        "y": 564.484375,
+        "width": 215
+      },
+      {
+        "x": 481.390625,
+        "y": 906.078125,
+        "width": 215
+      },
+      {
+        "x": 802.453125,
+        "y": 906.078125,
+        "width": 215
+      },
+      {
+        "x": 1123.53125,
+        "y": 906.078125,
+        "width": 215
+      },
+      {
+        "x": 1444.59375,
+        "y": 906.078125,
+        "width": 215
+      }
+    ]
+  },
   "computedStyles": {
     "pageTitle": {
       "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",

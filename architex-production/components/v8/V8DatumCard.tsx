@@ -23,7 +23,11 @@ export function V8DatumCard({ tool, metric, orientation, onOpen }: V8DatumCardPr
       </span>
       <p>{tool.summary}</p>
       <span className="v8-datum-card-meta">
-        <b>{metric[0]}</b>
+        <span>{metric[0]}</span>
+        <span aria-hidden="true">›</span>
+      </span>
+      <span className="v8-datum-card-meta">
+        <span>{metric[1]}</span>
         <i>{tool.status === 'live' ? 'Live' : 'Scaffold'}</i>
       </span>
     </button>

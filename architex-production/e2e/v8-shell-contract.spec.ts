@@ -1,6 +1,10 @@
 import { expect, Page, test } from '@playwright/test';
 import { V8_SHELL_CONTRACT } from '../lib/v8-shell-contract';
 
+const normalizeBackgroundImage = (value: string) => value
+  .replaceAll(' 0px,', ' 0,')
+  .replaceAll(' 0%,', ' 0,');
+
 async function restoreAuthenticatedShell(page: Page) {
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -59,7 +63,13 @@ test('matches the supplied reference desktop shell contract', async ({ page }) =
         fontFamily: style.fontFamily,
       };
     });
-    expect(actualStyle, `${name} computed style`).toEqual(expectedStyle);
+    expect({
+      ...actualStyle,
+      backgroundImage: normalizeBackgroundImage(actualStyle.backgroundImage),
+    }, `${name} computed style`).toEqual({
+      ...expectedStyle,
+      backgroundImage: normalizeBackgroundImage(expectedStyle.backgroundImage),
+    });
   }
 });
 

@@ -158,10 +158,10 @@ test('P6-W0-GLOBAL Datum renders the existing tool order as a mobile sequence', 
   await page.setViewportSize(VIEWPORTS.mobile);
   await page.goto('/?workspace=v8');
 
-  const sequence = page.getByTestId('datum-mobile-sequence');
+  const sequence = page.getByRole('region', { name: 'Datum-connected tools' });
   await expect(sequence).toBeVisible();
-  await expect(sequence.getByTestId('datum-mobile-tool')).toHaveCount(8);
-  await sequence.getByTestId('datum-mobile-tool').first().click();
+  await expect(sequence.getByTestId('v8-datum-sequence-item')).toHaveCount(8);
+  await sequence.getByTestId('v8-datum-sequence-item').first().click();
   await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
   await assertNoBodyOverflow(page);
 });
@@ -298,7 +298,7 @@ test('P6-W0-GLOBAL User Management preserves the admin invite-panel toggle', asy
 test('P6-W0-GLOBAL Datum desktop plane preserves its first card action', async ({ page }) => {
   await page.setViewportSize(VIEWPORTS.desktop);
   await page.goto('/?workspace=v8');
-  await page.getByTestId('datum-card').first().click();
+  await page.getByTestId('v8-datum-card').first().click();
 
   await expect(page.getByRole('heading', { name: 'Practice & Project Command Centre' })).toBeVisible();
 });

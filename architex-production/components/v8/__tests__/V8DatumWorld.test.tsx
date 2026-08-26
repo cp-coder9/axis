@@ -43,6 +43,10 @@ describe('V8 spatial Datum world', () => {
     expect(cards.map((node) => node.getAttribute('data-tool-id'))).toEqual(
       sequenceItems.map((node) => node.getAttribute('data-tool-id')),
     );
+    expect(cards.map((node) => node.classList.contains('is-above'))).toEqual([
+      true, true, true, true, false, false, false, false,
+    ]);
+    expect(screen.getByText('3 review drafts')).toBeTruthy();
 
     fireEvent.click(cards[0]);
     expect(onOpenTool).toHaveBeenCalledWith(cards[0].getAttribute('data-tool-id'));
