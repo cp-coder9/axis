@@ -5,9 +5,10 @@ import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
 import { ALL_TOOLS, ROLE_PROFILES, STAGES, STAGE_COPY, STAGE_TOOL_MAP, ROLE_TOOL_MAP } from '@/lib/data';
 import { Button } from '@/components/ui/Button';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { Surface } from '@/components/ui/Surface';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { V8PageHead } from '@/components/v8/V8PageHead';
+import { V8RoleBanner } from '@/components/v8/V8RoleBanner';
 
 interface DatumCanvasProps {
   project: ProjectEntity;
@@ -25,7 +26,6 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   presentationStage = null,
   onSelectStage,
   onOpenTool,
-  onOpenWingman,
   onOpenFeedback,
 }) => {
   const [zoom, setZoom] = useState<number>(1.0);
@@ -84,40 +84,25 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
   return (
     <div className="space-y-4" data-testid="datum-canvas">
       {presentationStage && <span className="sr-only" data-testid="god-mode-datum">{presentationStage} exploration</span>}
-      {/* Page Header */}
-      <PageHeader
+      <V8PageHead
         title={project.name}
-        origami={<OrigamiIcon name="projects" size={26} />}
-        metadata="The Datum is the project's single line of truth. All tools attach as viewports and write back governed records."
-        datum
-        actions={<div className="flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={() => onOpenTool('practice')}><OrigamiIcon name="practice_management" size={16} /> Plan Project</Button><Button variant="quiet" size="sm" onClick={onOpenWingman}><OrigamiIcon name="wingman" size={16} /> Ask Wingman</Button><Button size="sm" onClick={onOpenFeedback}><OrigamiIcon name="feedback" size={16} /> Give Feedback</Button></div>}
+        description={presentationStage
+          ? 'God Mode shows every stage-relevant workspace so users can understand the whole ecosystem and handoffs.'
+          : 'A stage-driven project workflow navigation centre. The datum prioritises the workspaces relevant to this user and project stage.'}
+        actions={[
+          { id: 'plan-project', label: 'Plan project', icon: 'practice_management', onClick: () => onOpenTool('practice') },
+          { id: 'engineering', label: 'Engineering', icon: 'engineering_hub', onClick: () => onOpenTool('engineering_calc') },
+          { id: 'meetings', label: 'Meetings', icon: 'meetings', onClick: () => onOpenTool('meetings') },
+          { id: 'feedback', label: 'Give feedback', icon: 'feedback', onClick: onOpenFeedback, primary: true },
+        ]}
       />
 
-      {/* Role Experience Banner */}
-      <Surface level="inset" className="flex items-center gap-3">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--ax-radius-sm)] bg-[var(--ax-text)] font-bold text-[var(--ax-surface-1)]">
-          {profile.code}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 font-bold text-[var(--ax-text)]">
-            <span>{profile.label} Experience</span>
-            <StatusBadge tone="success" label="Active" />
-          </div>
-          <p className="truncate text-[var(--ax-text-muted)]">
-            {profile.description}. The Datum surface prioritises tools and decision gates for your role.
-          </p>
-        </div>
-        <div className="hidden lg:flex items-center gap-1.5">
-          {profile.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-[var(--ax-radius-pill)] border border-[var(--ax-border)] bg-[var(--ax-surface-1)] px-2 py-0.5 font-medium text-[var(--ax-action-primary)]"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </Surface>
+      <V8RoleBanner
+        code={profile.code}
+        label={profile.label}
+        description={profile.description}
+        godMode={presentationStage !== null}
+      />
 
       {/* Project Hero Card with 8-Stage Progress Bar */}
       <Surface level="raised" className="space-y-4">
