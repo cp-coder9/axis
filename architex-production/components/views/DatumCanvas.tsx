@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import { OrigamiIcon } from '@/lib/origami-icons';
 import { ProjectEntity, RoleKey, StageKey, ToolDefinition } from '@/lib/types';
-import { ALL_TOOLS, ROLE_PROFILES, STAGES, STAGE_COPY, STAGE_TOOL_MAP, ROLE_TOOL_MAP } from '@/lib/data';
+import { ALL_TOOLS, ROLE_PROFILES, STAGE_TOOL_MAP, ROLE_TOOL_MAP } from '@/lib/data';
 import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { V8PageHead } from '@/components/v8/V8PageHead';
+import { V8ProjectHero } from '@/components/v8/V8ProjectHero';
 import { V8RoleBanner } from '@/components/v8/V8RoleBanner';
 
 interface DatumCanvasProps {
@@ -104,60 +105,11 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
         godMode={presentationStage !== null}
       />
 
-      {/* Project Hero Card with 8-Stage Progress Bar */}
-      <Surface level="raised" className="space-y-4">
-        <div className="flex flex-col justify-between gap-2 border-b border-[var(--ax-border)] pb-4 sm:flex-row sm:items-center">
-          <div>
-            <h2 className="text-[17px] font-bold text-[var(--ax-text)]">{project.name}</h2>
-            <p className="text-[var(--ax-text-muted)]">
-              {project.location} · {project.client} · {project.professional} · Code: {project.code}
-            </p>
-          </div>
-          <StatusBadge tone="success" label={`In Progress · ${project.progress}%`} />
-        </div>
-
-        {/* Interactive 8-Stage Lifecycle Selection */}
-        <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
-          {STAGES.map((s, idx) => {
-            const isCurrent = s === displayedStage;
-            const stageIndex = STAGES.indexOf(displayedStage);
-            const isPast = idx < stageIndex;
-
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => onSelectStage(s)}
-                className={`relative flex flex-col items-center p-2 rounded-2xl border transition-all text-center group ${
-                  isCurrent
-                    ? 'border-[var(--ax-action-primary)] bg-[var(--ax-surface-2)] text-[var(--ax-text)] font-bold shadow-sm ring-2 ring-[var(--ax-action-primary)]/20'
-                    : isPast
-                    ? 'border-[var(--ax-border)] bg-[var(--ax-surface-1)] text-[var(--ax-text)] hover:border-[var(--ax-action-primary)]/40'
-                    : 'border-[var(--ax-border)] bg-[var(--ax-surface-2)] text-[var(--ax-text-muted)] hover:bg-[var(--ax-surface-1)]'
-                }`}
-                title={`Switch to ${s} stage`}
-              >
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold mb-1 transition-all ${
-                    isCurrent
-                      ? 'bg-[var(--ax-action-primary)] text-[var(--ax-surface-1)] shadow-md'
-                      : isPast
-                      ? 'bg-[var(--ax-surface-2)] text-[var(--ax-action-primary)]'
-                      : 'bg-[var(--ax-border)] text-[var(--ax-text-muted)]'
-                  }`}
-                >
-                  {isPast ? '✓' : idx + 1}
-                </div>
-                <span className="text-[11.5px] truncate w-full">{s}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <Surface level="inset" className="text-[var(--ax-text-muted)]">
-          <strong className="text-[var(--ax-text)]">{displayedStage} Stage:</strong> {STAGE_COPY[displayedStage]}
-        </Surface>
-      </Surface>
+      <V8ProjectHero
+        project={project}
+        activeStage={displayedStage}
+        onSelectStage={onSelectStage}
+      />
 
       {/* Mobile Datum Sequence — derived from the same ordered activeTools collection as the desktop plane. */}
       <section data-testid="datum-mobile-sequence" className="md:hidden space-y-2 rounded-3xl border border-[var(--ax-border)] bg-[var(--ax-surface-1)] p-3">
