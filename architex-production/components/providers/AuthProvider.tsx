@@ -34,7 +34,7 @@ export function authReducer(_state: AuthState, action: AuthAction): AuthState {
   return { status: 'unauthenticated', profile: null, error: null };
 }
 
-type RegistrationInput = { name: string; organization_name: string; email: string; password: string };
+type RegistrationInput = { name: string; organization_name: string; email: string; password: string; role_key?: string; profile?: Record<string, string> };
 type AuthContextValue = AuthState & {
   login(email: string, password: string): Promise<void>;
   register(input: RegistrationInput): Promise<{ status: string; verification_token?: string }>;

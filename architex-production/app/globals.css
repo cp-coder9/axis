@@ -101,13 +101,32 @@
 .access-form { width:min(590px,calc(100% - 48px)); margin:42px auto; display:grid; gap:16px; }
 .access-form-role { display:grid; grid-template-columns:auto 1fr auto; gap:10px; padding:15px; border-radius:13px; color:#47615f; background:#dfecea; }.access-form-role strong { color:#0b6e66; }
 .access-form label,.v8-signin-form>label { display:grid; gap:7px; color:#58706f; font:650 11px/1.3 'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; }
-.access-form input,.v8-signin-form input:not([type=checkbox]) { height:52px; padding:0 15px; border:1px solid #c6d8d5; border-radius:12px; outline:none; background:white; color:#102033; font:500 15px/1 Inter,sans-serif; text-transform:none; letter-spacing:0; }
-.access-form input:focus,.v8-signin-form input:focus { border-color:#168b82; box-shadow:0 0 0 3px rgba(25,183,176,.13); }
+.access-form input,.v8-signin-form input:not([type=checkbox]),.v8-signin-form select { height:52px; padding:0 15px; border:1px solid #c6d8d5; border-radius:12px; outline:none; background:white; color:#102033; font:500 15px/1 Inter,sans-serif; text-transform:none; letter-spacing:0; }
+.v8-signin-form select:disabled { appearance:none; opacity:1; }
+.v8-morph-zone input:disabled,.v8-morph-zone select:disabled { border-color:#dde8e6; background:#fbfdfd; color:#9db2af; transition:border-color var(--ax-motion-interaction) var(--ax-ease-standard),background var(--ax-motion-interaction) var(--ax-ease-standard),color var(--ax-motion-interaction) var(--ax-ease-standard); }
+.access-form input:focus,.v8-signin-form input:focus,.v8-signin-form select:focus { border-color:#168b82; box-shadow:0 0 0 3px rgba(25,183,176,.13); }
+
+/* Sign-in ↔ registration morph */
+.v8-mode-switch { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border:1px solid #c6d8d5; border-radius:13px; background:#e7f0ee; }
+.v8-mode-switch button { height:40px; border:0; border-radius:10px; background:transparent; color:#6d7f82; font-weight:650; font-size:13px; cursor:pointer; transition:background var(--ax-motion-interaction) var(--ax-ease-standard),color var(--ax-motion-interaction) var(--ax-ease-standard),box-shadow var(--ax-motion-interaction) var(--ax-ease-standard); }
+.v8-mode-switch button[aria-selected='true'] { background:white; color:#102033; box-shadow:var(--ax-elevation-raised); }
+.v8-morph-zone { display:grid; grid-template-rows:0fr; margin-top:-20px; opacity:0; transform:translateY(-8px); pointer-events:none; transition:grid-template-rows var(--ax-motion-drawer) var(--ax-ease-standard),opacity var(--ax-motion-drawer) var(--ax-ease-standard),transform var(--ax-motion-drawer) var(--ax-ease-standard),margin-top var(--ax-motion-drawer) var(--ax-ease-standard); }
+.v8-morph-zone.open { grid-template-rows:1fr; margin-top:0; opacity:1; transform:none; pointer-events:auto; }
+.v8-morph-zone>div { overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:20px; visibility:hidden; transition:visibility 0s linear var(--ax-motion-drawer); }
+.v8-morph-zone.open>div { visibility:visible; transition-delay:0s; }
+.v8-form-head,.v8-access-badge { animation:v8-morph-in var(--ax-motion-datum) var(--ax-ease-standard); }
+.v8-signin-identity h1,.v8-signin-identity>p { animation:v8-morph-in var(--ax-motion-datum) var(--ax-ease-standard); }
+@keyframes v8-morph-in { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+.v8-signin-form optgroup { padding:7px 2px 3px; color:#168b82; font:650 10px/1.4 'JetBrains Mono',monospace; letter-spacing:.12em; text-transform:uppercase; }
+.v8-signin-form optgroup option,.v8-signin-form select option { color:#102033; font:500 15px/1 Inter,sans-serif; text-transform:none; letter-spacing:0; }
+.v8-role-fields>div { visibility:visible; transition:none; animation:v8-morph-in var(--ax-motion-datum) var(--ax-ease-standard); }
 .access-form button { height:50px; border-radius:25px; border:1px solid #c8d9d7; font-weight:700; cursor:pointer; }.access-form-submit { color:white; background:#096c64; }.access-form-google,.access-form-back { background:white; color:#415b59; }
 
 .v8-signin { position:relative; display:grid; place-items:center; padding:48px; overflow:hidden; background:#071e22; background-image:linear-gradient(rgba(81,197,185,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(81,197,185,.065) 1px,transparent 1px),radial-gradient(circle at 10% 90%,rgba(25,183,176,.18),transparent 32%); background-size:32px 32px,32px 32px,100% 100%; }
 .v8-signin:after { content:'V8'; position:absolute; right:-30px; bottom:-120px; color:rgba(150,230,218,.035); font:bold 430px/1 Inter,sans-serif; }
 .v8-signin-back { position:absolute; top:30px; left:34px; display:flex; align-items:center; gap:7px; border:0; color:#a9c5c1; background:none; cursor:pointer; z-index:2; }
+.access-signout { position:fixed; right:18px; bottom:18px; z-index:80; min-height:36px; padding:0 14px; border:1px solid rgba(16,32,51,.15); border-radius:10px; background:#fff; color:#102033; font:700 12px/1 Inter,sans-serif; box-shadow:0 8px 24px rgba(16,32,51,.14); cursor:pointer; }
+.access-signout:disabled,.v8-enter-button:disabled { cursor:wait; opacity:.65; }
 .v8-signin-panel { position:relative; z-index:1; width:min(1040px,100%); min-height:610px; display:grid; grid-template-columns:.95fr 1.05fr; overflow:hidden; border:1px solid rgba(144,215,205,.2); border-radius:30px; background:#f4f9f8; box-shadow:0 35px 90px rgba(0,0,0,.36); }
 .v8-signin-identity { padding:54px; display:flex; flex-direction:column; background:#0a4540; color:#f2fbfa; }
 .v8-access-badge { width:max-content; margin-top:70px; padding:7px 10px; display:flex; gap:7px; align-items:center; border:1px solid rgba(162,225,217,.2); border-radius:6px; color:#8ed3ca; font:600 10px/1 'JetBrains Mono',monospace; letter-spacing:.13em; text-transform:uppercase; }

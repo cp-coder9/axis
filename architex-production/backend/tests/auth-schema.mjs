@@ -20,4 +20,11 @@ assert.match(sql, /pending_registrations[\s\S]+password_hash VARCHAR\(255\) NOT 
 assert.match(sql, /auth_sessions[\s\S]+FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE CASCADE/i, 'refresh sessions require cascading user ownership');
 assert.match(sql, /INSERT[\s\S]+role_permissions[\s\S]+organisation_admin[\s\S]+admin/i, 'organisation_admin must receive database-backed grants');
 
+const profileMigrationPath = resolve('backend/database/migrations/013_user_registration_profile.sql');
+assert(existsSync(profileMigrationPath), 'migration 013 is missing');
+const profileSql = readFileSync(profileMigrationPath, 'utf8');
+assert.match(profileSql, /ALTER TABLE pending_registrations[\s\S]+requested_role_key VARCHAR\(64\) NULL/i, 'pending registrations must capture the requested role');
+assert.match(profileSql, /ALTER TABLE pending_registrations[\s\S]+profile_json LONGTEXT NULL/i, 'pending registrations must retain the role profile payload');
+assert.match(profileSql, /ALTER TABLE users[\s\S]+profile_json LONGTEXT NULL/i, 'users must persist the verified registration profile');
+
 console.log('authentication schema contract passed');

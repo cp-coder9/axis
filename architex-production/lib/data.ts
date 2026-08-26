@@ -103,6 +103,79 @@ export const ROLES: { key: RoleKey; label: string }[] = [
   { key: 'platform_admin', label: 'Platform Super-Administrator' }
 ];
 
+export type RegistrationField = {
+  name: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+};
+
+export const REGISTRATION_ROLE_GROUPS: { group: string; roleKeys: RoleKey[] }[] = [
+  { group: 'Clients & Development', roleKeys: ['client', 'developer'] },
+  { group: 'Built Environment Professionals', roleKeys: ['architect', 'engineer', 'quantity_surveyor', 'town_planner', 'land_surveyor', 'energy_professional', 'fire_engineer', 'bep'] },
+  { group: 'Delivery & Site', roleKeys: ['cpm', 'contractor', 'subcontractor', 'site_manager', 'health_safety'] },
+  { group: 'Supply & Specialist Services', roleKeys: ['supplier', 'freelancer'] },
+  { group: 'Practice & Platform Administration', roleKeys: ['firm_admin', 'organisation_admin', 'admin', 'platform_admin'] }
+];
+
+const CIDB_GRADES = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
+const BBEE_LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6', 'Level 7', 'Level 8', 'Non-compliant'];
+
+export const REGISTRATION_ROLE_FIELDS: Partial<Record<RoleKey, RegistrationField[]>> = {
+  architect: [
+    { name: 'sacap_number', label: 'SACAP registration number', placeholder: 'e.g. PrArch T4321', required: true }
+  ],
+  engineer: [
+    { name: 'ecsa_number', label: 'ECSA registration number', placeholder: 'e.g. Pr Eng 20051234', required: true }
+  ],
+  quantity_surveyor: [
+    { name: 'sacqsp_number', label: 'SACQSP registration number', placeholder: 'e.g. Pr QS 20198765', required: true }
+  ],
+  town_planner: [
+    { name: 'sacplan_number', label: 'SACPLAN registration number', placeholder: 'e.g. A/1234/2015', required: true }
+  ],
+  land_surveyor: [
+    { name: 'sagc_number', label: 'SAGC registration number', placeholder: 'e.g. LS/0123', required: true }
+  ],
+  energy_professional: [
+    { name: 'professional_registration_number', label: 'Professional registration number (ECSA / SANAS)', placeholder: 'Registration body and number', required: true }
+  ],
+  fire_engineer: [
+    { name: 'professional_registration_number', label: 'Professional registration number (ECSA / Fire)', placeholder: 'Registration body and number', required: true }
+  ],
+  bep: [
+    { name: 'professional_registration_number', label: 'Professional body registration number', placeholder: 'Council and registration number', required: true }
+  ],
+  health_safety: [
+    { name: 'sacpcmp_number', label: 'SACPCMP registration number (CHSO)', placeholder: 'e.g. CHSO/1234', required: true }
+  ],
+  cpm: [
+    { name: 'sacpcmp_number', label: 'SACPCMP registration number (Pr.CPM)', placeholder: 'e.g. CPM/5678', required: true }
+  ],
+  contractor: [
+    { name: 'cidb_grade', label: 'CIDB grade', options: CIDB_GRADES, required: true },
+    { name: 'cidb_classes', label: 'CIDB classes of works', placeholder: 'e.g. GB, CE, ME', required: true },
+    { name: 'csd_number', label: 'CSD supplier registration number', placeholder: 'e.g. MAAA1234567', required: true }
+  ],
+  subcontractor: [
+    { name: 'trade_speciality', label: 'Trade / package specialisation', placeholder: 'e.g. Formwork, waterproofing, glazing', required: true },
+    { name: 'csd_number', label: 'CSD supplier registration number', placeholder: 'e.g. MAAA1234567', required: true }
+  ],
+  supplier: [
+    { name: 'company_registration_number', label: 'Company registration number', placeholder: 'e.g. 2016/123456/07', required: true },
+    { name: 'vat_number', label: 'VAT number', placeholder: 'e.g. 4123456789' },
+    { name: 'product_categories', label: 'Products / materials supplied', placeholder: 'e.g. Ready-mix concrete, rebar, bricks', required: true },
+    { name: 'bbbbee_level', label: 'B-BBEE level', options: BBEE_LEVELS }
+  ],
+  developer: [
+    { name: 'company_registration_number', label: 'Company registration number', placeholder: 'e.g. 2014/987654/06', required: true }
+  ],
+  freelancer: [
+    { name: 'area_of_specialisation', label: 'Area of specialisation', placeholder: 'e.g. Point-cloud scanning, 4D planning', required: true }
+  ]
+};
+
 export const ROLE_PROFILES: Record<RoleKey, RoleProfile> = {
   client: {
     code: 'CL',

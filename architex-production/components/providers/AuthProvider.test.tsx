@@ -26,4 +26,11 @@ describe('authenticated workspace provider', () => {
     expect(source).not.toContain("get('workspace')");
     expect(source).toContain("status === 'authenticated'");
   });
+
+  it('exposes user-visible session revocation from the authenticated gateway', () => {
+    const source = readFileSync(resolve('components/access/AccessGateway.tsx'), 'utf8');
+    expect(source).toContain('logout');
+    expect(source).toContain('Sign out');
+    expect(source).toContain('disabled={pending}');
+  });
 });

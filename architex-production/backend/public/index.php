@@ -504,6 +504,18 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/register$#', $path)) {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_response(['error' => 'A valid email is required'], 422);
     $passwordErrors = auth_validate_password($password);
     if ($passwordErrors) json_response(['error' => 'Password does not meet policy', 'field_errors' => $passwordErrors], 422);
+    $requestedRoleKey = isset($body['role_key']) && is_string($body['role_key']) ? trim($body['role_key']) : '';
+    if ($requestedRoleKey !== '' && !in_array($requestedRoleKey, ALLOWED_ROLES, true)) json_response(['error' => 'A valid role_key is required'], 422);
+    $registrationProfile = [];
+    if (isset($body['profile']) && is_array($body['profile'])) {
+        foreach ($body['profile'] as $profileField => $profileValue) {
+            if (!is_string($profileField) || !preg_match('/^[a-z0-9_]{1,64}$/', $profileField)) json_response(['error' => 'Invalid profile field name'], 422);
+            if (!is_string($profileValue) || mb_strlen($profileValue) > 300) json_response(['error' => "Invalid profile value for '{$profileField}'"], 422);
+            $trimmedValue = trim($profileValue);
+            if ($trimmedValue !== '') $registrationProfile[$profileField] = $trimmedValue;
+        }
+        if (count($registrationProfile) > 24) json_response(['error' => 'Too many profile fields'], 422);
+    }
     if (db_health() === null) json_response(['error' => 'Registration store unavailable'], 503);
 
     $pdo = db();
@@ -528,8 +540,8 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/register$#', $path)) {
             $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
             json_response(['error' => 'A verification request is already active for this email'], 409);
         }
-        $pdo->prepare('INSERT INTO pending_registrations (id, name, organization_name, email, password_hash, token_hash, expires_at) VALUES (?, ?, ?, ?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 24 HOUR))')
-            ->execute([$registrationId, $name, $organizationName, $email, password_hash($password, PASSWORD_DEFAULT), auth_token_hash($verificationToken)]);
+        $pdo->prepare('INSERT INTO pending_registrations (id, name, organization_name, email, password_hash, token_hash, requested_role_key, profile_json, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 24 HOUR))')
+            ->execute([$registrationId, $name, $organizationName, $email, password_hash($password, PASSWORD_DEFAULT), auth_token_hash($verificationToken), $requestedRoleKey !== '' ? $requestedRoleKey : null, $registrationProfile ? json_encode($registrationProfile, JSON_UNESCAPED_UNICODE) : null]);
         if (!auth_send_link($config, $email, 'Verify your Architex account', '/verify-email', $verificationToken)) {
             $pdo->rollBack();
             $pdo->query("SELECT RELEASE_LOCK('architex-first-registration')");
@@ -575,10 +587,18 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/verify-email$#', $path))
         $userId = auth_id('user');
         $pdo->prepare('INSERT INTO organizations (id, name, slug) VALUES (?, ?, ?)')
             ->execute([$organizationId, $record['organization_name'], auth_slug($record['organization_name'])]);
-        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)')
-            ->execute([$userId, $organizationId, $record['name'], $record['email'], $record['password_hash'], 'active']);
+        $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status, profile_json) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute([$userId, $organizationId, $record['name'], $record['email'], $record['password_hash'], 'active', $record['profile_json'] ?? null]);
         $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')
             ->execute([$userId, 'organisation_admin']);
+        if (!empty($record['requested_role_key']) && $record['requested_role_key'] !== 'organisation_admin') {
+            $roleExists = $pdo->prepare('SELECT COUNT(*) FROM roles WHERE role_key = ?');
+            $roleExists->execute([$record['requested_role_key']]);
+            if ((int) $roleExists->fetchColumn() > 0) {
+                $pdo->prepare('INSERT IGNORE INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, NULL)')
+                    ->execute([$userId, $record['requested_role_key']]);
+            }
+        }
         $pdo->prepare('UPDATE pending_registrations SET consumed_at = UTC_TIMESTAMP() WHERE id = ?')->execute([$record['id']]);
         auth_audit($pdo, $organizationId, $userId, 'user', $userId, 'auth.email.verified', ['email' => $record['email']]);
         $pdo->commit();
