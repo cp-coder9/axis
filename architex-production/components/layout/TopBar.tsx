@@ -109,12 +109,14 @@ export const TopBar: React.FC<TopBarProps> = ({
       <button
         type="button"
         data-testid="workspace-theme-toggle"
+        data-v8-control="theme"
         aria-pressed={theme === 'dark'}
-        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        aria-label="Switch colour theme"
         onClick={onToggleTheme}
-        className="w-9 h-9 rounded-xl bg-white border border-[#102033]/10 flex items-center justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
+        className="h-9 px-2.5 rounded-xl bg-white border border-[#102033]/10 flex items-center gap-1.5 justify-center text-[var(--ax-text-muted)] hover:text-[var(--ax-action-primary)] hover:bg-[#DFF5F2] transition-colors shadow-sm"
       >
-        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        <span className="text-[12px] font-bold">{theme === 'dark' ? 'Light' : 'Dark'}</span>
       </button>
 
       {/* God Mode Toggle — between project chip and role switcher (plan 5B) */}

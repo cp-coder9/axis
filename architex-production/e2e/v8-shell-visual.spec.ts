@@ -1,14 +1,38 @@
-import { expect, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 import { VIEWPORTS, assertFontReadiness, assertNoBodyOverflow, runAxe } from './helpers/v8-migration';
 
+async function restoreAuthenticatedShell(page: Page) {
+  await page.route('**/api/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith('/auth/refresh')) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ access_token: 'shell-access' }) });
+    } else if (path.endsWith('/me')) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+        user: { id: 'user-shell', name: 'Shell Owner', email: 'shell@example.com', status: 'active' },
+        organization: { id: 'org-shell', name: 'Shell Organisation', slug: 'shell-organisation' },
+        roles: ['organisation_admin'], project_memberships: [], active_role: 'organisation_admin', permissions: ['projects.read'],
+      }) });
+    } else {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+    }
+  });
+}
+
 test('workspace theme top bar control toggles the dashboard to dark mode', async ({ page }) => {
+  await restoreAuthenticatedShell(page);
   await page.goto('/?workspace=v8');
   const toggle = page.getByTestId('workspace-theme-toggle');
+  await expect(toggle).toHaveAccessibleName('Switch colour theme');
+  await expect(toggle).toContainText('Dark');
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   await toggle.focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('[data-theme="dark"]')).toBeVisible();
+  await expect(page.locator('html[data-theme="dark"]')).toBeVisible();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle).toContainText('Light');
+  await page.reload();
+  await expect(page.getByTestId('workspace-theme-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('workspace-theme-toggle')).toContainText('Light');
 });
 
 test('P6-NAV-01 shell baseline preserves role control and responsive overflow contract', async ({ page }) => {

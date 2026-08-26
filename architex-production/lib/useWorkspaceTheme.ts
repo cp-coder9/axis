@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type WorkspaceTheme = 'light' | 'dark';
 
-export const WORKSPACE_THEME_STORAGE_KEY = 'architex.workspace-theme';
+export const WORKSPACE_THEME_STORAGE_KEY = 'architex-theme';
 
 export function parseWorkspaceTheme(value: string | null): WorkspaceTheme {
   return value === 'dark' ? 'dark' : 'light';
@@ -19,6 +19,10 @@ export function useWorkspaceTheme(): {
   useEffect(() => {
     setTheme(parseWorkspaceTheme(window.localStorage.getItem(WORKSPACE_THEME_STORAGE_KEY)));
   }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     setTheme((currentTheme) => {
