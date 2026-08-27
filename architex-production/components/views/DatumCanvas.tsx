@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ALL_TOOLS, ROLE_PROFILES, ROLE_TOOL_MAP, STAGE_TOOL_MAP } from '@/lib/data';
+import { ALL_TOOLS, ROLE_PROFILES } from '@/lib/data';
+import { referencePresentationRole, referenceToolIdsForContext } from '@/lib/reference/reference-navigation';
 import type { ProjectEntity, RoleKey, StageKey } from '@/lib/types';
 import { V8DatumSequence } from '@/components/v8/V8DatumSequence';
 import { V8DatumWorld } from '@/components/v8/V8DatumWorld';
@@ -62,13 +63,11 @@ export const DatumCanvas: React.FC<DatumCanvasProps> = ({
 
   // God Mode is a presentation-only branch: it shows the complete selected
   // stage map without changing the authenticated role or durable project stage.
-  const stageTools = STAGE_TOOL_MAP[displayedStage] || [];
-  const roleTools = ROLE_TOOL_MAP[currentRole] || [];
-  const priorityIds = stageTools.filter((id) => roleTools.includes(id));
-  const fallbackIds = stageTools.filter((id) => !priorityIds.includes(id));
-  const activeToolIds = presentationStage
-    ? [...stageTools]
-    : Array.from(new Set([...priorityIds, 'meetings', 'practice', ...fallbackIds])).slice(0, 8);
+  const activeToolIds = referenceToolIdsForContext({
+    stage: displayedStage,
+    presentationRole: referencePresentationRole(currentRole),
+    godMode: presentationStage !== null,
+  });
   const activeTools = activeToolIds.map((id) => ALL_TOOLS[id]).filter(Boolean);
   const metrics: Record<string, readonly [string, string]> = Object.fromEntries(
     activeTools.map((tool) => [tool.id, getToolMetric(tool.id)]),

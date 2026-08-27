@@ -1,5 +1,6 @@
 import { ProjectEntity, RoleKey, RoleProfile, StageKey, ToolDefinition, MeetingItem, MeetingOutcome, MeetingTranscriptSegment, MeetingMinuteItem, MeetingAgendaItem, FeedbackRecord } from './types';
-import { createReferenceToolDefinitions } from './reference/godmode-reference';
+import { createReferenceToolDefinitions, REFERENCE_STAGE_TOOL_MAP, REFERENCE_TOOLS } from './reference/godmode-reference';
+import { referencePresentationRole, referenceRoleToolIds } from './reference/reference-navigation';
 
 export const INITIAL_PROJECT: ProjectEntity = {
   id: 'proj-faerie-glen',
@@ -348,49 +349,13 @@ export const ROLE_PROFILES: Record<RoleKey, RoleProfile> = {
   }
 };
 
-export const STAGE_TOOL_MAP: Record<StageKey, string[]> = {
-  Brief: ['practice', 'project_passport', 'project_explorer', 'planning', 'fee_proposal', 'forms', 'meetings', 'wingman'],
-  Appoint: ['practice', 'professional_directory', 'fee_proposal', 'forms', 'team_workspace', 'contract_admin', 'meetings', 'project_passport', 'wingman'],
-  Design: ['practice', 'engineering_calc', 'specforge', 'xa', 'forms', 'bom', 'bim_ifc', 'documents_drawings', 'meetings', 'wingman'],
-  Comply: ['planning', 'municipal', 'engineering_calc', 'xa', 'forms', 'eia_workspace', 'environmental_heritage', 'safety', 'meetings', 'wingman'],
-  Procure: ['practice', 'bom', 'specforge', 'rfq_marketplace', 'supplier_catalog', 'contract_admin', 'meetings', 'wingman'],
-  Build: ['practice', 'engineering_calc', 'safety', 'itp', 'site_instructions', 'ncr_manager', 'contractor_compliance', 'snag_manager', 'meetings', 'forms', 'wingman'],
-  Pay: ['practice', 'payments_escrow', 'contract_admin', 'forms', 'meetings', 'feedback', 'wingman'],
-  'Close-out': ['practice', 'snag_manager', 'documents_drawings', 'forms', 'project_passport', 'meetings', 'cpd_learning', 'feedback', 'wingman']
-};
+export const STAGE_TOOL_MAP = Object.fromEntries(
+  Object.entries(REFERENCE_STAGE_TOOL_MAP).map(([stage, ids]) => [stage, ids.filter((id) => id in REFERENCE_TOOLS)]),
+) as Record<StageKey, string[]>;
 
-export const ROLE_TOOL_MAP: Record<RoleKey, string[]> = {
-  client: ['meetings', 'practice', 'project_passport', 'inbox_action', 'approvals_queue', 'forms', 'documents_drawings', 'payments_escrow', 'planning', 'municipal', 'feedback', 'wingman'],
-  architect: ['meetings', 'practice', 'project_passport', 'inbox_action', 'approvals_queue', 'documents_drawings', 'planning', 'municipal', 'xa', 'forms', 'specforge', 'bom', 'itp', 'safety', 'wingman'],
-  bep: ['meetings', 'practice', 'engineering_calc', 'project_passport', 'inbox_action', 'approvals_queue', 'documents_drawings', 'planning', 'municipal', 'xa', 'forms', 'specforge', 'bom', 'itp', 'safety', 'wingman'],
-  engineer: ['meetings', 'practice', 'engineering_calc', 'itp', 'site_instructions', 'ncr_manager', 'xa', 'specforge', 'documents_drawings', 'wingman'],
-  quantity_surveyor: ['meetings', 'practice', 'bom', 'specforge', 'rfq_marketplace', 'supplier_catalog', 'payments_escrow', 'contract_admin', 'wingman'],
-  town_planner: ['meetings', 'planning', 'municipal', 'forms', 'project_passport', 'environmental_heritage', 'wingman'],
-  land_surveyor: ['meetings', 'survey_geomatics', 'project_passport', 'documents_drawings', 'planning', 'wingman'],
-  energy_professional: ['meetings', 'engineering_calc', 'xa', 'compliance_hub', 'documents_drawings', 'project_passport', 'wingman'],
-  fire_engineer: ['meetings', 'engineering_calc', 'safety', 'compliance_hub', 'documents_drawings', 'municipal', 'wingman'],
-  cpm: ['meetings', 'practice', 'engineering_calc', 'project_passport', 'bom', 'safety', 'itp', 'site_instructions', 'ncr_manager', 'snag_manager', 'wingman'],
-  contractor: ['meetings', 'practice', 'engineering_calc', 'bom', 'safety', 'itp', 'site_instructions', 'ncr_manager', 'contractor_compliance', 'snag_manager', 'forms', 'wingman'],
-  subcontractor: ['meetings', 'practice', 'safety', 'itp', 'site_instructions', 'contractor_compliance', 'snag_manager', 'forms', 'wingman'],
-  supplier: ['meetings', 'supplier_catalog', 'rfq_marketplace', 'specforge', 'bom', 'forms', 'documents_drawings', 'feedback', 'wingman'],
-  site_manager: ['meetings', 'practice', 'engineering_calc', 'safety', 'itp', 'site_instructions', 'ncr_manager', 'snag_manager', 'forms', 'wingman'],
-  health_safety: ['meetings', 'safety', 'practice', 'forms', 'documents_drawings', 'feedback', 'wingman'],
-  developer: ['meetings', 'practice', 'project_passport', 'planning', 'municipal', 'bom', 'specforge', 'payments_escrow', 'feedback', 'wingman'],
-  freelancer: ['meetings', 'practice', 'documents_drawings', 'forms', 'wingman'],
-  firm_admin: ['meetings', 'practice', 'fee_proposal', 'payments_escrow', 'forms', 'feedback', 'wingman'],
-  organisation_admin: ['meetings', 'practice', 'fee_proposal', 'payments_escrow', 'forms', 'feedback', 'wingman', 'admin_review'],
-  admin: ['meetings', 'practice', 'admin_review', 'project_passport', 'feedback', 'wingman'],
-  platform_admin: [
-    'practice', 'meetings', 'wingman', 'planning', 'municipal', 'xa', 'forms', 'specforge', 'bom', 'itp', 'safety', 'feedback',
-    'engineering_calc',
-    'project_passport', 'project_explorer', 'professional_directory', 'team_workspace', 'inbox_action', 'issues_rfis',
-    'documents_drawings', 'fee_proposal', 'council_navigator', 'compliance_hub', 'municipal_tracker', 'environmental_heritage',
-    'eia_workspace', 'refuse_calculator', 'survey_geomatics', 'nhbrc_enrolment', 'insurance_register', 'bim_ifc',
-    'rfq_marketplace', 'supplier_catalog', 'market_insights', 'contract_admin', 'contractor_compliance', 'approvals_queue',
-    'payments_escrow', 'dispute_resolution', 'site_instructions', 'ncr_manager', 'snag_manager', 'fm_bridge',
-    'remote_desktop', 'cpd_learning', 'admin_review', 'iconography_registry'
-  ]
-};
+export const ROLE_TOOL_MAP = Object.fromEntries(
+  Object.keys(ROLE_PROFILES).map((role) => [role, referenceRoleToolIds(referencePresentationRole(role))]),
+) as Record<RoleKey, string[]>;
 
 const PRODUCTION_TOOL_METADATA: Record<string, ToolDefinition> = {
   // 12 FLAGSHIP LIVE MODULES
