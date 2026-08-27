@@ -55,6 +55,14 @@ function waitForApprovalStatus(page: Page, expectedStatus: string) {
   });
 }
 
+function waitForItemStatus(page: Page, itemTitle: string, expectedStatus: string) {
+  return page.waitForResponse(async response => {
+    if (!/\/projects\/[^/]+\/specforge$/.test(new URL(response.url()).pathname) || response.request().method() !== 'GET' || response.status() !== 200) return false;
+    const payload = await response.json().catch(() => null);
+    return payload?.workspace?.items?.some((item: { title?: string; status?: string }) => item.title === itemTitle && item.status === expectedStatus) === true;
+  });
+}
+
 test('loads authenticated persisted records, all V8 workflows, and survives reload/theme/mobile gates', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   const runtime = await login(page, 'architect');
@@ -82,6 +90,20 @@ test('loads authenticated persisted records, all V8 workflows, and survives relo
   await openSpecForge(page);
   await specforge.getByRole('button', { name: 'Products', exact: true }).click();
   await expect(specforge.getByText(persistedTitle)).toBeVisible();
+
+  await specforge.getByRole('button', { name: 'Procurement', exact: true }).click();
+  const transitionRequest = page.waitForResponse(response => response.url().includes('/procurement-transition') && response.request().method() === 'POST');
+  const transitionReload = waitForItemStatus(page, 'Issued porcelain floor tile', 'quoted');
+  await specforge.getByRole('button', { name: 'Send RFQ for Issued porcelain floor tile' }).click();
+  const transitionResponse = await transitionRequest;
+  expect(transitionResponse.status()).toBe(201);
+  expect((await transitionResponse.json()).transition.connector_status).toBe('integration_required');
+  expect((await transitionReload).status()).toBe(200);
+  await expect(specforge.getByRole('button', { name: 'Accept quote for Issued porcelain floor tile' })).toBeVisible();
+  await page.reload({ waitUntil: 'networkidle' });
+  await openSpecForge(page);
+  await specforge.getByRole('button', { name: 'Procurement', exact: true }).click();
+  await expect(specforge.getByRole('button', { name: 'Accept quote for Issued porcelain floor tile' })).toBeVisible();
 
   await specforge.getByRole('button', { name: 'Issue & Distribute' }).focus();
   await expect(specforge.getByRole('button', { name: 'Issue & Distribute' })).toBeFocused();
