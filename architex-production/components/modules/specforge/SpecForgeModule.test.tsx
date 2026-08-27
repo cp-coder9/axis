@@ -148,4 +148,16 @@ describe('SpecForge V8 workspace', () => {
     await waitFor(() => expect(actions.listJobs).toHaveBeenCalledWith('issue-1'));
     expect(screen.getAllByText('Integration required')).toHaveLength(2);
   });
+
+  it.each([
+    ['planning', 'Specification planning', 'Procure: Warm limestone porcelain tile'],
+    ['procurement', 'Procurement pipeline', 'RFQ Pending'],
+    ['closeout', 'Closeout readiness', 'Approved items'],
+    ['integration', 'Connected services', 'Integration required'],
+  ] as const)('renders the persisted %s reference view', (tab, heading, evidence) => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey={tab} />);
+    expect(screen.getByRole('heading', { name: heading })).toBeTruthy();
+    expect(screen.getAllByText(evidence, { exact: false }).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Workspace view unavailable')).toBeNull();
+  });
 });
