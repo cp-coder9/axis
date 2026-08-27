@@ -160,4 +160,24 @@ describe('SpecForge V8 workspace', () => {
     expect(screen.getAllByText(evidence, { exact: false }).length).toBeGreaterThan(0);
     expect(screen.queryByText('Workspace view unavailable')).toBeNull();
   });
+
+  it('opens the reference item detail from the pictorial board', () => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="pictorial" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open Warm limestone porcelain tile details' }));
+    expect(screen.getByRole('dialog', { name: 'Warm limestone porcelain tile' })).toBeTruthy();
+    expect(screen.getByText('Rectified wall tile')).toBeTruthy();
+    expect(screen.getByText('Tile Co')).toBeTruthy();
+    expect(screen.getByText('60 days')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Close item details' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('filters the product register by persisted item fields', () => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="products" />);
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search specifications' }), { target: { value: 'missing product' } });
+    expect(screen.queryByText('Warm limestone porcelain tile')).toBeNull();
+    expect(screen.getByText('No matching specifications')).toBeTruthy();
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search specifications' }), { target: { value: 'FIN-001' } });
+    expect(screen.getByText('Warm limestone porcelain tile')).toBeTruthy();
+  });
 });
