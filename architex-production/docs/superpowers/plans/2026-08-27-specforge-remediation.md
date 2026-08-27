@@ -256,7 +256,7 @@ git commit -m "fix: preserve issued SpecForge revisions"
 
 - [ ] **Step 1: Write failing denial-audit tests**
 
-Exercise organization, membership, capability, assignment, and issued-state denials. Assert the response remains non-disclosing and one audit row exists:
+Exercise organization, membership, capability, assignment, and decided-approval state denials. Assert the response remains non-disclosing and one audit row exists. Issued item edits are covered by Task 3 and create draft successors rather than denials:
 
 ```js
 assert.equal(denial.status, 403);
