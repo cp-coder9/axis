@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ALL_PROJECTS } from '@/lib/data';
@@ -168,13 +168,25 @@ describe('SpecForge V8 workspace', () => {
 
   it('opens the reference item detail from the pictorial board', () => {
     render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="pictorial" />);
+    expect(screen.getByText('Over allowance')).toBeTruthy();
+    expect(screen.getByText('60d lead')).toBeTruthy();
+    expect(screen.getByText(/R 12[,\s]000/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Open Warm limestone porcelain tile details' }));
-    expect(screen.getByRole('dialog', { name: 'Warm limestone porcelain tile' })).toBeTruthy();
-    expect(screen.getByText('Rectified wall tile')).toBeTruthy();
-    expect(screen.getByText('Tile Co')).toBeTruthy();
-    expect(screen.getByText('60 days')).toBeTruthy();
+    const dialog = screen.getByRole('dialog', { name: 'Warm limestone porcelain tile' });
+    expect(dialog).toBeTruthy();
+    expect(within(dialog).getByText('Rectified wall tile')).toBeTruthy();
+    expect(within(dialog).getByText('Tile Co')).toBeTruthy();
+    expect(within(dialog).getByText('60 days')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Close item details' }));
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('does not fabricate BoM quantities or rates from item estimates', () => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="quantity_surveyor" activeTabKey="bomboq" />);
+    expect(screen.getByRole('columnheader', { name: 'Qty' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Rate' })).toBeTruthy();
+    expect(screen.getAllByText('Unpriced').length).toBeGreaterThan(0);
+    expect(screen.getByText('Integration required')).toBeTruthy();
   });
 
   it('filters the product register by persisted item fields', () => {
