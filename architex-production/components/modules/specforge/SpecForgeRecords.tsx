@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SpecForgeIssue } from '@/components/modules/specforge/SpecForgeIssue';
 import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
+import type { CreateSpecForgeSectionInput } from '@/lib/specforge/api';
 import { summarizeSpecBudget } from '@/lib/specforge/domain';
 import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult, SpecForgeItem } from '@/lib/specforge/types';
 import type { RoleKey } from '@/lib/types';
@@ -17,6 +18,7 @@ interface Props {
   role: RoleKey;
   canEdit: boolean;
   canIssue: boolean;
+  onCreateSection: (input: CreateSpecForgeSectionInput) => Promise<unknown>;
   onDuplicate: (itemId: string) => Promise<unknown>;
   onDecide: (approvalId: string, decision: 'approved' | 'rejected') => Promise<unknown>;
   onValidateIssue: () => Promise<{ ready: boolean; codes: string[] }>;
@@ -25,13 +27,15 @@ interface Props {
   onDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
 }
 
-export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onDuplicate, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
+export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [drawingRevision, setDrawingRevision] = useState('');
   const [query, setQuery] = useState('');
   const [room, setRoom] = useState('');
   const [packageName, setPackageName] = useState('');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [sectionFormOpen, setSectionFormOpen] = useState(false);
+  const [sectionSaving, setSectionSaving] = useState(false);
   const budget = summarizeSpecBudget(workspace.items);
   const rooms = [...new Set(workspace.items.map(item => item.room))].sort();
   const packages = [...new Set(workspace.items.map(item => item.packageName))].sort();
@@ -46,7 +50,18 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onDu
 
   if (tab === 'pictorial') return <section data-tool-tab={tab} className="specforge-record-view">{filters}<div className="specforge-pictorial">{filteredItems.map(item => <Surface as="article" level="raised" key={item.id}><button type="button" className="specforge-product-card" aria-label={`Open ${item.title} details`} onClick={() => setSelectedItemId(item.id)}><div className="specforge-product-image">{item.imageUrl ? <div className="specforge-product-photo" role="img" aria-label={item.title} style={{ backgroundImage: cssImage(item.imageUrl) }} /> : <div><span>{item.finish ?? 'Product image pending'}</span><small>{item.dimensions ?? item.packageName}</small></div>}</div><div className="specforge-product-copy"><div><code>{item.code}</code>{status(item.status)}</div><h2>{item.title}</h2><p>{item.supplier ?? 'Supplier not assigned'} · {item.model ?? 'performance basis'}</p><small>{item.room} · {item.sourceRevision}</small></div></button></Surface>)}{filteredItems.length === 0 && <Empty title="No matching specifications" detail="Change the search or project filters." />}</div>{detail}</section>;
 
-  if (tab === 'sections') return <div data-tool-tab={tab} className="specforge-sections">{workspace.sections.map(section => <Surface as="article" level="raised" key={section.id}><header><div><code>{section.code}</code><h2>{section.title}</h2></div>{status(section.status)}</header><p>{section.discipline} · owner {section.ownerRole.replaceAll('_',' ')}</p><div>{workspace.items.filter(item => item.sectionId === section.id).map(item => <span key={item.id}>{item.code} · {item.title}</span>)}</div></Surface>)}</div>;
+  if (tab === 'sections') {
+    const createSection = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      setSectionSaving(true);
+      try {
+        await onCreateSection({ code: String(data.get('code') ?? '').trim(), title: String(data.get('title') ?? '').trim(), discipline: String(data.get('discipline') ?? '').trim() || 'general', ownerRole: role, reviewerRole: 'bep', status: 'draft', standardSource: null, sourceRevision: workspace.revision });
+        setSectionFormOpen(false);
+      } finally { setSectionSaving(false); }
+    };
+    return <section data-tool-tab={tab} className="specforge-section-view"><div className="specforge-panel__head"><div><span className="specforge-kicker">Controlled structure</span><h2>Sections</h2></div>{canEdit && <Button type="button" onClick={() => setSectionFormOpen(true)}>Add section</Button>}</div><div className="specforge-sections">{workspace.sections.map(section => <details className="ax-surface ax-surface--raised" key={section.id} open><summary><div><code>{section.code}</code><h3>{section.title}</h3><small>{section.discipline} · owner {section.ownerRole.replaceAll('_',' ')}</small></div><div>{status(section.status)}<span>{workspace.items.filter(item => item.sectionId === section.id).length}</span></div></summary><div className="specforge-section-items">{workspace.items.filter(item => item.sectionId === section.id).map(item => <button type="button" key={item.id} onClick={() => setSelectedItemId(item.id)}><code>{item.code}</code><span>{item.title}</span>{status(item.status)}</button>)}</div></details>)}</div>{selectedItem && <ItemDetail item={selectedItem} canEdit={canEdit} onDuplicate={onDuplicate} onClose={() => setSelectedItemId(null)} />}{sectionFormOpen && <div className="specforge-detail-backdrop" role="presentation"><Surface as="section" level="raised" className="specforge-section-form" role="dialog" aria-modal="true" aria-labelledby="specforge-section-form-title"><header><h2 id="specforge-section-form-title">Add new section</h2><Button type="button" variant="quiet" size="sm" aria-label="Close section form" onClick={() => setSectionFormOpen(false)}>Close</Button></header><form onSubmit={event => void createSection(event)}><label>Section code<input name="code" aria-label="Section code" placeholder="e.g. 14" required /></label><label>Section title<input name="title" aria-label="Section title" placeholder="e.g. Sanitaryware" required /></label><label>Section discipline<input name="discipline" aria-label="Section discipline" placeholder="e.g. Plumbing" /></label><div><Button type="submit" busy={sectionSaving}>Create section</Button><Button type="button" variant="secondary" onClick={() => setSectionFormOpen(false)}>Cancel</Button></div></form></Surface></div>}</section>;
+  }
 
   if (tab === 'products') return <section data-tool-tab={tab} className="specforge-record-view">{filters}<Surface level="raised" className="specforge-table-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Controlled records</span><h2>Product register</h2></div><span>{filteredItems.length} visible records</span></div><div className="specforge-table-scroll"><table><thead><tr><th>Reference</th><th>Specification</th><th>Package / room</th><th>Allowance</th><th>Estimate</th><th>Lead</th><th>Status</th><th /></tr></thead><tbody>{filteredItems.map(item => <tr key={item.id}><td><code>{item.code}</code></td><td><button type="button" className="specforge-product-link" onClick={() => setSelectedItemId(item.id)}><strong>{item.title}</strong><small>{item.supplier ?? 'Supplier open'} · {item.finish ?? 'Finish open'}</small></button></td><td>{item.packageName}<small>{item.room}</small></td><td>{money(item.budgetAllowance)}</td><td>{money(item.estimatedCost)}</td><td>{item.leadTimeDays}d</td><td>{status(item.status)}</td><td>{canEdit && <button type="button" onClick={() => void onDuplicate(item.id)}>Duplicate</button>}</td></tr>)}</tbody></table>{filteredItems.length === 0 && <Empty title="No matching specifications" detail="Change the search or project filters." />}</div></Surface>{detail}</section>;
 

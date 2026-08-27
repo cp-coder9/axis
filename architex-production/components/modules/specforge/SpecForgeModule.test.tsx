@@ -180,4 +180,17 @@ describe('SpecForge V8 workspace', () => {
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search specifications' }), { target: { value: 'FIN-001' } });
     expect(screen.getByText('Warm limestone porcelain tile')).toBeTruthy();
   });
+
+  it('creates a persisted section from the reference section form', async () => {
+    actions.createSection.mockResolvedValue({ id: 'section-2' });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="sections" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }));
+    fireEvent.change(screen.getByLabelText('Section code'), { target: { value: '14' } });
+    fireEvent.change(screen.getByLabelText('Section title'), { target: { value: 'Sanitaryware' } });
+    fireEvent.change(screen.getByLabelText('Section discipline'), { target: { value: 'Plumbing' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create section' }));
+    await waitFor(() => expect(actions.createSection).toHaveBeenCalledWith({
+      code: '14', title: 'Sanitaryware', discipline: 'Plumbing', ownerRole: 'architect', reviewerRole: 'bep', status: 'draft', standardSource: null, sourceRevision: 'P06',
+    }));
+  });
 });
