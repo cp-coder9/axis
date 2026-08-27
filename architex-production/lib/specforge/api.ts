@@ -1,5 +1,5 @@
 import { authenticatedFetch } from '@/lib/auth-session';
-import { API_BASE_URL, localIdentityHeaders } from '@/lib/api';
+import { API_BASE_URL } from '@/lib/api';
 import type {
   SpecForgeAggregate,
   SpecForgeApproval,
@@ -13,8 +13,6 @@ import type {
 } from '@/lib/specforge/types';
 import type { RoleKey, StageKey } from '@/lib/types';
 
-export type SpecForgeIdentity = { role: RoleKey; userId: string };
-
 export class SpecForgeApiError extends Error {
   constructor(readonly status: number, readonly body: Record<string, unknown>) {
     super(typeof body.error === 'string' ? body.error : `SpecForge API ${status}`);
@@ -24,10 +22,9 @@ export class SpecForgeApiError extends Error {
 
 type ApiRecord = Record<string, unknown>;
 
-async function request<T>(path: string, identity: SpecForgeIdentity, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
-  for (const [name, value] of Object.entries(localIdentityHeaders(identity.role, identity.userId))) headers.set(name, value);
   if (init.body !== undefined && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   const response = await authenticatedFetch(`${API_BASE_URL}${path}`, { ...init, headers });
   const body = await response.json().catch(() => ({})) as Record<string, unknown>;
@@ -149,43 +146,43 @@ function itemBody(input: Partial<CreateSpecForgeItemInput>): ApiRecord {
 }
 
 export const specForgeApi = {
-  async get(projectId: string, identity: SpecForgeIdentity): Promise<SpecForgeAggregate | null> {
+  async get(projectId: string): Promise<SpecForgeAggregate | null> {
     try {
-      const result = await request<{ workspace: ApiRecord | null }>(`/projects/${encodeURIComponent(projectId)}/specforge`, identity);
+      const result = await request<{ workspace: ApiRecord | null }>(`/projects/${encodeURIComponent(projectId)}/specforge`);
       return result.workspace ? mapSpecForgeAggregate(result.workspace) : null;
     } catch (error) {
       if (error instanceof SpecForgeApiError && error.status === 404 && error.body.code === 'SPECFORGE_WORKSPACE_EMPTY') return null;
       throw error;
     }
   },
-  createWorkspace: (projectId: string, input: CreateSpecForgeWorkspaceInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ profile: input.profile, stage: input.stage, revision: input.revision, budget_reviewed_at: input.budgetReviewedAt ?? null }) }),
-  updateWorkspace: (projectId: string, patch: Partial<Pick<CreateSpecForgeWorkspaceInput, 'profile' | 'stage' | 'budgetReviewedAt'>>, lockVersion: number, identity: SpecForgeIdentity) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json({ ...patch, ...(Object.hasOwn(patch, 'budgetReviewedAt') ? { budget_reviewed_at: patch.budgetReviewedAt } : {}), budgetReviewedAt: undefined }) }),
-  createSection: (projectId: string, input: CreateSpecForgeSectionInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(sectionBody(input)) }),
-  updateSection: (projectId: string, sectionId: string, patch: Partial<CreateSpecForgeSectionInput>, lockVersion: number, identity: SpecForgeIdentity) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections/${encodeURIComponent(sectionId)}`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(sectionBody(patch as CreateSpecForgeSectionInput)) }),
-  createItem: (projectId: string, input: CreateSpecForgeItemInput, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/items`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(itemBody(input)) }),
-  updateItem: (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number, identity: SpecForgeIdentity) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, identity, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) }),
-  duplicateItem: (projectId: string, itemId: string, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/duplicate`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' }),
-  requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),
-  decideApproval: (projectId: string, approvalId: string, decision: 'approved' | 'rejected', decisionNote: string | null, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/approvals/${encodeURIComponent(approvalId)}/decision`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ decision, decision_note: decisionNote }) }),
-  validateIssue: (projectId: string, identity: SpecForgeIdentity) =>
-    request<SpecForgeIssueReadiness>(`/projects/${encodeURIComponent(projectId)}/specforge/issues/validate`, identity, { method: 'POST', body: '{}' }),
-  listJobs: async (projectId: string, issueId: string, identity: SpecForgeIdentity): Promise<SpecForgeDownstreamJob[]> => {
-    const result = await request<{ jobs: ApiRecord[] }>(`/projects/${encodeURIComponent(projectId)}/specforge/jobs?issue_id=${encodeURIComponent(issueId)}`, identity);
+  createWorkspace: (projectId: string, input: CreateSpecForgeWorkspaceInput, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ profile: input.profile, stage: input.stage, revision: input.revision, budget_reviewed_at: input.budgetReviewedAt ?? null }) }),
+  updateWorkspace: (projectId: string, patch: Partial<Pick<CreateSpecForgeWorkspaceInput, 'profile' | 'stage' | 'budgetReviewedAt'>>, lockVersion: number) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json({ ...patch, ...(Object.hasOwn(patch, 'budgetReviewedAt') ? { budget_reviewed_at: patch.budgetReviewedAt } : {}), budgetReviewedAt: undefined }) }),
+  createSection: (projectId: string, input: CreateSpecForgeSectionInput, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(sectionBody(input)) }),
+  updateSection: (projectId: string, sectionId: string, patch: Partial<CreateSpecForgeSectionInput>, lockVersion: number) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/sections/${encodeURIComponent(sectionId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(sectionBody(patch as CreateSpecForgeSectionInput)) }),
+  createItem: (projectId: string, input: CreateSpecForgeItemInput, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(itemBody(input)) }),
+  updateItem: (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) }),
+  duplicateItem: (projectId: string, itemId: string, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/duplicate`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' }),
+  requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),
+  decideApproval: (projectId: string, approvalId: string, decision: 'approved' | 'rejected', decisionNote: string | null, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/approvals/${encodeURIComponent(approvalId)}/decision`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ decision, decision_note: decisionNote }) }),
+  validateIssue: (projectId: string) =>
+    request<SpecForgeIssueReadiness>(`/projects/${encodeURIComponent(projectId)}/specforge/issues/validate`, { method: 'POST', body: '{}' }),
+  listJobs: async (projectId: string, issueId: string): Promise<SpecForgeDownstreamJob[]> => {
+    const result = await request<{ jobs: ApiRecord[] }>(`/projects/${encodeURIComponent(projectId)}/specforge/jobs?issue_id=${encodeURIComponent(issueId)}`);
     return result.jobs.map(mapDownstreamJob);
   },
-  issue: async (projectId: string, input: { title: string; audience: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()): Promise<SpecForgeIssueResult> => {
-    const result = await request<{ issue: ApiRecord; downstream: ApiRecord[]; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/issues`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(input) });
+  issue: async (projectId: string, input: { title: string; audience: string }, idempotencyKey = commandKey()): Promise<SpecForgeIssueResult> => {
+    const result = await request<{ issue: ApiRecord; downstream: ApiRecord[]; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/issues`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(input) });
     return { issue: mapIssue(result.issue), downstream: result.downstream.map(mapDownstreamJob), idempotent: result.idempotent };
   },
-  requestDrawingScan: (projectId: string, input: { drawingRevisionId: string }, identity: SpecForgeIdentity, idempotencyKey = commandKey()) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/drawing-scans`, identity, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ drawing_revision_id: input.drawingRevisionId }) }),
+  requestDrawingScan: (projectId: string, input: { drawingRevisionId: string }, idempotencyKey = commandKey()) =>
+    request(`/projects/${encodeURIComponent(projectId)}/specforge/drawing-scans`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ drawing_revision_id: input.drawingRevisionId }) }),
 };

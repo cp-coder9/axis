@@ -37,6 +37,27 @@ expect_forbidden($supplier, 'view', ['project_id' => 'project-1', 'package_name'
 expect_forbidden($base + ['role' => 'quantity_surveyor', 'god_mode' => true], 'issue');
 expect_forbidden(array_replace($base, ['role' => 'architect', 'projects' => ['other-project']]), 'view', ['project_id' => 'project-1']);
 
+$projectRoot = dirname(__DIR__, 2);
+$node = [$projectRoot . DIRECTORY_SEPARATOR . 'node_modules' . DIRECTORY_SEPARATOR . '.bin' . DIRECTORY_SEPARATOR . (PHP_OS_FAMILY === 'Windows' ? 'vite-node.cmd' : 'vite-node'), '--config', $projectRoot . DIRECTORY_SEPARATOR . 'vitest.config.ts', $projectRoot . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'specforge-capability-snapshot.ts'];
+$process = proc_open($node, [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $projectRoot);
+if (!is_resource($process)) throw new RuntimeException('Unable to start the SpecForge TypeScript capability snapshot.');
+fclose($pipes[0]);
+$typescriptSnapshot = stream_get_contents($pipes[1]);
+$typescriptError = stream_get_contents($pipes[2]);
+fclose($pipes[1]);
+fclose($pipes[2]);
+if (proc_close($process) !== 0) throw new RuntimeException("SpecForge TypeScript capability snapshot failed: {$typescriptError}");
+
+$typescriptCapabilities = json_decode($typescriptSnapshot, true, 512, JSON_THROW_ON_ERROR);
+$phpCapabilities = specforge_capabilities();
+foreach ($phpCapabilities as $capability => $roles) {
+    $typescriptRoles = $typescriptCapabilities[$capability] ?? null;
+    sort($roles);
+    if ($typescriptRoles !== $roles) {
+        throw new RuntimeException("SpecForge {$capability} capability mismatch: PHP=[" . implode(',', $roles) . '] TypeScript=[' . implode(',', is_array($typescriptRoles) ? $typescriptRoles : []) . ']');
+    }
+}
+
 $errors = specforge_validate_item_payload([
     'code' => '',
     'title' => str_repeat('x', 221),

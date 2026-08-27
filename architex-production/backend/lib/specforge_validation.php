@@ -35,6 +35,25 @@ const SPECFORGE_ASSIGNED_ROLES = ['engineer', 'energy_professional', 'fire_engin
 const SPECFORGE_PACKAGE_ROLES = ['subcontractor', 'supplier'];
 
 /**
+ * Presentation capabilities intentionally describe discoverability only. Route
+ * authorization remains enforced by specforge_require_capability(), including
+ * organization, project and record-scope checks.
+ *
+ * @return array<string,list<string>>
+ */
+function specforge_capabilities(): array
+{
+    return [
+        'view' => ['architect', 'bep', 'engineer', 'energy_professional', 'fire_engineer', 'quantity_surveyor', 'client', 'developer', 'contractor', 'subcontractor', 'supplier', 'site_manager', 'organisation_admin', 'admin', 'platform_admin'],
+        'author' => ['architect', 'bep', 'engineer', 'energy_professional', 'fire_engineer', 'contractor', 'subcontractor', 'supplier', 'platform_admin'],
+        'create_workspace' => ['architect', 'bep', 'organisation_admin', 'admin', 'platform_admin'],
+        'issue' => ['architect', 'bep', 'platform_admin'],
+        'review_budget' => ['architect', 'bep', 'quantity_surveyor', 'platform_admin'],
+        'drawing_request' => ['architect', 'bep', 'engineer', 'energy_professional', 'fire_engineer', 'platform_admin'],
+    ];
+}
+
+/**
  * Enforce project membership, capability and record scope. God Mode is
  * intentionally ignored: it changes discoverability, never authorization.
  */

@@ -73,6 +73,20 @@ describe('SpecForge V8 workspace', () => {
     expect(screen.getByText(/Unsaved choice/i)).toBeTruthy();
   });
 
+  it('uses the authorization role for presentation capabilities when God Mode changes the viewing lens', () => {
+    render(
+      <SpecForgeModule
+        activeProject={ALL_PROJECTS[0]}
+        currentRole="architect"
+        authorizationRole="supplier"
+        activeTabKey="products"
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'Product register' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Add specification' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /prepare issue/i })).toBeNull();
+  });
+
   it('honours controlled V8 tabs and offers a manual smart-add confirmation', () => {
     render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="products" />);
     expect(screen.getByRole('heading', { name: 'Product register' })).toBeTruthy();
@@ -81,6 +95,11 @@ describe('SpecForge V8 workspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Review draft' }));
     expect(screen.getByText('Acoustic oak wall panel')).toBeTruthy();
     expect(screen.getByText(/manual draft/i)).toBeTruthy();
+  });
+
+  it.each(['engineer', 'energy_professional', 'fire_engineer'] as const)('allows technical author %s to open Smart Add', role => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole={role} activeTabKey="products" />);
+    expect(screen.getByRole('button', { name: 'Add specification' })).toBeTruthy();
   });
 
   it('lists exact issue blockers and reports only real downstream job states', async () => {

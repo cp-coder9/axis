@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { SpecForgeOverview } from '@/components/modules/specforge/SpecForgeOverview';
 import { SpecForgeRecords } from '@/components/modules/specforge/SpecForgeRecords';
@@ -10,15 +10,16 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Surface } from '@/components/ui/Surface';
 import { ToolVersionBadge } from '@/components/ui/ToolVersionBadge';
-import { demoIdentity } from '@/lib/api';
 import { ALL_TOOLS } from '@/lib/data';
 import { OrigamiIcon } from '@/lib/origami-icons';
+import { canUseSpecForge } from '@/lib/specforge/capabilities';
 import type { ProjectEntity, RoleKey, ToolDefinition } from '@/lib/types';
 import { useControlledToolTab } from '@/lib/use-controlled-tool-tab';
 
 interface SpecForgeModuleProps {
   activeProject: ProjectEntity;
   currentRole: RoleKey;
+  authorizationRole?: RoleKey;
   activeTabKey?: string;
   isProjectMode?: boolean;
   onTabChange?: (key: string) => void;
@@ -26,19 +27,14 @@ interface SpecForgeModuleProps {
 
 const tool = ALL_TOOLS.specforge as ToolDefinition;
 const TABS = tool.tabs;
-const AUTHOR_ROLES = new Set<RoleKey>(['architect','bep','engineer','energy_professional','fire_engineer','contractor','subcontractor','supplier','platform_admin']);
-const CREATE_ROLES = new Set<RoleKey>(['architect','bep','organisation_admin','admin','platform_admin']);
-const ISSUE_ROLES = new Set<RoleKey>(['architect','bep','platform_admin']);
-
-export function SpecForgeModule({ activeProject, currentRole, activeTabKey, isProjectMode = true, onTabChange }: SpecForgeModuleProps) {
+export function SpecForgeModule({ activeProject, currentRole, authorizationRole, activeTabKey, isProjectMode = true, onTabChange }: SpecForgeModuleProps) {
   const [tab, setTab] = useControlledToolTab(activeTabKey, TABS, TABS[0]?.key ?? 'overview', onTabChange);
   const [smartAddOpen, setSmartAddOpen] = useState(false);
-  const localIdentity = useMemo(() => demoIdentity(currentRole), [currentRole]);
-  const identity = useMemo(() => ({ role: currentRole, userId: localIdentity.userId }), [currentRole, localIdentity.userId]);
-  const state = useSpecForgeWorkspace(isProjectMode ? activeProject.id : null, identity, isProjectMode);
-  const canEdit = AUTHOR_ROLES.has(currentRole);
-  const canCreate = CREATE_ROLES.has(currentRole);
-  const canIssue = ISSUE_ROLES.has(currentRole);
+  const effectiveAuthorizationRole = authorizationRole ?? currentRole;
+  const state = useSpecForgeWorkspace(isProjectMode ? activeProject.id : null, isProjectMode);
+  const canEdit = canUseSpecForge(effectiveAuthorizationRole, 'author');
+  const canCreate = canUseSpecForge(effectiveAuthorizationRole, 'create_workspace');
+  const canIssue = canUseSpecForge(effectiveAuthorizationRole, 'issue');
   const workspace = state.workspace;
   const revision = workspace?.revision ?? (/^P\d{2,}$/i.test(activeProject.revision) ? activeProject.revision : 'P01');
 
@@ -62,7 +58,7 @@ export function SpecForgeModule({ activeProject, currentRole, activeTabKey, isPr
       {workspace && state.status === 'conflict' && <Surface level="inset" className="specforge-conflict" role="alert"><div><strong>A newer version exists</strong><p>{state.message ?? 'Reload the record before saving again.'}</p>{Object.values(state.drafts).map((value, index) => <small key={index}>Unsaved draft: {String(value)}</small>)}</div><Button variant="secondary" onClick={() => void state.actions.reload()}>Reload current record</Button></Surface>}
       {workspace && (state.status === 'ready' || state.status === 'conflict') && <>
         {smartAddOpen && canEdit && <SpecForgeSmartAdd section={workspace.sections[0] ?? null} revision={workspace.revision} onConfirm={state.actions.createItem} onClose={() => setSmartAddOpen(false)} />}
-        {tab === 'overview' ? <SpecForgeOverview workspace={workspace} onOpenTab={setTab} /> : <SpecForgeRecords tab={tab} workspace={workspace} role={currentRole} canEdit={canEdit} canIssue={canIssue} onDuplicate={state.actions.duplicateItem} onDecide={(approvalId, decision) => state.actions.decideApproval(approvalId, decision, null)} onValidateIssue={state.actions.validateIssue} onIssue={state.actions.issue} onListJobs={state.actions.listJobs} onDrawingScan={state.actions.requestDrawingScan} />}
+        {tab === 'overview' ? <SpecForgeOverview workspace={workspace} onOpenTab={setTab} /> : <SpecForgeRecords tab={tab} workspace={workspace} role={effectiveAuthorizationRole} canEdit={canEdit} canIssue={canIssue} onDuplicate={state.actions.duplicateItem} onDecide={(approvalId, decision) => state.actions.decideApproval(approvalId, decision, null)} onValidateIssue={state.actions.validateIssue} onIssue={state.actions.issue} onListJobs={state.actions.listJobs} onDrawingScan={state.actions.requestDrawingScan} />}
       </>}
     </section>
   );
