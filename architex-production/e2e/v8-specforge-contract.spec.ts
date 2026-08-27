@@ -156,6 +156,28 @@ test('loads authenticated persisted records, all V8 workflows, and survives relo
   await expectCleanRuntime(runtime);
 });
 
+test('edits a persisted specification and reloads the saved revision', async ({ page }) => {
+  const runtime = await login(page, 'architect');
+  await openSpecForge(page);
+  const specforge = page.getByLabel('SpecForge specification workspace');
+  await specforge.getByRole('button', { name: 'Pictorial Board', exact: true }).click();
+  await specforge.getByRole('button', { name: 'Open Acoustic oak wall panel details' }).click();
+  await specforge.getByRole('button', { name: 'Edit specification' }).click();
+  const editor = specforge.getByRole('dialog', { name: 'Edit specification' });
+  await editor.getByLabel('Specification title').fill('Acoustic oak wall panel revised');
+  const update = page.waitForResponse(response => /\/specforge\/items\/[^/]+$/.test(new URL(response.url()).pathname) && response.request().method() === 'PATCH');
+  await editor.getByRole('button', { name: 'Save specification' }).click();
+  const updateResponse = await update;
+  expect(updateResponse.status()).toBe(200);
+  expect((await updateResponse.json()).successor_created).toBe(false);
+  await expect(specforge.getByRole('heading', { name: 'Acoustic oak wall panel revised' })).toBeVisible();
+  await page.reload({ waitUntil: 'networkidle' });
+  await openSpecForge(page);
+  await specforge.getByRole('button', { name: 'Products', exact: true }).click();
+  await expect(specforge.getByText('Acoustic oak wall panel revised')).toBeVisible();
+  await expectCleanRuntime(runtime);
+});
+
 test('uses real client authentication and exposes only client-decision records', async ({ page }) => {
   const runtime = await login(page, 'client');
   await openSpecForge(page);

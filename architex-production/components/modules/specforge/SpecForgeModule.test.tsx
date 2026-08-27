@@ -182,6 +182,16 @@ describe('SpecForge V8 workspace', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('updates an editable item through the immutable server contract', async () => {
+    actions.updateItem.mockResolvedValue({ item: { ...workspace.items[0], title: 'Revised limestone tile', lockVersion: 2 }, successorCreated: false, sourceItemId: 'item-1' });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="pictorial" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open Warm limestone porcelain tile details' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Edit specification' }));
+    fireEvent.change(screen.getByLabelText('Specification title'), { target: { value: 'Revised limestone tile' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save specification' }));
+    await waitFor(() => expect(actions.updateItem).toHaveBeenCalledWith('item-1', expect.objectContaining({ title: 'Revised limestone tile', room: 'Lobby', estimatedCost: 112000 }), 1));
+  });
+
   it('does not fabricate BoM quantities or rates from item estimates', () => {
     render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="quantity_surveyor" activeTabKey="bomboq" />);
     expect(screen.getByRole('columnheader', { name: 'Qty' })).toBeTruthy();
