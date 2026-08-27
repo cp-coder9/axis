@@ -22,6 +22,8 @@ function expect_forbidden(array $identity, string $capability, ?array $record = 
 $base = ['sub' => 'user-1', 'org' => 'org-1', 'projects' => ['project-1']];
 
 expect_allowed($base + ['role' => 'architect'], 'issue');
+expect_allowed($base + ['role' => 'architect'], 'review_budget');
+expect_allowed($base + ['role' => 'bep'], 'review_budget');
 expect_allowed($base + ['role' => 'quantity_surveyor'], 'review_budget');
 expect_forbidden($base + ['role' => 'quantity_surveyor'], 'issue');
 
@@ -69,6 +71,19 @@ $errors = specforge_validate_item_payload([
 ]);
 foreach (['code', 'title', 'budget_allowance', 'estimated_cost', 'lead_time_days', 'status', 'source_revision'] as $field) {
     if (!isset($errors[$field])) throw new RuntimeException("Expected validation error for {$field}.");
+}
+
+$boqErrors = specforge_validate_boq_payload([
+    'quantity' => -1,
+    'unit' => '',
+    'unit_rate' => -2,
+    'quantity_source_type' => 'estimate',
+    'quantity_source_ref' => '',
+    'rate_source_type' => 'catalogue_guess',
+    'rate_source_ref' => '',
+]);
+foreach (['quantity', 'unit', 'unit_rate', 'quantity_source_type', 'quantity_source_ref', 'rate_source_type', 'rate_source_ref'] as $field) {
+    if (!isset($boqErrors[$field])) throw new RuntimeException("Expected BoQ validation error for {$field}.");
 }
 
 echo "SpecForge policy contract passed.\n";

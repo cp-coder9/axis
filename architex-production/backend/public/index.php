@@ -1741,6 +1741,16 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/it
     catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'PATCH' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/boq-line$#', $path, $m)) {
+    specforge_permission('review_budget'); $body = json_body(); $errors = specforge_validate_boq_payload($body);
+    if ($errors) json_response(['error' => 'Invalid BoQ line', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->updateBoqLine(current_identity(), $m[2], $m[3], $body, if_match_version());
+        header('ETag: "' . $result['item']['lock_version'] . '"');
+        json_response(['item' => $result['item'], 'successor_created' => $result['successor_created'], 'source_item_id' => $result['source_item_id']]);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/procurement-transition$#', $path, $m)) {
     specforge_permission('edit'); $body = json_body(); $errors = [];
     foreach (array_keys($body) as $field) if (!in_array($field, ['target_status','expected_version'], true)) $errors[$field] = 'Unexpected field.';

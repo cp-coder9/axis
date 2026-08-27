@@ -63,6 +63,14 @@ function waitForItemStatus(page: Page, itemTitle: string, expectedStatus: string
   });
 }
 
+function waitForItemQuantity(page: Page, itemTitle: string, expectedQuantity: number) {
+  return page.waitForResponse(async response => {
+    if (!/\/projects\/[^/]+\/specforge$/.test(new URL(response.url()).pathname) || response.request().method() !== 'GET' || response.status() !== 200) return false;
+    const payload = await response.json().catch(() => null);
+    return payload?.workspace?.items?.some((item: { title?: string; quantity?: number }) => item.title === itemTitle && Number(item.quantity) === expectedQuantity) === true;
+  });
+}
+
 test('loads authenticated persisted records, all V8 workflows, and survives reload/theme/mobile gates', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   const runtime = await login(page, 'architect');
@@ -90,6 +98,24 @@ test('loads authenticated persisted records, all V8 workflows, and survives relo
   await openSpecForge(page);
   await specforge.getByRole('button', { name: 'Products', exact: true }).click();
   await expect(specforge.getByText(persistedTitle)).toBeVisible();
+
+  await specforge.getByRole('button', { name: 'BoM / BoQ', exact: true }).click();
+  await expect(specforge.getByText('Drawing A-420 P03 · Quote Q-2026-1042')).toBeVisible();
+  await expect(specforge.getByText(/R 128[, \s]500/).first()).toBeVisible();
+  await specforge.getByRole('button', { name: 'Edit BoQ sources for Large format porcelain wall tile' }).click();
+  const boqDialog = specforge.getByRole('dialog', { name: /BoQ sources/ });
+  await boqDialog.getByRole('spinbutton', { name: 'Quantity', exact: true }).fill('190');
+  const boqRequest = page.waitForResponse(response => response.url().includes('/boq-line') && response.request().method() === 'PATCH');
+  const boqReload = waitForItemQuantity(page, 'Large format porcelain wall tile', 190);
+  await boqDialog.getByRole('button', { name: 'Save BoQ line' }).click();
+  expect((await boqRequest).status()).toBe(200);
+  expect((await boqReload).status()).toBe(200);
+  await expect(specforge.getByText('190', { exact: true })).toBeVisible();
+  await page.reload({ waitUntil: 'networkidle' });
+  await openSpecForge(page);
+  await specforge.getByRole('button', { name: 'BoM / BoQ', exact: true }).click();
+  await expect(specforge.getByText('190', { exact: true })).toBeVisible();
+  await expect(specforge.getByText('Drawing A-420 P03 · Quote Q-2026-1042')).toBeVisible();
 
   await specforge.getByRole('button', { name: 'Procurement', exact: true }).click();
   const transitionRequest = page.waitForResponse(response => response.url().includes('/procurement-transition') && response.request().method() === 'POST');

@@ -56,6 +56,13 @@ export interface SpecForgeItem {
   budgetAllowance: number;
   estimatedCost: number;
   leadTimeDays: number;
+  quantity?: number | null;
+  unit?: string | null;
+  unitRate?: number | null;
+  quantitySourceType?: 'drawing' | 'manual' | null;
+  quantitySourceRef?: string | null;
+  rateSourceType?: 'supplier_quote' | 'manual' | null;
+  rateSourceRef?: string | null;
   clientDecision: boolean;
   ownerRole: RoleKey;
   reviewerRole: RoleKey | null;
@@ -65,6 +72,16 @@ export interface SpecForgeItem {
   supersededBy: string | null;
   lockVersion: number;
 }
+
+export type UpdateSpecForgeBoqLineInput = {
+  quantity: number;
+  unit: string;
+  unitRate: number;
+  quantitySourceType: 'drawing' | 'manual';
+  quantitySourceRef: string;
+  rateSourceType: 'supplier_quote' | 'manual';
+  rateSourceRef: string;
+};
 
 export interface SpecForgeApproval {
   id: string;

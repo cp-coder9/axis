@@ -13,7 +13,7 @@ import { SpecForgeModule } from '@/components/modules/SpecForgeModule';
 
 const actions = {
   reload: vi.fn(), setDraft: vi.fn(), clearDrafts: vi.fn(), createWorkspace: vi.fn(), createSection: vi.fn(), createItem: vi.fn(),
-  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestSource: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), confirmResponsibility: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
+  updateItem: vi.fn(), updateBoqLine: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestSource: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), confirmResponsibility: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
 };
 
 const workspace: SpecForgeAggregate = {
@@ -28,6 +28,7 @@ const workspace: SpecForgeAggregate = {
 afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
+  actions.updateBoqLine.mockResolvedValue({});
   actions.validateIssue.mockResolvedValue({ ready: true, codes: [] });
   actions.requestSource.mockImplementation(async (sourceMethod: string) => ({
     id: 'source-request-1', status: 'integration_required', sourceMethod, idempotent: false,
@@ -187,6 +188,19 @@ describe('SpecForge V8 workspace', () => {
     expect(screen.getByRole('columnheader', { name: 'Rate' })).toBeTruthy();
     expect(screen.getAllByText('Unpriced').length).toBeGreaterThan(0);
     expect(screen.getByText('Integration required')).toBeTruthy();
+  });
+
+  it('renders and updates persisted BoQ quantities, rates and source provenance', async () => {
+    useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace: { ...workspace, items: [{ ...workspace.items[0], quantity: 12.5, unit: 'm²', unitRate: 800, quantitySourceType: 'drawing', quantitySourceRef: 'A-420 P06', rateSourceType: 'supplier_quote', rateSourceRef: 'Q-1042' }] }, message: null, retryable: false, drafts: {}, actions });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="quantity_surveyor" activeTabKey="bomboq" />);
+    expect(screen.getByText('12.5')).toBeTruthy();
+    expect(screen.getByText('m²')).toBeTruthy();
+    expect(screen.getAllByText(/R 10[, \s]000/).length).toBe(2);
+    expect(screen.getByText('Drawing A-420 P06 · Quote Q-1042')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit BoQ sources for Warm limestone porcelain tile' }));
+    fireEvent.change(screen.getByLabelText('Quantity'), { target: { value: '14' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save BoQ line' }));
+    await waitFor(() => expect(actions.updateBoqLine).toHaveBeenCalledWith('item-1', expect.objectContaining({ quantity: 14, quantitySourceRef: 'A-420 P06', rateSourceRef: 'Q-1042' }), 1));
   });
 
   it('filters the product register by persisted item fields', () => {

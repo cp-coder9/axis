@@ -35,6 +35,7 @@ export function SpecForgeModule({ activeProject, currentRole, authorizationRole,
   const canEdit = canUseSpecForge(effectiveAuthorizationRole, 'author');
   const canCreate = canUseSpecForge(effectiveAuthorizationRole, 'create_workspace');
   const canIssue = canUseSpecForge(effectiveAuthorizationRole, 'issue');
+  const canReviewBudget = canUseSpecForge(effectiveAuthorizationRole, 'review_budget');
   const workspace = state.workspace;
   const revision = workspace?.revision ?? (/^P\d{2,}$/i.test(activeProject.revision) ? activeProject.revision : 'P01');
 
@@ -58,7 +59,7 @@ export function SpecForgeModule({ activeProject, currentRole, authorizationRole,
       {workspace && state.status === 'conflict' && <Surface level="inset" className="specforge-conflict" role="alert"><div><strong>A newer version exists</strong><p>{state.message ?? 'Reload the record before saving again.'}</p>{Object.values(state.drafts).map((value, index) => <small key={index}>Unsaved draft: {String(value)}</small>)}</div><Button variant="secondary" onClick={() => void state.actions.reload()}>Reload current record</Button></Surface>}
       {workspace && (state.status === 'ready' || state.status === 'conflict') && <>
         {smartAddOpen && canEdit && <SpecForgeSmartAdd section={workspace.sections[0] ?? null} revision={workspace.revision} onConfirm={state.actions.createItem} onRequestSource={state.actions.requestSource} onRequestDrawingScan={state.actions.requestDrawingScan} onClose={() => setSmartAddOpen(false)} />}
-        {tab === 'overview' ? <SpecForgeOverview workspace={workspace} onOpenTab={setTab} /> : <SpecForgeRecords tab={tab} workspace={workspace} role={effectiveAuthorizationRole} canEdit={canEdit} canIssue={canIssue} onCreateSection={state.actions.createSection} onDuplicate={state.actions.duplicateItem} onTransitionProcurement={state.actions.transitionProcurement} onDecide={(approvalId, decision) => state.actions.decideApproval(approvalId, decision, null)} onConfirmResponsibility={state.actions.confirmResponsibility} onValidateIssue={state.actions.validateIssue} onIssue={state.actions.issue} onListJobs={state.actions.listJobs} onDrawingScan={state.actions.requestDrawingScan} />}
+        {tab === 'overview' ? <SpecForgeOverview workspace={workspace} onOpenTab={setTab} /> : <SpecForgeRecords tab={tab} workspace={workspace} role={effectiveAuthorizationRole} canEdit={canEdit} canIssue={canIssue} canReviewBudget={canReviewBudget} onCreateSection={state.actions.createSection} onDuplicate={state.actions.duplicateItem} onUpdateBoq={state.actions.updateBoqLine} onTransitionProcurement={state.actions.transitionProcurement} onDecide={(approvalId, decision) => state.actions.decideApproval(approvalId, decision, null)} onConfirmResponsibility={state.actions.confirmResponsibility} onValidateIssue={state.actions.validateIssue} onIssue={state.actions.issue} onListJobs={state.actions.listJobs} onDrawingScan={state.actions.requestDrawingScan} />}
       </>}
     </section>
   );

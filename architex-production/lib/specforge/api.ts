@@ -13,6 +13,7 @@ import type {
   SpecForgeProcurementTarget,
   SpecForgeResponsibilityConfirmation,
   SpecForgeSection,
+  UpdateSpecForgeBoqLineInput,
 } from '@/lib/specforge/types';
 import type { RoleKey, StageKey } from '@/lib/types';
 
@@ -53,7 +54,11 @@ function mapItem(row: ApiRecord): SpecForgeItem {
     room: stringValue(row.room), packageName: stringValue(row.package_name), description: stringValue(row.description),
     imageUrl: nullableString(row.image_url), supplier: nullableString(row.supplier), model: nullableString(row.model),
     finish: nullableString(row.finish), dimensions: nullableString(row.dimensions), budgetAllowance: numberValue(row.budget_allowance),
-    estimatedCost: numberValue(row.estimated_cost), leadTimeDays: numberValue(row.lead_time_days), clientDecision: Boolean(row.client_decision),
+    estimatedCost: numberValue(row.estimated_cost), leadTimeDays: numberValue(row.lead_time_days),
+    quantity: row.quantity === null || row.quantity === undefined ? null : numberValue(row.quantity), unit: nullableString(row.unit),
+    unitRate: row.unit_rate === null || row.unit_rate === undefined ? null : numberValue(row.unit_rate),
+    quantitySourceType: nullableString(row.quantity_source_type) as SpecForgeItem['quantitySourceType'], quantitySourceRef: nullableString(row.quantity_source_ref),
+    rateSourceType: nullableString(row.rate_source_type) as SpecForgeItem['rateSourceType'], rateSourceRef: nullableString(row.rate_source_ref), clientDecision: Boolean(row.client_decision),
     ownerRole: stringValue(row.owner_role) as RoleKey, reviewerRole: nullableString(row.reviewer_role) as RoleKey | null,
     approverRole: nullableString(row.approver_role) as RoleKey | null, status: stringValue(row.status) as SpecForgeItem['status'],
     sourceRevision: stringValue(row.source_revision), supersededBy: nullableString(row.superseded_by), lockVersion: numberValue(row.lock_version),
@@ -182,6 +187,10 @@ export const specForgeApi = {
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(itemBody(input)) }),
   updateItem: async (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number): Promise<UpdateSpecForgeItemResult> => {
     const result = await request<{ item: ApiRecord; successor_created: boolean; source_item_id: string }>(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) });
+    return { item: mapItem(result.item), successorCreated: result.successor_created, sourceItemId: result.source_item_id };
+  },
+  updateBoqLine: async (projectId: string, itemId: string, input: UpdateSpecForgeBoqLineInput, lockVersion: number): Promise<UpdateSpecForgeItemResult> => {
+    const result = await request<{ item: ApiRecord; successor_created: boolean; source_item_id: string }>(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/boq-line`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json({ quantity: input.quantity, unit: input.unit, unit_rate: input.unitRate, quantity_source_type: input.quantitySourceType, quantity_source_ref: input.quantitySourceRef, rate_source_type: input.rateSourceType, rate_source_ref: input.rateSourceRef }) });
     return { item: mapItem(result.item), successorCreated: result.successor_created, sourceItemId: result.source_item_id };
   },
   duplicateItem: (projectId: string, itemId: string, idempotencyKey = commandKey()) =>

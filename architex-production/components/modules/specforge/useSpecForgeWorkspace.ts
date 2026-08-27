@@ -10,7 +10,7 @@ import {
   type CreateSpecForgeWorkspaceInput,
   type SpecForgeSourceMethod,
 } from '@/lib/specforge/api';
-import type { SpecForgeAggregate, SpecForgeIssueResult, SpecForgeProcurementTarget } from '@/lib/specforge/types';
+import type { SpecForgeAggregate, SpecForgeIssueResult, SpecForgeProcurementTarget, UpdateSpecForgeBoqLineInput } from '@/lib/specforge/types';
 
 export type SpecForgeViewStatus = 'loading' | 'empty' | 'ready' | 'forbidden' | 'conflict' | 'error';
 
@@ -103,6 +103,7 @@ export function useSpecForgeWorkspace(projectId: string | null, enabled = true) 
     createSection: (input: CreateSpecForgeSectionInput) => projectId ? mutate(() => specForgeApi.createSection(projectId, input)) : Promise.reject(new Error('Project context is required.')),
     createItem: (input: CreateSpecForgeItemInput) => projectId ? mutate(() => specForgeApi.createItem(projectId, input)) : Promise.reject(new Error('Project context is required.')),
     updateItem: (itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number) => projectId ? mutate(() => specForgeApi.updateItem(projectId, itemId, patch, lockVersion)) : Promise.reject(new Error('Project context is required.')),
+    updateBoqLine: (itemId: string, input: UpdateSpecForgeBoqLineInput, lockVersion: number) => projectId ? mutate(() => specForgeApi.updateBoqLine(projectId, itemId, input, lockVersion)) : Promise.reject(new Error('Project context is required.')),
     duplicateItem: (itemId: string) => projectId ? mutate(() => specForgeApi.duplicateItem(projectId, itemId)) : Promise.reject(new Error('Project context is required.')),
     transitionProcurement: (itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number) => projectId ? mutate(() => specForgeApi.transitionProcurement(projectId, itemId, targetStatus, expectedVersion)) : Promise.reject(new Error('Project context is required.')),
     requestSource: (sourceMethod: SpecForgeSourceMethod, sourceReference: string | null = null) => projectId ? specForgeApi.requestSource(projectId, sourceMethod, sourceReference) : Promise.reject(new Error('Project context is required.')),

@@ -263,6 +263,8 @@ try {
     foreach ($specItems as [$id, $sectionId, $code, $title, $room, $packageName, $description, $supplier, $model, $finish, $dimensions, $allowance, $estimate, $leadDays, $clientDecision, $status, $approverRole]) {
         $insSpecItem->execute([$id, ORG_ID, $workspaceId, $sectionId, $code, $title, $room, $packageName, $description, $supplier, $model, $finish, $dimensions, $allowance, $estimate, $leadDays, $clientDecision, 'architect', 'bep', $approverRole, $status, 'P03', 'user-demo-architect', 'user-demo-architect']);
     }
+    $pdo->prepare('UPDATE specforge_items SET quantity=?,unit=?,unit_rate=?,quantity_source_type=?,quantity_source_ref=?,rate_source_type=?,rate_source_ref=? WHERE id=? AND organization_id=? AND workspace_id=?')
+        ->execute([185.5, 'm²', 692.72, 'drawing', 'A-420 P03', 'supplier_quote', 'Q-2026-1042', 'specforge-item-wall-tile', ORG_ID, $workspaceId]);
 
     $pdo->prepare('INSERT INTO specforge_approvals (id,organization_id,workspace_id,item_id,approval_type,requested_role,requested_user_id,status,due_at) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE requested_role=VALUES(requested_role),requested_user_id=VALUES(requested_user_id),status=VALUES(status),due_at=VALUES(due_at)')
         ->execute(['specforge-approval-wall-tile', ORG_ID, $workspaceId, 'specforge-item-wall-tile', 'client_decision', 'client', 'user-demo-client', 'pending', '2026-08-30 12:00:00']);
@@ -298,8 +300,8 @@ try {
     ];
     $permissions = [
         'client' => ['passport.view', 'documents.view', 'actions.view', 'approvals.view', 'specforge.view', 'specforge.decide'],
-        'architect' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'specforge.view', 'specforge.edit', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
-        'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'specforge.view', 'specforge.edit', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
+        'architect' => ['passport.view', 'passport.edit', 'passport.publish', 'projects.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'meetings.publish', 'audit.view', 'specforge.view', 'specforge.edit', 'specforge.review_budget', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
+        'bep' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'specforge.view', 'specforge.edit', 'specforge.review_budget', 'specforge.decide', 'specforge.issue', 'specforge.drawing_request'],
         'engineer' => ['passport.view', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'engineering.view', 'engineering.save', 'engineering.review.request', 'engineering.review.decide', 'specforge.view', 'specforge.edit', 'specforge.decide'],
         'quantity_surveyor' => ['passport.view', 'documents.view', 'actions.view', 'actions.edit', 'approvals.view', 'approvals.decide', 'ai.review', 'drawing.request', 'audit.view', 'specforge.view', 'specforge.review_budget'],
         'town_planner' => ['passport.view', 'passport.edit', 'documents.view', 'documents.edit', 'actions.view', 'actions.edit', 'approvals.view', 'ai.review', 'audit.view'],

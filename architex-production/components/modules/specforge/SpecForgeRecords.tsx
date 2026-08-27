@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
 import type { CreateSpecForgeSectionInput } from '@/lib/specforge/api';
 import { summarizeSpecBudget } from '@/lib/specforge/domain';
-import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult, SpecForgeItem, SpecForgeProcurementTarget } from '@/lib/specforge/types';
+import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult, SpecForgeItem, SpecForgeProcurementTarget, UpdateSpecForgeBoqLineInput } from '@/lib/specforge/types';
 import type { RoleKey } from '@/lib/types';
 
 const money = (value: number) => `R ${value.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}`;
@@ -18,8 +18,10 @@ interface Props {
   role: RoleKey;
   canEdit: boolean;
   canIssue: boolean;
+  canReviewBudget: boolean;
   onCreateSection: (input: CreateSpecForgeSectionInput) => Promise<unknown>;
   onDuplicate: (itemId: string) => Promise<unknown>;
+  onUpdateBoq: (itemId: string, input: UpdateSpecForgeBoqLineInput, expectedVersion: number) => Promise<unknown>;
   onTransitionProcurement: (itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number) => Promise<unknown>;
   onDecide: (approvalId: string, decision: 'approved' | 'rejected') => Promise<unknown>;
   onConfirmResponsibility: () => Promise<unknown>;
@@ -29,7 +31,7 @@ interface Props {
   onDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
 }
 
-export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onTransitionProcurement, onDecide, onConfirmResponsibility, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
+export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, canReviewBudget, onCreateSection, onDuplicate, onUpdateBoq, onTransitionProcurement, onDecide, onConfirmResponsibility, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [drawingRevision, setDrawingRevision] = useState('');
   const [query, setQuery] = useState('');
@@ -41,6 +43,7 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
   const [procurementBusy, setProcurementBusy] = useState<string | null>(null);
   const [procurementMessage, setProcurementMessage] = useState<string | null>(null);
   const [responsibilityBusy, setResponsibilityBusy] = useState(false);
+  const [boqItemId, setBoqItemId] = useState<string | null>(null);
   const budget = summarizeSpecBudget(workspace.items);
   const rooms = [...new Set(workspace.items.map(item => item.room))].sort();
   const packages = [...new Set(workspace.items.map(item => item.packageName))].sort();
@@ -80,7 +83,12 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
 
   if (tab === 'budget') return <div data-tool-tab={tab} className="specforge-budget"><div className="specforge-metrics"><Surface level="raised"><span>Allowance</span><strong>{money(budget.allowance)}</strong></Surface><Surface level="raised"><span>Estimate</span><strong>{money(budget.estimate)}</strong></Surface><Surface level="raised"><span>Variance</span><strong>{money(budget.delta)}</strong></Surface><Surface level="raised"><span>Cost risks</span><strong>{budget.overBudgetItemIds.length}</strong></Surface></div><Surface level="raised" className="specforge-table-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">QS review</span><h2>Allowance variance</h2></div><span>{workspace.budgetReviewedAt ? `Reviewed ${workspace.budgetReviewedAt}` : 'Review pending'}</span></div>{workspace.items.map(item => <div className="specforge-cost-row" key={item.id}><div><code>{item.code}</code><strong>{item.title}</strong></div><span>{money(item.budgetAllowance)}</span><span>{money(item.estimatedCost)}</span><b className={item.estimatedCost > item.budgetAllowance ? 'is-risk' : ''}>{money(item.estimatedCost - item.budgetAllowance)}</b></div>)}</Surface></div>;
 
-  if (tab === 'bomboq') return <Surface data-tool-tab={tab} level="raised" className="specforge-table-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Single source of truth</span><h2>BoM / BoQ linkage</h2></div><span>Specification-derived lines</span></div><div className="specforge-table-scroll"><table><thead><tr><th>Code</th><th>Item</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th><th>Source</th></tr></thead><tbody>{workspace.items.map(item => <tr key={item.id}><td><code>{item.code}</code></td><td><strong>{item.title}</strong><small>{item.packageName}</small></td><td>Unpriced</td><td>—</td><td>Unpriced</td><td>Unpriced</td><td><span className="specforge-status specforge-status--integration_required">Integration required</span></td></tr>)}</tbody></table></div><p className="specforge-bom-note">Quantities and rates require a persisted drawing take-off or supplier quote. Item estimates are not substituted as calculated BoQ totals.</p></Surface>;
+  if (tab === 'bomboq') {
+    const complete = (item: SpecForgeItem) => item.quantity !== null && item.quantity !== undefined && item.unitRate !== null && item.unitRate !== undefined && Boolean(item.unit && item.quantitySourceRef && item.rateSourceRef);
+    const total = workspace.items.reduce((sum, item) => sum + (complete(item) ? item.quantity! * item.unitRate! : 0), 0);
+    const editing = workspace.items.find(item => item.id === boqItemId) ?? null;
+    return <Surface data-tool-tab={tab} level="raised" className="specforge-table-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Single source of truth</span><h2>BoM / BoQ linkage</h2></div><span>Specification-derived lines</span></div><div className="specforge-table-scroll"><table><thead><tr><th>Code</th><th>Item</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th><th>Source</th></tr></thead><tbody>{workspace.items.map(item => { const hasLine = complete(item); return <tr key={item.id}><td><code>{item.code}</code></td><td><strong>{item.title}</strong><small>{item.packageName}</small></td><td>{hasLine ? item.quantity : 'Unpriced'}</td><td>{hasLine ? item.unit : '—'}</td><td>{hasLine ? money(item.unitRate!) : 'Unpriced'}</td><td>{hasLine ? money(item.quantity! * item.unitRate!) : 'Unpriced'}</td><td>{hasLine ? <><span>Drawing {item.quantitySourceRef} · Quote {item.rateSourceRef}</span>{canReviewBudget && <Button type="button" size="sm" variant="secondary" aria-label={`Edit BoQ sources for ${item.title}`} onClick={() => setBoqItemId(item.id)}>Edit</Button>}</> : <><span className="specforge-status specforge-status--integration_required">Integration required</span>{canReviewBudget && <Button type="button" size="sm" variant="secondary" aria-label={`Edit BoQ sources for ${item.title}`} onClick={() => setBoqItemId(item.id)}>Set sources</Button>}</>}</td></tr>; })}</tbody>{total > 0 && <tfoot><tr><td colSpan={5}>TOTAL</td><td>{money(total)}</td><td /></tr></tfoot>}</table></div><p className="specforge-bom-note">Quantities and rates require persisted drawing take-off and supplier quote provenance. Item estimates are never substituted as calculated BoQ totals.</p>{editing && <BoqEditor item={editing} onClose={() => setBoqItemId(null)} onSave={async input => { await onUpdateBoq(editing.id, input, editing.lockVersion); setBoqItemId(null); }} />}</Surface>;
+  }
 
   if (tab === 'planning') {
     const columns = [
@@ -140,6 +148,25 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
   }
 
   return <Empty title="Workspace view unavailable" detail="Choose a SpecForge workflow tab." />;
+}
+
+function BoqEditor({ item, onSave, onClose }: { item: SpecForgeItem; onSave: (input: UpdateSpecForgeBoqLineInput) => Promise<void>; onClose: () => void }) {
+  const [quantity, setQuantity] = useState(String(item.quantity ?? ''));
+  const [unit, setUnit] = useState(item.unit ?? 'm²');
+  const [unitRate, setUnitRate] = useState(String(item.unitRate ?? ''));
+  const [quantitySourceType, setQuantitySourceType] = useState<UpdateSpecForgeBoqLineInput['quantitySourceType']>(item.quantitySourceType ?? 'drawing');
+  const [quantitySourceRef, setQuantitySourceRef] = useState(item.quantitySourceRef ?? '');
+  const [rateSourceType, setRateSourceType] = useState<UpdateSpecForgeBoqLineInput['rateSourceType']>(item.rateSourceType ?? 'supplier_quote');
+  const [rateSourceRef, setRateSourceRef] = useState(item.rateSourceRef ?? '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setBusy(true); setError(null);
+    try { await onSave({ quantity: Number(quantity), unit: unit.trim(), unitRate: Number(unitRate), quantitySourceType, quantitySourceRef: quantitySourceRef.trim(), rateSourceType, rateSourceRef: rateSourceRef.trim() }); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : 'BoQ line could not be saved.'); }
+    finally { setBusy(false); }
+  };
+  return <div className="specforge-detail-backdrop" role="presentation"><Surface as="section" level="raised" className="specforge-boq-editor" role="dialog" aria-modal="true" aria-labelledby="specforge-boq-editor-title"><header><div><code>{item.code}</code><h2 id="specforge-boq-editor-title">BoQ sources · {item.title}</h2></div><Button type="button" variant="quiet" size="sm" aria-label="Close BoQ editor" onClick={onClose}>Close</Button></header><form onSubmit={event => void submit(event)}><label>Quantity<input aria-label="Quantity" type="number" min="0" step="any" value={quantity} onChange={event => setQuantity(event.target.value)} required /></label><label>Unit<input aria-label="Unit" value={unit} onChange={event => setUnit(event.target.value)} maxLength={32} required /></label><label>Rate<input aria-label="Rate" type="number" min="0" step="0.01" value={unitRate} onChange={event => setUnitRate(event.target.value)} required /></label><label>Quantity source<select aria-label="Quantity source" value={quantitySourceType} onChange={event => setQuantitySourceType(event.target.value as UpdateSpecForgeBoqLineInput['quantitySourceType'])}><option value="drawing">Drawing</option><option value="manual">Verified manual take-off</option></select></label><label>Drawing / take-off reference<input aria-label="Drawing or take-off reference" value={quantitySourceRef} onChange={event => setQuantitySourceRef(event.target.value)} maxLength={180} required /></label><label>Rate source<select aria-label="Rate source" value={rateSourceType} onChange={event => setRateSourceType(event.target.value as UpdateSpecForgeBoqLineInput['rateSourceType'])}><option value="supplier_quote">Supplier quote</option><option value="manual">Verified manual rate</option></select></label><label>Quote / rate reference<input aria-label="Quote or rate reference" value={rateSourceRef} onChange={event => setRateSourceRef(event.target.value)} maxLength={180} required /></label>{error && <p role="alert">{error}</p>}<footer><Button type="submit" busy={busy}>Save BoQ line</Button><Button type="button" variant="secondary" onClick={onClose}>Cancel</Button></footer></form></Surface></div>;
 }
 
 function Empty({ title, detail }: { title: string; detail: string }) { return <Surface level="inset" className="specforge-empty"><h2>{title}</h2><p>{detail}</p></Surface>; }

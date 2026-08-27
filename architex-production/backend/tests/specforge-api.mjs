@@ -189,9 +189,29 @@ try {
 
   const clientItem = await createItem('client', { client_decision: true });
   const tilingItem = await createItem('tiling', { status: 'issued' });
+  const boqItem = await createItem('boq-line', {});
   await createItem('roofing', { package_name: 'Roofing', status: 'issued' });
   assert.equal(clientItem.status, 201);
   assert.equal(tilingItem.status, 201);
+  assert.equal(boqItem.status, 201);
+
+  const boqUpdate = await request('PATCH', `/projects/${projectId}/specforge/items/${boqItem.body.item.id}/boq-line`, identities.qs, {
+    quantity: 12.5, unit: 'm²', unit_rate: 800, quantity_source_type: 'drawing', quantity_source_ref: 'A-420 P06', rate_source_type: 'supplier_quote', rate_source_ref: 'Q-1042',
+  }, { 'If-Match': '1' });
+  assert.equal(boqUpdate.status, 200, JSON.stringify(boqUpdate.body));
+  assert.equal(boqUpdate.body.item.quantity, 12.5);
+  assert.equal(boqUpdate.body.item.unit_rate, 800);
+  assert.equal(boqUpdate.body.item.quantity_source_ref, 'A-420 P06');
+  assert.equal(boqUpdate.body.item.rate_source_ref, 'Q-1042');
+  assert.equal(boqUpdate.body.item.lock_version, 2);
+  const staleBoqUpdate = await request('PATCH', `/projects/${projectId}/specforge/items/${boqItem.body.item.id}/boq-line`, identities.qs, {
+    quantity: 13, unit: 'm²', unit_rate: 800, quantity_source_type: 'drawing', quantity_source_ref: 'A-420 P06', rate_source_type: 'supplier_quote', rate_source_ref: 'Q-1042',
+  }, { 'If-Match': '1' });
+  assert.equal(staleBoqUpdate.status, 409);
+  const deniedBoqUpdate = await request('PATCH', `/projects/${projectId}/specforge/items/${boqItem.body.item.id}/boq-line`, identities.supplier, {
+    quantity: 13, unit: 'm²', unit_rate: 800, quantity_source_type: 'drawing', quantity_source_ref: 'A-420 P06', rate_source_type: 'supplier_quote', rate_source_ref: 'Q-1042',
+  }, { 'If-Match': '2' });
+  assert.equal(deniedBoqUpdate.status, 403);
 
   const budgetReview = await request('PATCH', `/projects/${projectId}/specforge`, identities.qs, { budget_reviewed_at: '2026-08-26 11:00:00' }, { 'If-Match': '1' });
   assert.equal(budgetReview.status, 200);
@@ -317,7 +337,11 @@ try {
   assert.equal(clientJobs.status, 403, 'downstream operational jobs require issue capability');
 
   const reload = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
-  assert.equal(reload.body.workspace.items.length, 5);
+  assert.equal(reload.body.workspace.items.length, 6);
+  assert.deepEqual(
+    Object.fromEntries(['quantity','unit','unit_rate','quantity_source_type','quantity_source_ref','rate_source_type','rate_source_ref'].map(field => [field, reload.body.workspace.items.find(item => item.id === boqItem.body.item.id)[field]])),
+    { quantity: 12.5, unit: 'm²', unit_rate: 800, quantity_source_type: 'drawing', quantity_source_ref: 'A-420 P06', rate_source_type: 'supplier_quote', rate_source_ref: 'Q-1042' },
+  );
   assert.equal(reload.body.workspace.issues.length, 1);
   assert.equal(reload.body.workspace.commands.find(command => command.route_key === 'source.request').status, 'integration_required');
 
@@ -325,6 +349,7 @@ try {
   assert.equal(audit.status, 200);
   assert(audit.body.events.some(event => event.action_key === 'specforge.issue.created'));
   assert(audit.body.events.some(event => event.action_key === 'specforge.source.integration_required'));
+  assert(audit.body.events.some(event => event.action_key === 'specforge.boq.updated'));
   const denial = audit.body.events.find(event => event.action_key === 'specforge.authorization.denied' && event.actor_user_id === 'user-demo-bep');
   assert.equal(denial.after.project_id, projectId);
   assert.equal(denial.after.capability, 'issue');

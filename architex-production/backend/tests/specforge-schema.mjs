@@ -5,6 +5,7 @@ const migrationUrl = new URL('../database/migrations/014_specforge_core.sql', im
 const sql = await readFile(migrationUrl, 'utf8');
 const repositoryUrl = new URL('../lib/specforge_repository.php', import.meta.url);
 const repository = await readFile(repositoryUrl, 'utf8');
+const boqMigration = await readFile(new URL('../database/migrations/018_specforge_boq_provenance.sql', import.meta.url), 'utf8');
 
 const requiredTables = [
   'specforge_workspaces',
@@ -35,5 +36,11 @@ assert.match(repository, /WHERE organization_id=\? AND workspace_id=\? ORDER BY 
 assert.match(repository, /private function issueReadiness\(string \$organizationId, string \$workspaceId\)/);
 assert.match(repository, /private function snapshot\(string \$organizationId, string \$workspaceId\)/);
 assert.match(repository, /private function snapshotRows\(string \$table, string \$organizationId, string \$workspaceId\)/);
+for (const column of ['quantity', 'unit', 'unit_rate', 'quantity_source_type', 'quantity_source_ref', 'rate_source_type', 'rate_source_ref']) {
+  assert.match(boqMigration, new RegExp(`ADD COLUMN ${column}\\b`, 'i'));
+}
+assert.match(boqMigration, /CHECK\s*\([\s\S]*quantity[\s\S]*unit_rate[\s\S]*quantity_source_ref[\s\S]*rate_source_ref/i);
+assert.match(boqMigration, /review_budget[\s\S]*role_key\s+IN\s*\(\s*'architect'\s*,\s*'bep'\s*\)/i);
+assert.match(repository, /public function updateBoqLine\([\s\S]*'review_budget'/);
 
 console.log('SpecForge migration contract passed.');

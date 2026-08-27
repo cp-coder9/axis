@@ -151,8 +151,8 @@ final class MariaDbSpecForgeRepository
             $copy['status'] = 'draft';
             $copy['superseded_by'] = null;
             $copy['lock_version'] = 1;
-            $this->pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,image_url,budget_allowance,estimated_cost,lead_time_days,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,superseded_by,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
-                $copy['id'], $identity['org'], $copy['workspace_id'], $copy['section_id'], $copy['code'], $copy['title'], $copy['room'], $copy['package_name'], $copy['description'], $copy['supplier'], $copy['model'], $copy['finish'], $copy['dimensions'], $copy['image_url'], $copy['budget_allowance'], $copy['estimated_cost'], $copy['lead_time_days'], $copy['client_decision'], $copy['owner_role'], $copy['reviewer_role'], $copy['approver_role'], $copy['status'], $copy['source_revision'], null, $identity['sub'], $identity['sub'],
+            $this->pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,image_url,budget_allowance,estimated_cost,lead_time_days,quantity,unit,unit_rate,quantity_source_type,quantity_source_ref,rate_source_type,rate_source_ref,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,superseded_by,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
+                $copy['id'], $identity['org'], $copy['workspace_id'], $copy['section_id'], $copy['code'], $copy['title'], $copy['room'], $copy['package_name'], $copy['description'], $copy['supplier'], $copy['model'], $copy['finish'], $copy['dimensions'], $copy['image_url'], $copy['budget_allowance'], $copy['estimated_cost'], $copy['lead_time_days'], $copy['quantity'], $copy['unit'], $copy['unit_rate'], $copy['quantity_source_type'], $copy['quantity_source_ref'], $copy['rate_source_type'], $copy['rate_source_ref'], $copy['client_decision'], $copy['owner_role'], $copy['reviewer_role'], $copy['approver_role'], $copy['status'], $copy['source_revision'], null, $identity['sub'], $identity['sub'],
             ]);
             $created = $this->hydrateItem($this->findRow('specforge_items', $identity['org'], $copy['id']));
             $this->audit($identity, 'specforge.item.duplicated', 'specforge_item', $copy['id'], null, $created + ['project_id' => $projectId, 'source_item_id' => $source['id']]);
@@ -200,16 +200,16 @@ final class MariaDbSpecForgeRepository
     }
 
     /** @return array{item:array<string,mixed>,successor_created:bool,source_item_id:string} */
-    public function updateItem(array $identity, string $projectId, string $itemId, array $patch, int $expectedVersion): array
+    public function updateItem(array $identity, string $projectId, string $itemId, array $patch, int $expectedVersion, string $capability = 'edit', string $updateAuditAction = 'specforge.item.updated'): array
     {
-        $workspace = $this->workspaceForCapability($identity, $projectId, 'edit');
+        $workspace = $this->workspaceForCapability($identity, $projectId, $capability);
         $this->pdo->beginTransaction();
         try {
             $item = $this->findRow('specforge_items', $identity['org'], $itemId, true);
             if ($item['workspace_id'] !== $workspace['id']) throw new SpecForgeRepositoryError(404, 'Specification item not found.');
-            specforge_require_capability($identity, 'edit', $this->scopeRecord($identity, $projectId, $item));
+            specforge_require_capability($identity, $capability, $this->scopeRecord($identity, $projectId, $item));
             if ((int) $item['lock_version'] !== $expectedVersion) throw new SpecForgeRepositoryError(409, 'Stale specification item version.');
-            $mutable = ['section_id','code','title','room','package_name','description','supplier','model','finish','dimensions','image_url','budget_allowance','estimated_cost','lead_time_days','client_decision','owner_role','reviewer_role','approver_role','status','source_revision','superseded_by'];
+            $mutable = ['section_id','code','title','room','package_name','description','supplier','model','finish','dimensions','image_url','budget_allowance','estimated_cost','lead_time_days','quantity','unit','unit_rate','quantity_source_type','quantity_source_ref','rate_source_type','rate_source_ref','client_decision','owner_role','reviewer_role','approver_role','status','source_revision','superseded_by'];
             $changes = array_intersect_key($patch, array_flip($mutable));
             if (!$changes) throw new SpecForgeRepositoryError(422, 'No mutable specification item fields supplied.');
             if ($this->itemWasIssued($identity['org'], $workspace['id'], $itemId)) {
@@ -220,8 +220,8 @@ final class MariaDbSpecForgeRepository
                 $successor['source_revision'] = $workspace['revision'];
                 $successor['superseded_by'] = null;
                 $successor['lock_version'] = 1;
-                $this->pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,image_url,budget_allowance,estimated_cost,lead_time_days,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,superseded_by,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
-                    $successor['id'], $identity['org'], $workspace['id'], $successor['section_id'], $successor['code'], $successor['title'], $successor['room'], $successor['package_name'], $successor['description'], $successor['supplier'], $successor['model'], $successor['finish'], $successor['dimensions'], $successor['image_url'], $successor['budget_allowance'], $successor['estimated_cost'], $successor['lead_time_days'], $successor['client_decision'] ? 1 : 0, $successor['owner_role'], $successor['reviewer_role'], $successor['approver_role'], 'draft', $workspace['revision'], null, $identity['sub'], $identity['sub'],
+                $this->pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,image_url,budget_allowance,estimated_cost,lead_time_days,quantity,unit,unit_rate,quantity_source_type,quantity_source_ref,rate_source_type,rate_source_ref,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,superseded_by,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
+                    $successor['id'], $identity['org'], $workspace['id'], $successor['section_id'], $successor['code'], $successor['title'], $successor['room'], $successor['package_name'], $successor['description'], $successor['supplier'], $successor['model'], $successor['finish'], $successor['dimensions'], $successor['image_url'], $successor['budget_allowance'], $successor['estimated_cost'], $successor['lead_time_days'], $successor['quantity'], $successor['unit'], $successor['unit_rate'], $successor['quantity_source_type'], $successor['quantity_source_ref'], $successor['rate_source_type'], $successor['rate_source_ref'], $successor['client_decision'] ? 1 : 0, $successor['owner_role'], $successor['reviewer_role'], $successor['approver_role'], 'draft', $workspace['revision'], null, $identity['sub'], $identity['sub'],
                 ]);
                 $sourceUpdate = $this->pdo->prepare('UPDATE specforge_items SET superseded_by=?,updated_by=?,lock_version=lock_version+1 WHERE id=? AND organization_id=? AND workspace_id=? AND lock_version=? AND superseded_by IS NULL');
                 $sourceUpdate->execute([$successor['id'], $identity['sub'], $itemId, $identity['org'], $workspace['id'], $expectedVersion]);
@@ -241,13 +241,19 @@ final class MariaDbSpecForgeRepository
             $statement->execute($values);
             if ($statement->rowCount() !== 1) throw new SpecForgeRepositoryError(409, 'Stale specification item version.');
             $updated = $this->hydrateItem($this->findRow('specforge_items', $identity['org'], $itemId));
-            $this->audit($identity, 'specforge.item.updated', 'specforge_item', $itemId, $this->hydrateItem($item), $updated + ['project_id' => $projectId]);
+            $this->audit($identity, $updateAuditAction, 'specforge_item', $itemId, $this->hydrateItem($item), $updated + ['project_id' => $projectId]);
             $this->pdo->commit();
             return ['item' => $updated, 'successor_created' => false, 'source_item_id' => $itemId];
         } catch (Throwable $error) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $error;
         }
+    }
+
+    /** @return array{item:array<string,mixed>,successor_created:bool,source_item_id:string} */
+    public function updateBoqLine(array $identity, string $projectId, string $itemId, array $body, int $expectedVersion): array
+    {
+        return $this->updateItem($identity, $projectId, $itemId, $body, $expectedVersion, 'review_budget', 'specforge.boq.updated');
     }
 
     /** @return array{record:array<string,mixed>,idempotent:bool} */
@@ -547,6 +553,8 @@ final class MariaDbSpecForgeRepository
         $row['budget_allowance'] = (float) $row['budget_allowance'];
         $row['estimated_cost'] = (float) $row['estimated_cost'];
         $row['lead_time_days'] = (int) $row['lead_time_days'];
+        $row['quantity'] = $row['quantity'] === null ? null : (float) $row['quantity'];
+        $row['unit_rate'] = $row['unit_rate'] === null ? null : (float) $row['unit_rate'];
         $row['client_decision'] = (bool) $row['client_decision'];
         $row['lock_version'] = (int) $row['lock_version'];
         return $row;

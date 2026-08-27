@@ -22,8 +22,8 @@ if (!class_exists('SpecForgeAuthorizationError')) {
 }
 
 const SPECFORGE_CAPABILITIES = [
-    'architect' => ['view', 'edit', 'decide', 'issue', 'drawing_request'],
-    'bep' => ['view', 'edit', 'decide', 'issue', 'drawing_request'],
+    'architect' => ['view', 'edit', 'review_budget', 'decide', 'issue', 'drawing_request'],
+    'bep' => ['view', 'edit', 'review_budget', 'decide', 'issue', 'drawing_request'],
     'engineer' => ['view', 'edit', 'decide'],
     'energy_professional' => ['view', 'edit', 'decide'],
     'fire_engineer' => ['view', 'edit', 'decide'],
@@ -158,5 +158,23 @@ function specforge_validate_item_payload(array $body, bool $partial = false): ar
     if (isset($body['image_url']) && filter_var($body['image_url'], FILTER_VALIDATE_URL) === false) $errors['image_url'] = 'Must be an absolute URL.';
     if (isset($body['description']) && (!is_string($body['description']) || mb_strlen($body['description']) > 65535)) $errors['description'] = 'Must be text within 64KiB.';
     if (strlen(json_encode($body, JSON_THROW_ON_ERROR)) > 262144) $errors['payload'] = 'Payload exceeds 256KiB.';
+    return $errors;
+}
+
+/** @return array<string,string> */
+function specforge_validate_boq_payload(array $body): array
+{
+    $errors = [];
+    $allowed = ['quantity','unit','unit_rate','quantity_source_type','quantity_source_ref','rate_source_type','rate_source_ref'];
+    foreach (array_keys($body) as $field) if (!in_array($field, $allowed, true)) $errors[$field] = 'Unexpected field.';
+    foreach (['quantity','unit_rate'] as $field) {
+        if (!array_key_exists($field, $body) || !is_numeric($body[$field]) || !is_finite((float) $body[$field]) || (float) $body[$field] < 0) $errors[$field] = 'Must be a finite non-negative number.';
+    }
+    foreach (['unit' => 32, 'quantity_source_ref' => 180, 'rate_source_ref' => 180] as $field => $maximum) {
+        if (!is_string($body[$field] ?? null) || trim($body[$field]) === '' || mb_strlen($body[$field]) > $maximum) $errors[$field] = "Required within {$maximum} characters.";
+    }
+    if (!is_string($body['quantity_source_type'] ?? null) || !in_array($body['quantity_source_type'], ['drawing','manual'], true)) $errors['quantity_source_type'] = 'Must be drawing or manual.';
+    if (!is_string($body['rate_source_type'] ?? null) || !in_array($body['rate_source_type'], ['supplier_quote','manual'], true)) $errors['rate_source_type'] = 'Must be supplier_quote or manual.';
+    if (strlen(json_encode($body, JSON_THROW_ON_ERROR)) > 16384) $errors['payload'] = 'Payload exceeds 16KiB.';
     return $errors;
 }
