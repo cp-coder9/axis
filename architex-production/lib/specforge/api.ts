@@ -130,6 +130,8 @@ export type UpdateSpecForgeItemResult = {
   sourceItemId: string;
 };
 export type SpecForgeIssueReadiness = { ready: boolean; codes: string[] };
+export type SpecForgeSourceMethod = 'supplier_url' | 'image' | 'practice_library';
+export type SpecForgeSourceRequestResult = { id: string; sourceMethod: SpecForgeSourceMethod; status: 'integration_required'; message: string; idempotent: boolean };
 
 const commandKey = (): string => globalThis.crypto?.randomUUID?.() ?? `specforge-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const json = (value: unknown): string => JSON.stringify(value);
@@ -181,6 +183,10 @@ export const specForgeApi = {
   transitionProcurement: async (projectId: string, itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number, idempotencyKey = commandKey()): Promise<SpecForgeProcurementResult> => {
     const result = await request<{ item: ApiRecord; transition: ApiRecord; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/procurement-transition`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ target_status: targetStatus, expected_version: expectedVersion }) });
     return { item: mapItem(result.item), transition: { id: stringValue(result.transition.id), itemId: stringValue(result.transition.item_id), fromStatus: stringValue(result.transition.from_status) as SpecForgeItem['status'], toStatus: stringValue(result.transition.to_status) as SpecForgeProcurementTarget, sourceLockVersion: numberValue(result.transition.source_lock_version), connectorStatus: stringValue(result.transition.connector_status) as SpecForgeProcurementResult['transition']['connectorStatus'], connectorError: nullableString(result.transition.connector_error) }, idempotent: Boolean(result.idempotent) };
+  },
+  requestSource: async (projectId: string, sourceMethod: SpecForgeSourceMethod, sourceReference: string | null = null, idempotencyKey = commandKey()): Promise<SpecForgeSourceRequestResult> => {
+    const result = await request<{ request: ApiRecord; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/source-requests`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ source_method: sourceMethod, source_reference: sourceReference }) });
+    return { id: stringValue(result.request.id), sourceMethod: stringValue(result.request.source_method) as SpecForgeSourceMethod, status: 'integration_required', message: stringValue(result.request.message), idempotent: Boolean(result.idempotent) };
   },
   requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),

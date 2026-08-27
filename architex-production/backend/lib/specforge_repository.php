@@ -74,6 +74,23 @@ final class MariaDbSpecForgeRepository
         });
     }
 
+    /** @return array{record:array<string,mixed>,idempotent:bool} */
+    public function requestSource(array $identity, string $projectId, string $sourceMethod, ?string $sourceReference, string $idempotencyKey): array
+    {
+        $workspace = $this->workspaceForCapability($identity, $projectId, 'edit');
+        $body = ['source_method' => $sourceMethod, 'source_reference' => $sourceReference];
+        return $this->command($identity, 'source.request', $workspace['id'], $sourceMethod, $idempotencyKey, $body, function () use ($identity, $projectId, $sourceMethod, $sourceReference): array {
+            $messages = [
+                'supplier_url' => 'Supplier catalogue integration is required. No supplier result has been created.',
+                'image' => 'Product image intelligence integration is required. No image result has been created.',
+                'practice_library' => 'Practice library integration is required. No library result has been created.',
+            ];
+            $record = ['id' => $this->uuid(), 'source_method' => $sourceMethod, 'source_reference' => $sourceReference, 'status' => 'integration_required', 'message' => $messages[$sourceMethod]];
+            $this->audit($identity, 'specforge.source.integration_required', 'specforge_source_request', $record['id'], null, $record + ['project_id' => $projectId]);
+            return $record;
+        });
+    }
+
     /** @return array<string,mixed> */
     public function updateWorkspace(array $identity, string $projectId, array $patch, int $expectedVersion): array
     {
@@ -393,8 +410,9 @@ final class MariaDbSpecForgeRepository
             }
             $record = $operation();
             $resolvedWorkspace = $workspaceId ?? ($record['id'] ?? null);
-            $this->pdo->prepare('INSERT INTO specforge_commands (id,organization_id,actor_user_id,workspace_id,route_key,target_id,idempotency_key,body_hash,status,response_status,response_json) VALUES (?,?,?,?,?,?,?,?,"completed",201,?)')->execute([
-                $this->uuid(), $identity['org'], $identity['sub'], $resolvedWorkspace, $route, $targetId ?? ($record['id'] ?? null), $key, $hash, $this->encode($record),
+            $commandStatus = ($record['status'] ?? null) === 'integration_required' ? 'integration_required' : 'completed';
+            $this->pdo->prepare('INSERT INTO specforge_commands (id,organization_id,actor_user_id,workspace_id,route_key,target_id,idempotency_key,body_hash,status,response_status,response_json) VALUES (?,?,?,?,?,?,?,?,?,201,?)')->execute([
+                $this->uuid(), $identity['org'], $identity['sub'], $resolvedWorkspace, $route, $targetId ?? ($record['id'] ?? null), $key, $hash, $commandStatus, $this->encode($record),
             ]);
             $this->pdo->commit();
             return ['record' => $record, 'idempotent' => false];

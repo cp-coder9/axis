@@ -13,7 +13,7 @@ import { SpecForgeModule } from '@/components/modules/SpecForgeModule';
 
 const actions = {
   reload: vi.fn(), setDraft: vi.fn(), clearDrafts: vi.fn(), createWorkspace: vi.fn(), createSection: vi.fn(), createItem: vi.fn(),
-  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
+  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestSource: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
 };
 
 const workspace: SpecForgeAggregate = {
@@ -29,6 +29,10 @@ afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
   actions.validateIssue.mockResolvedValue({ ready: true, codes: [] });
+  actions.requestSource.mockImplementation(async (sourceMethod: string) => ({
+    id: 'source-request-1', status: 'integration_required', sourceMethod, idempotent: false,
+    message: ({ supplier_url: 'Supplier catalogue integration is required. No supplier result has been created.', image: 'Product image intelligence integration is required. No image result has been created.', practice_library: 'Practice library integration is required. No library result has been created.' } as Record<string, string>)[sourceMethod],
+  }));
   actions.issue.mockResolvedValue({
     issue: { id: 'issue-1', revision: 'P06', title: 'Specification issue P06', audience: 'Project team', status: 'issued', snapshotHash: 'hash', issuedAt: '2026-08-26T12:00:00Z' },
     downstream: [
@@ -106,11 +110,12 @@ describe('SpecForge V8 workspace', () => {
     ['Paste supplier URL', 'Supplier catalogue integration is required'],
     ['Upload product image', 'Product image intelligence integration is required'],
     ['Search practice library', 'Practice library integration is required'],
-  ] as const)('reports an honest unavailable source for %s', (button, expected) => {
+  ] as const)('reports an honest unavailable source for %s', async (button, expected) => {
     render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" />);
     fireEvent.click(screen.getByRole('button', { name: 'Add specification' }));
     fireEvent.click(screen.getByRole('button', { name: button }));
-    expect(screen.getByRole('status').textContent).toContain(expected);
+    await waitFor(() => expect(screen.getByRole('status').textContent).toContain(expected));
+    expect(actions.requestSource).toHaveBeenCalledTimes(1);
     expect(actions.createItem).not.toHaveBeenCalled();
   });
 

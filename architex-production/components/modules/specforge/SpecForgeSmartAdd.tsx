@@ -4,13 +4,14 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
-import type { CreateSpecForgeItemInput } from '@/lib/specforge/api';
+import type { CreateSpecForgeItemInput, SpecForgeSourceMethod, SpecForgeSourceRequestResult } from '@/lib/specforge/api';
 import type { SpecForgeSection } from '@/lib/specforge/types';
 
 interface Props {
   section: SpecForgeSection | null;
   revision: string;
   onConfirm: (item: CreateSpecForgeItemInput) => Promise<unknown>;
+  onRequestSource: (sourceMethod: SpecForgeSourceMethod, sourceReference?: string | null) => Promise<SpecForgeSourceRequestResult>;
   onRequestDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
   onClose: () => void;
 }
@@ -23,7 +24,7 @@ const integrationMessages: Partial<Record<SourceMethod, string>> = {
   practice_library: 'Practice library integration is required. No library result has been created.',
 };
 
-export function SpecForgeSmartAdd({ section, revision, onConfirm, onRequestDrawingScan, onClose }: Props) {
+export function SpecForgeSmartAdd({ section, revision, onConfirm, onRequestSource, onRequestDrawingScan, onClose }: Props) {
   const [query, setQuery] = useState('');
   const [sourceMethod, setSourceMethod] = useState<SourceMethod>('manual');
   const [drawingRevision, setDrawingRevision] = useState('');
@@ -49,10 +50,14 @@ export function SpecForgeSmartAdd({ section, revision, onConfirm, onRequestDrawi
     finally { setSaving(false); }
   };
 
-  const selectSource = (method: SourceMethod) => {
+  const selectSource = async (method: SourceMethod) => {
     setSourceMethod(method);
     setReviewing(false);
-    setMessage(integrationMessages[method] ?? null);
+    if (method === 'manual' || method === 'drawing') { setMessage(null); return; }
+    setSaving(true); setMessage(null);
+    try { const result = await onRequestSource(method); setMessage(result.message); }
+    catch (error) { setMessage(error instanceof Error ? error.message : integrationMessages[method] ?? 'Source request failed.'); }
+    finally { setSaving(false); }
   };
 
   const requestDrawingScan = async () => {
@@ -77,10 +82,10 @@ export function SpecForgeSmartAdd({ section, revision, onConfirm, onRequestDrawi
         <Button type="button" variant="ink" disabled={!query.trim()} onClick={() => { setSourceMethod('manual'); setReviewing(true); setMessage(null); }}>Review draft</Button>
       </div>
       <div className="specforge-source-actions" aria-label="Specification sources">
-        <button type="button" onClick={() => selectSource('supplier_url')}>Paste supplier URL</button>
-        <button type="button" onClick={() => selectSource('image')}>Upload product image</button>
-        <button type="button" onClick={() => selectSource('practice_library')}>Search practice library</button>
-        <button type="button" onClick={() => selectSource('drawing')}>Read project drawings</button>
+        <button type="button" disabled={saving} onClick={() => void selectSource('supplier_url')}>Paste supplier URL</button>
+        <button type="button" disabled={saving} onClick={() => void selectSource('image')}>Upload product image</button>
+        <button type="button" disabled={saving} onClick={() => void selectSource('practice_library')}>Search practice library</button>
+        <button type="button" disabled={saving} onClick={() => void selectSource('drawing')}>Read project drawings</button>
       </div>
       {sourceMethod === 'drawing' && <div className="specforge-drawing-source"><label htmlFor="specforge-drawing-revision">Drawing revision</label><div className="specforge-search-row"><input id="specforge-drawing-revision" value={drawingRevision} onChange={event => setDrawingRevision(event.target.value)} placeholder="e.g. drawing-revision-p07" /><Button type="button" busy={saving} disabled={!drawingRevision.trim()} onClick={() => void requestDrawingScan()}>Request drawing scan</Button></div><small>Source: persisted project drawing revision · candidates require human review.</small></div>}
       {reviewing && query.trim() && <div className="specforge-candidate" role="region" aria-label="Specification draft review"><div><span>Manual draft</span><strong>{query.trim()}</strong><small>Source: your current input · no AI or library claim</small></div><Button type="button" busy={saving} onClick={() => void confirm()}>Confirm & save</Button></div>}

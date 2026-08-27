@@ -1756,6 +1756,20 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/it
     } catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/source-requests$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = [];
+    foreach (array_keys($body) as $field) if (!in_array($field, ['source_method','source_reference'], true)) $errors[$field] = 'Unexpected field.';
+    $methods = ['supplier_url','image','practice_library'];
+    if (!is_string($body['source_method'] ?? null) || !in_array($body['source_method'], $methods, true)) $errors['source_method'] = 'Unknown specification source method.';
+    if (isset($body['source_reference']) && (!is_string($body['source_reference']) || mb_strlen($body['source_reference']) > 2048)) $errors['source_reference'] = 'Source reference exceeds 2048 characters.';
+    if ($errors) json_response(['error' => 'Invalid source request', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->requestSource(current_identity(), $m[2], $body['source_method'], $body['source_reference'] ?? null, idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        json_response(['request' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/approvals$#', $path, $m)) {
     specforge_permission('edit'); $body = json_body(); $errors = [];
     foreach (array_keys($body) as $field) if (!in_array($field, ['approval_type','requested_role','requested_user_id','due_at'], true)) $errors[$field] = 'Unexpected field.';

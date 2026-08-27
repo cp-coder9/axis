@@ -166,6 +166,17 @@ try {
   }, { 'Idempotency-Key': 'section-create-v1' });
   assert.equal(section.status, 201);
 
+  const sourceRequest = await request('POST', `/projects/${projectId}/specforge/source-requests`, identities.architect, {
+    source_method: 'supplier_url', source_reference: 'https://supplier.invalid/catalogue/item-1',
+  }, { 'Idempotency-Key': 'source-supplier-url-v1' });
+  assert.equal(sourceRequest.status, 201);
+  assert.equal(sourceRequest.body.request.status, 'integration_required');
+  const sourceReplay = await request('POST', `/projects/${projectId}/specforge/source-requests`, identities.architect, {
+    source_method: 'supplier_url', source_reference: 'https://supplier.invalid/catalogue/item-1',
+  }, { 'Idempotency-Key': 'source-supplier-url-v1' });
+  assert.equal(sourceReplay.status, 200);
+  assert.equal(sourceReplay.body.idempotent, true);
+
   async function createItem(key, overrides) {
     return request('POST', `/projects/${projectId}/specforge/items`, identities.architect, {
       section_id: section.body.section.id, code: key.toUpperCase(), title: key, room: 'Lobby', package_name: 'Tiling',
@@ -299,10 +310,12 @@ try {
   const reload = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
   assert.equal(reload.body.workspace.items.length, 5);
   assert.equal(reload.body.workspace.issues.length, 1);
+  assert.equal(reload.body.workspace.commands.find(command => command.route_key === 'source.request').status, 'integration_required');
 
   const audit = await request('GET', `/projects/${projectId}/specforge/audit`, identities.architect);
   assert.equal(audit.status, 200);
   assert(audit.body.events.some(event => event.action_key === 'specforge.issue.created'));
+  assert(audit.body.events.some(event => event.action_key === 'specforge.source.integration_required'));
   const denial = audit.body.events.find(event => event.action_key === 'specforge.authorization.denied' && event.actor_user_id === 'user-demo-bep');
   assert.equal(denial.after.project_id, projectId);
   assert.equal(denial.after.capability, 'issue');

@@ -60,4 +60,13 @@ describe('SpecForge API client', () => {
     ]);
     expect(authenticatedFetch.mock.calls[0][0]).toContain('issue_id=issue-1');
   });
+
+  it('maps an audited integration-required source request without local identity headers', async () => {
+    authenticatedFetch.mockResolvedValue(response({ request: { id: 'source-1', source_method: 'supplier_url', status: 'integration_required', message: 'Supplier catalogue integration is required.' }, idempotent: false }, 201));
+    await expect(specForgeApi.requestSource('project-1', 'supplier_url', 'https://supplier.invalid/item', 'source-key')).resolves.toMatchObject({ status: 'integration_required', sourceMethod: 'supplier_url' });
+    const [url, init] = authenticatedFetch.mock.calls[0];
+    expect(url).toContain('/source-requests');
+    expect(new Headers(init.headers).get('Idempotency-Key')).toBe('source-key');
+    expect(new Headers(init.headers).has('X-Architex-Role')).toBe(false);
+  });
 });
