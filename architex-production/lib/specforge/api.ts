@@ -9,6 +9,8 @@ import type {
   SpecForgeIssue,
   SpecForgeIssueResult,
   SpecForgeItem,
+  SpecForgeProcurementResult,
+  SpecForgeProcurementTarget,
   SpecForgeSection,
 } from '@/lib/specforge/types';
 import type { RoleKey, StageKey } from '@/lib/types';
@@ -176,6 +178,10 @@ export const specForgeApi = {
   },
   duplicateItem: (projectId: string, itemId: string, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/duplicate`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' }),
+  transitionProcurement: async (projectId: string, itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number, idempotencyKey = commandKey()): Promise<SpecForgeProcurementResult> => {
+    const result = await request<{ item: ApiRecord; transition: ApiRecord; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/procurement-transition`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ target_status: targetStatus, expected_version: expectedVersion }) });
+    return { item: mapItem(result.item), transition: { id: stringValue(result.transition.id), itemId: stringValue(result.transition.item_id), fromStatus: stringValue(result.transition.from_status) as SpecForgeItem['status'], toStatus: stringValue(result.transition.to_status) as SpecForgeProcurementTarget, sourceLockVersion: numberValue(result.transition.source_lock_version), connectorStatus: stringValue(result.transition.connector_status) as SpecForgeProcurementResult['transition']['connectorStatus'], connectorError: nullableString(result.transition.connector_error) }, idempotent: Boolean(result.idempotent) };
+  },
   requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),
   decideApproval: (projectId: string, approvalId: string, decision: 'approved' | 'rejected', decisionNote: string | null, idempotencyKey = commandKey()) =>

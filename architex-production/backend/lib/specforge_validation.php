@@ -40,7 +40,7 @@ const SPECFORGE_CAPABILITIES = [
     'platform_admin' => ['view', 'edit', 'review_budget', 'decide', 'issue', 'drawing_request', 'site_update', 'govern'],
 ];
 
-const SPECFORGE_ISSUED_STATUSES = ['issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built'];
+const SPECFORGE_ISSUED_STATUSES = ['issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built'];
 const SPECFORGE_ASSIGNED_ROLES = ['engineer', 'energy_professional', 'fire_engineer'];
 const SPECFORGE_PACKAGE_ROLES = ['subcontractor', 'supplier'];
 
@@ -152,7 +152,7 @@ function specforge_validate_item_payload(array $body, bool $partial = false): ar
     }
     if (array_key_exists('client_decision', $body) && !is_bool($body['client_decision'])) $errors['client_decision'] = 'Must be a boolean.';
 
-    $statuses = ['draft', 'needs_decision', 'approved', 'issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built', 'superseded'];
+    $statuses = ['draft', 'needs_decision', 'approved', 'issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built', 'superseded'];
     if (array_key_exists('status', $body) && (!is_string($body['status']) || !in_array($body['status'], $statuses, true))) $errors['status'] = 'Unknown specification status.';
     if (array_key_exists('source_revision', $body) && (!is_string($body['source_revision']) || preg_match('/^P\d{2,}$/i', $body['source_revision']) !== 1)) $errors['source_revision'] = 'Must be a P-prefixed revision token.';
     if (isset($body['image_url']) && filter_var($body['image_url'], FILTER_VALIDATE_URL) === false) $errors['image_url'] = 'Must be an absolute URL.';

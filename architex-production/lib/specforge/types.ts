@@ -6,7 +6,10 @@ export type SpecForgeItemStatus =
   | 'approved'
   | 'issued'
   | 'rfq'
+  | 'quoted'
+  | 'po_raised'
   | 'ordered'
+  | 'in_transit'
   | 'delivered'
   | 'installed'
   | 'as_built'
@@ -110,6 +113,22 @@ export interface SpecForgeDownstreamJob {
 export interface SpecForgeIssueResult {
   issue: SpecForgeIssue;
   downstream: SpecForgeDownstreamJob[];
+  idempotent: boolean;
+}
+
+export type SpecForgeProcurementTarget = 'quoted' | 'po_raised' | 'ordered' | 'in_transit' | 'delivered' | 'installed';
+export interface SpecForgeProcurementTransition {
+  id: string;
+  itemId: string;
+  fromStatus: SpecForgeItemStatus;
+  toStatus: SpecForgeProcurementTarget;
+  sourceLockVersion: number;
+  connectorStatus: 'completed' | 'failed' | 'integration_required';
+  connectorError: string | null;
+}
+export interface SpecForgeProcurementResult {
+  item: SpecForgeItem;
+  transition: SpecForgeProcurementTransition;
   idempotent: boolean;
 }
 

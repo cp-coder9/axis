@@ -191,6 +191,24 @@ try {
   assert.equal(duplicate.status, 201);
   assert.equal(duplicate.body.item.status, 'draft');
 
+  const quoted = await request('POST', `/projects/${projectId}/specforge/items/${tilingItem.body.item.id}/procurement-transition`, identities.architect, {
+    target_status: 'quoted', expected_version: 1,
+  }, { 'Idempotency-Key': 'procurement-tiling-quoted-v1' });
+  assert.equal(quoted.status, 201, JSON.stringify(quoted.body));
+  assert.equal(quoted.body.transition.from_status, 'issued');
+  assert.equal(quoted.body.transition.to_status, 'quoted');
+  assert.equal(quoted.body.transition.connector_status, 'integration_required');
+  assert.equal(quoted.body.item.status, 'quoted');
+  const quotedReplay = await request('POST', `/projects/${projectId}/specforge/items/${tilingItem.body.item.id}/procurement-transition`, identities.architect, {
+    target_status: 'quoted', expected_version: 1,
+  }, { 'Idempotency-Key': 'procurement-tiling-quoted-v1' });
+  assert.equal(quotedReplay.status, 200);
+  assert.equal(quotedReplay.body.idempotent, true);
+  const invalidProcurement = await request('POST', `/projects/${projectId}/specforge/items/${tilingItem.body.item.id}/procurement-transition`, identities.architect, {
+    target_status: 'delivered', expected_version: 2,
+  }, { 'Idempotency-Key': 'procurement-tiling-invalid-v1' });
+  assert.equal(invalidProcurement.status, 409);
+
   const approvalRequest = await request('POST', `/projects/${projectId}/specforge/items/${clientItem.body.item.id}/approvals`, identities.architect, {
     approval_type: 'client_decision', requested_role: 'client', requested_user_id: 'user-demo-client', due_at: '2026-08-30 12:00:00',
   }, { 'Idempotency-Key': 'client-approval-v1' });

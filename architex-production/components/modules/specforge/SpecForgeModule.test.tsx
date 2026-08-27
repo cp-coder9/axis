@@ -13,7 +13,7 @@ import { SpecForgeModule } from '@/components/modules/SpecForgeModule';
 
 const actions = {
   reload: vi.fn(), setDraft: vi.fn(), clearDrafts: vi.fn(), createWorkspace: vi.fn(), createSection: vi.fn(), createItem: vi.fn(),
-  updateItem: vi.fn(), duplicateItem: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
+  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
 };
 
 const workspace: SpecForgeAggregate = {
@@ -192,5 +192,12 @@ describe('SpecForge V8 workspace', () => {
     await waitFor(() => expect(actions.createSection).toHaveBeenCalledWith({
       code: '14', title: 'Sanitaryware', discipline: 'Plumbing', ownerRole: 'architect', reviewerRole: 'bep', status: 'draft', standardSource: null, sourceRevision: 'P06',
     }));
+  });
+
+  it('runs procurement transitions through the authenticated API action', async () => {
+    actions.transitionProcurement.mockResolvedValue({ item: { ...workspace.items[0], status: 'quoted', lockVersion: 2 }, transition: { connectorStatus: 'integration_required' } });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="procurement" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Send RFQ for Warm limestone porcelain tile' }));
+    await waitFor(() => expect(actions.transitionProcurement).toHaveBeenCalledWith('item-1', 'quoted', 1));
   });
 });

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Surface } from '@/components/ui/Surface';
 import type { CreateSpecForgeSectionInput } from '@/lib/specforge/api';
 import { summarizeSpecBudget } from '@/lib/specforge/domain';
-import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult, SpecForgeItem } from '@/lib/specforge/types';
+import type { SpecForgeAggregate, SpecForgeDownstreamJob, SpecForgeIssueResult, SpecForgeItem, SpecForgeProcurementTarget } from '@/lib/specforge/types';
 import type { RoleKey } from '@/lib/types';
 
 const money = (value: number) => `R ${value.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}`;
@@ -20,6 +20,7 @@ interface Props {
   canIssue: boolean;
   onCreateSection: (input: CreateSpecForgeSectionInput) => Promise<unknown>;
   onDuplicate: (itemId: string) => Promise<unknown>;
+  onTransitionProcurement: (itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number) => Promise<unknown>;
   onDecide: (approvalId: string, decision: 'approved' | 'rejected') => Promise<unknown>;
   onValidateIssue: () => Promise<{ ready: boolean; codes: string[] }>;
   onIssue: (input: { title: string; audience: string }) => Promise<SpecForgeIssueResult>;
@@ -27,7 +28,7 @@ interface Props {
   onDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
 }
 
-export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
+export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onTransitionProcurement, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [drawingRevision, setDrawingRevision] = useState('');
   const [query, setQuery] = useState('');
@@ -36,6 +37,8 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [sectionFormOpen, setSectionFormOpen] = useState(false);
   const [sectionSaving, setSectionSaving] = useState(false);
+  const [procurementBusy, setProcurementBusy] = useState<string | null>(null);
+  const [procurementMessage, setProcurementMessage] = useState<string | null>(null);
   const budget = summarizeSpecBudget(workspace.items);
   const rooms = [...new Set(workspace.items.map(item => item.room))].sort();
   const packages = [...new Set(workspace.items.map(item => item.packageName))].sort();
@@ -75,23 +78,30 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
 
   if (tab === 'planning') {
     const columns = [
-      { label: 'New', items: workspace.items.filter(item => !['approved', 'issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built'].includes(item.status)) },
+      { label: 'New', items: workspace.items.filter(item => !['approved', 'issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built'].includes(item.status)) },
       { label: 'In Progress', items: workspace.items.filter(item => item.status === 'approved') },
-      { label: 'Done', items: workspace.items.filter(item => ['issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built'].includes(item.status)) },
+      { label: 'Done', items: workspace.items.filter(item => ['issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built'].includes(item.status)) },
     ];
     return <section data-tool-tab={tab} className="specforge-workflow-view"><div className="specforge-panel__head"><div><span className="specforge-kicker">Specification-derived work</span><h2>Specification planning</h2></div><span>{workspace.items.length} work packages</span></div><div className="specforge-kanban">{columns.map(column => <Surface level="raised" key={column.label} className="specforge-kanban-column"><header><strong>{column.label}</strong><span>{column.items.length}</span></header>{column.items.map(item => <article key={item.id}><strong>Procure: {item.title}</strong><small>{item.leadTimeDays > 60 ? 'High' : 'Normal'} priority · {item.ownerRole.replaceAll('_', ' ')}</small><code>{item.code} · {item.sourceRevision}</code></article>)}{column.items.length === 0 && <p>No persisted items</p>}</Surface>)}</div></section>;
   }
 
   if (tab === 'procurement') {
     const stages = ['RFQ Pending', 'Quoted', 'PO Raised', 'Ordered', 'In Transit', 'Delivered', 'Installed'] as const;
+    const actions: Partial<Record<typeof stages[number], { label: string; target: SpecForgeProcurementTarget }>> = {
+      'RFQ Pending': { label: 'Send RFQ', target: 'quoted' }, Quoted: { label: 'Accept quote', target: 'po_raised' }, 'PO Raised': { label: 'Place order', target: 'ordered' }, Ordered: { label: 'Mark shipped', target: 'in_transit' }, 'In Transit': { label: 'Mark received', target: 'delivered' }, Delivered: { label: 'Mark installed', target: 'installed' },
+    };
     const stageItems = (stage: typeof stages[number]) => workspace.items.filter(item => {
       if (stage === 'RFQ Pending') return ['approved', 'issued', 'rfq'].includes(item.status);
+      if (stage === 'Quoted') return item.status === 'quoted';
+      if (stage === 'PO Raised') return item.status === 'po_raised';
       if (stage === 'Ordered') return item.status === 'ordered';
+      if (stage === 'In Transit') return item.status === 'in_transit';
       if (stage === 'Delivered') return item.status === 'delivered';
       if (stage === 'Installed') return ['installed', 'as_built'].includes(item.status);
       return false;
     });
-    return <section data-tool-tab={tab} className="specforge-workflow-view"><div className="specforge-panel__head"><div><span className="specforge-kicker">Audited pipeline projection</span><h2>Procurement pipeline</h2></div><span>Transitions require the procurement API</span></div><div className="specforge-procurement-board">{stages.map(stage => { const items = stageItems(stage); return <Surface level="raised" key={stage} className="specforge-procurement-column"><header><strong>{stage}</strong><span>{items.length}</span></header>{items.map(item => <article key={item.id}><strong>{item.title}</strong><code>{item.code}</code><small>{item.leadTimeDays}d lead · {item.status}</small></article>)}{items.length === 0 && <p>{['Quoted', 'PO Raised', 'In Transit'].includes(stage) ? 'Integration required' : 'No persisted items'}</p>}</Surface>; })}</div></section>;
+    const transition = async (item: SpecForgeItem, action: { label: string; target: SpecForgeProcurementTarget }) => { setProcurementBusy(item.id); setProcurementMessage(null); try { await onTransitionProcurement(item.id, action.target, item.lockVersion); setProcurementMessage('Transition saved. Procurement connector: integration required.'); } catch (error) { setProcurementMessage(error instanceof Error ? error.message : 'Procurement transition failed.'); } finally { setProcurementBusy(null); } };
+    return <section data-tool-tab={tab} className="specforge-workflow-view"><div className="specforge-panel__head"><div><span className="specforge-kicker">Audited pipeline projection</span><h2>Procurement pipeline</h2></div><span>Server-authoritative transitions</span></div>{procurementMessage && <p className="specforge-procurement-message" role="status">{procurementMessage}</p>}<div className="specforge-procurement-board">{stages.map(stage => { const items = stageItems(stage); const action = actions[stage]; return <Surface level="raised" key={stage} className="specforge-procurement-column"><header><strong>{stage}</strong><span>{items.length}</span></header>{items.map(item => <article key={item.id}><strong>{item.title}</strong><code>{item.code}</code><small>{item.leadTimeDays}d lead · {item.status}</small>{canEdit && action && <Button type="button" size="sm" busy={procurementBusy === item.id} aria-label={`${action.label} for ${item.title}`} onClick={() => void transition(item, action)}>{action.label}</Button>}</article>)}{items.length === 0 && <p>No persisted items</p>}</Surface>; })}</div></section>;
   }
 
   if (tab === 'drawings') return <div data-tool-tab={tab} className="specforge-drawing-layout"><Surface level="raised" className="specforge-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">Drawing intelligence</span><h2>Coordination findings</h2></div><span>{workspace.drawingFindings.length} findings</span></div>{workspace.drawingFindings.map(finding => <article className="specforge-finding" key={finding.id}>{status(finding.severity)}<div><strong>{finding.drawingRevisionId}</strong><p>{finding.finding}</p><small>{finding.status} · {finding.itemId ? 'linked item' : 'workspace finding'}</small></div></article>)}{workspace.drawingFindings.length === 0 && <p className="specforge-empty-copy">No drawing findings have been persisted.</p>}</Surface><Surface level="inset" className="specforge-scan-card"><span className="specforge-kicker">Request governed scan</span><h2>Analyse a drawing revision</h2><p>The request creates a queued job. Results remain candidates until professional review.</p><label>Drawing revision ID<input value={drawingRevision} onChange={event => setDrawingRevision(event.target.value)} /></label><Button disabled={!drawingRevision.trim()} onClick={() => void onDrawingScan(drawingRevision.trim()).then(() => setMessage('Drawing scan queued.')).catch(error => setMessage(error instanceof Error ? error.message : 'Scan unavailable.'))}>Request scan</Button>{message && <small role="status">{message}</small>}</Surface></div>;
@@ -99,7 +109,7 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
   if (tab === 'issue') return <SpecForgeIssue workspace={workspace} canIssue={canIssue} onValidate={onValidateIssue} onIssue={onIssue} onListJobs={onListJobs} />;
 
   if (tab === 'closeout') {
-    const approved = workspace.items.filter(item => ['approved', 'issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built'].includes(item.status)).length;
+    const approved = workspace.items.filter(item => ['approved', 'issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built'].includes(item.status)).length;
     const stale = workspace.items.filter(item => item.supersededBy !== null).length;
     const budgetWithin = budget.delta <= 0;
     const percentage = workspace.items.length === 0 ? 0 : Math.round((approved / workspace.items.length) * 100);

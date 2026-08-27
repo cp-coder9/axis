@@ -1741,6 +1741,21 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/it
     catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/procurement-transition$#', $path, $m)) {
+    specforge_permission('edit'); $body = json_body(); $errors = [];
+    foreach (array_keys($body) as $field) if (!in_array($field, ['target_status','expected_version'], true)) $errors[$field] = 'Unexpected field.';
+    $targets = ['quoted','po_raised','ordered','in_transit','delivered','installed'];
+    if (!is_string($body['target_status'] ?? null) || !in_array($body['target_status'], $targets, true)) $errors['target_status'] = 'Unknown procurement target status.';
+    if (!is_int($body['expected_version'] ?? null) || $body['expected_version'] < 1) $errors['expected_version'] = 'A positive item version is required.';
+    if ($errors) json_response(['error' => 'Invalid procurement transition', 'field_errors' => $errors], 422);
+    try {
+        $result = specforge_repository()->transitionProcurement(current_identity(), $m[2], $m[3], $body['target_status'], $body['expected_version'], idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        header('ETag: "' . $result['record']['item']['lock_version'] . '"');
+        json_response(['item' => $result['record']['item'], 'transition' => $result['record']['transition'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/approvals$#', $path, $m)) {
     specforge_permission('edit'); $body = json_body(); $errors = [];
     foreach (array_keys($body) as $field) if (!in_array($field, ['approval_type','requested_role','requested_user_id','due_at'], true)) $errors[$field] = 'Unexpected field.';

@@ -212,6 +212,40 @@ final class MariaDbSpecForgeRepository
         }
     }
 
+    /** @return array{record:array<string,mixed>,idempotent:bool} */
+    public function transitionProcurement(array $identity, string $projectId, string $itemId, string $targetStatus, int $expectedVersion, string $idempotencyKey): array
+    {
+        $workspace = $this->workspaceForCapability($identity, $projectId, 'edit');
+        $body = ['target_status' => $targetStatus, 'expected_version' => $expectedVersion];
+        return $this->command($identity, 'procurement.transition', $workspace['id'], $itemId, $idempotencyKey, $body, function () use ($identity, $projectId, $workspace, $itemId, $targetStatus, $expectedVersion): array {
+            $item = $this->findRow('specforge_items', $identity['org'], $itemId, true);
+            if ($item['workspace_id'] !== $workspace['id']) throw new SpecForgeRepositoryError(404, 'Specification item not found.');
+            specforge_require_capability($identity, 'edit', $this->scopeRecord($identity, $projectId, $item));
+            if ((int) $item['lock_version'] !== $expectedVersion) throw new SpecForgeRepositoryError(409, 'Stale procurement item version.');
+            $allowedTargets = [
+                'approved' => 'quoted', 'issued' => 'quoted', 'rfq' => 'quoted',
+                'quoted' => 'po_raised', 'po_raised' => 'ordered', 'ordered' => 'in_transit',
+                'in_transit' => 'delivered', 'delivered' => 'installed',
+            ];
+            $fromStatus = (string) $item['status'];
+            if (($allowedTargets[$fromStatus] ?? null) !== $targetStatus) throw new SpecForgeRepositoryError(409, "Invalid procurement transition from {$fromStatus} to {$targetStatus}.");
+            $update = $this->pdo->prepare('UPDATE specforge_items SET status=?,updated_by=?,lock_version=lock_version+1 WHERE id=? AND organization_id=? AND workspace_id=? AND lock_version=?');
+            $update->execute([$targetStatus, $identity['sub'], $itemId, $identity['org'], $workspace['id'], $expectedVersion]);
+            if ($update->rowCount() !== 1) throw new SpecForgeRepositoryError(409, 'Stale procurement item version.');
+            $event = [
+                'id' => $this->uuid(), 'item_id' => $itemId, 'from_status' => $fromStatus, 'to_status' => $targetStatus,
+                'source_lock_version' => $expectedVersion, 'connector_status' => 'integration_required',
+                'connector_error' => 'Procurement connector is not configured.',
+            ];
+            $this->pdo->prepare('INSERT INTO specforge_procurement_events (id,organization_id,workspace_id,item_id,from_status,to_status,source_lock_version,actor_user_id,connector_status,connector_error) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([
+                $event['id'], $identity['org'], $workspace['id'], $itemId, $fromStatus, $targetStatus, $expectedVersion, $identity['sub'], $event['connector_status'], $event['connector_error'],
+            ]);
+            $updated = $this->hydrateItem($this->findRow('specforge_items', $identity['org'], $itemId));
+            $this->audit($identity, 'specforge.procurement.transitioned', 'specforge_item', $itemId, $this->hydrateItem($item), $updated + ['project_id' => $projectId, 'connector_status' => $event['connector_status']]);
+            return ['item' => $updated, 'transition' => $event];
+        });
+    }
+
     /** @return array{ready:bool,codes:list<string>} */
     public function validateIssue(array $identity, string $projectId): array
     {

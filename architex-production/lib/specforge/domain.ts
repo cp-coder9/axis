@@ -14,7 +14,7 @@ export type IssueBlockerCode =
 const FULL_VIEW_ROLES = new Set([
   'architect', 'bep', 'quantity_surveyor', 'firm_admin', 'organisation_admin', 'admin', 'platform_admin',
 ]);
-const ISSUED_STATUSES = new Set(['issued', 'rfq', 'ordered', 'delivered', 'installed', 'as_built']);
+const ISSUED_STATUSES = new Set(['issued', 'rfq', 'quoted', 'po_raised', 'ordered', 'in_transit', 'delivered', 'installed', 'as_built']);
 const ASSIGNED_ROLES = new Set(['engineer', 'energy_professional', 'fire_engineer', 'freelancer']);
 const PACKAGE_ROLES = new Set(['subcontractor', 'supplier']);
 
