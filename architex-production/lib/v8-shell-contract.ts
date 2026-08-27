@@ -1,4 +1,5 @@
 import contract from '@/fixtures/v8-shell-contract.json';
+import { GODMODE_SHELL_CONTRACT, type GodModeShellRegion } from '@/lib/reference/godmode-shell-contract';
 
 export type V8RegionRectangle = { x: number; y: number; width: number; height: number };
 export type V8ShellContract = {
@@ -17,6 +18,27 @@ export type V8ShellContract = {
   colours: Record<string, string>;
   regionStyles: Record<string, Record<string, string> | null>;
   viewports: Record<string, { viewport: { width: number; height: number }; regions: Record<string, V8RegionRectangle | null> }>;
+  regionOrder: readonly GodModeShellRegion[];
+  regionSelectors: Readonly<Record<GodModeShellRegion, string>>;
+  geometry: typeof GODMODE_SHELL_CONTRACT.geometry;
+  breakpoints: readonly number[];
+  themes: typeof GODMODE_SHELL_CONTRACT.themes;
+  referenceDarkTheme: boolean;
 };
 
-export const V8_SHELL_CONTRACT = contract as V8ShellContract;
+export const V8_SHELL_CONTRACT: V8ShellContract = {
+  ...contract,
+  regions: {
+    rail: { width: GODMODE_SHELL_CONTRACT.geometry.rail },
+    navigator: { width: GODMODE_SHELL_CONTRACT.geometry.navigator },
+    topbar: { height: GODMODE_SHELL_CONTRACT.geometry.topbar },
+    inspector: { width: GODMODE_SHELL_CONTRACT.geometry.inspector },
+  },
+  referenceToolCount: GODMODE_SHELL_CONTRACT.referenceToolCount,
+  regionOrder: GODMODE_SHELL_CONTRACT.regionOrder,
+  regionSelectors: GODMODE_SHELL_CONTRACT.regionSelectors,
+  geometry: GODMODE_SHELL_CONTRACT.geometry,
+  breakpoints: GODMODE_SHELL_CONTRACT.breakpoints,
+  themes: GODMODE_SHELL_CONTRACT.themes,
+  referenceDarkTheme: GODMODE_SHELL_CONTRACT.referenceDarkTheme,
+};

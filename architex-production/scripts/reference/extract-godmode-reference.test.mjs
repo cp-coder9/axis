@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 import {
   extractGodModeReference,
+  extractGodModeShellContract,
   referencePath,
   serializeGodModeReference,
 } from './extract-godmode-reference.mjs';
@@ -10,6 +11,7 @@ import {
 const html = await readFile(referencePath(), 'utf8');
 const first = extractGodModeReference(html);
 const second = extractGodModeReference(html);
+const shell = extractGodModeShellContract(html);
 
 assert.equal(Object.keys(first.tools).length, 47, 'the sole reference must define exactly 47 tools');
 assert.equal(new Set(Object.keys(first.tools)).size, 47, 'reference tool ids must be unique');
@@ -41,5 +43,19 @@ assert.equal(first.sourceSha256, second.sourceSha256, 'source hashing must be de
 assert.deepEqual(first, second, 'extraction must be deterministic');
 assert.equal(serializeGodModeReference(first), serializeGodModeReference(second), 'serialized output must be byte stable');
 assert.match(first.sourcePath, /architex_datum_os_integrated_modules_v8_engineering_godmode\.html$/);
+assert.deepEqual(shell.regionOrder, ['rail', 'navigator', 'topbar', 'canvas', 'inspector']);
+assert.deepEqual(shell.geometry, {
+  rail: 74,
+  railExpanded: 264,
+  navigator: 306,
+  navigatorCompact: 78,
+  inspector: 344,
+  topbar: 66,
+});
+assert.deepEqual(shell.breakpoints, [760, 1050, 1260, 1400]);
+assert.equal(shell.themes.light['--teal'], '#19B7B0');
+assert.equal(shell.themes.light['--rail'], '74px');
+assert.deepEqual(shell.themes.dark, {});
+assert.equal(shell.referenceDarkTheme, false);
 
 console.log('God Mode reference extraction contract passed.');

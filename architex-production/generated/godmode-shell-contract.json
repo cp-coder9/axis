@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "sourcePath": "E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html",
+  "sourceSha256": "7dbfafdcfa52644fd32fb7cb7d73891b78593ca0287c089240db4439e0fa97bf",
+  "referenceToolCount": 47,
+  "regionOrder": [
+    "rail",
+    "navigator",
+    "topbar",
+    "canvas",
+    "inspector"
+  ],
+  "regionSelectors": {
+    "rail": ".os-rail",
+    "navigator": ".navigator",
+    "topbar": ".topbar",
+    "canvas": ".main",
+    "inspector": ".inspector"
+  },
+  "geometry": {
+    "rail": 74,
+    "railExpanded": 264,
+    "navigator": 306,
+    "navigatorCompact": 78,
+    "inspector": 344,
+    "topbar": 66
+  },
+  "breakpoints": [
+    760,
+    1050,
+    1260,
+    1400
+  ],
+  "themes": {
+    "light": {
+      "--teal": "#19B7B0",
+      "--deep": "#167E79",
+      "--jade": "#58C8BC",
+      "--mint": "#BFE9E2",
+      "--aqua": "#DFF5F2",
+      "--ink": "#102033",
+      "--muted": "#657287",
+      "--border": "rgba(16,32,51,.09)",
+      "--white": "#fff",
+      "--cobalt": "#2563EB",
+      "--lavender": "#8B5CF6",
+      "--coral": "#FF6B6B",
+      "--amber": "#FFB020",
+      "--green": "#28a86b",
+      "--red": "#d95747",
+      "--shadow": "0 20px 64px rgba(16,32,51,.09)",
+      "--soft": "0 10px 28px rgba(16,32,51,.06)",
+      "--rail": "74px",
+      "--nav": "306px",
+      "--inspector": "344px",
+      "--top": "66px"
+    },
+    "dark": {}
+  },
+  "referenceDarkTheme": false
+}

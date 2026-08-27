@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 const DEFAULT_REFERENCE = 'E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html';
 const DEFAULT_OUTPUT = 'generated/godmode-reference.json';
+const DEFAULT_SHELL_OUTPUT = 'generated/godmode-shell-contract.json';
 
 export const referencePath = () => resolve(process.env.ARCHITEX_GODMODE_REFERENCE ?? DEFAULT_REFERENCE);
 
@@ -162,16 +163,149 @@ export function extractGodModeReference(html) {
   };
 }
 
-export const serializeGodModeReference = (reference) => `${JSON.stringify(reference, null, 2)}\n`;
+function styleText(html) {
+  return [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]).join('\n');
+}
 
-export async function writeGodModeReference(outputPath = DEFAULT_OUTPUT) {
-  const target = resolve(outputPath);
+function customProperties(css, selectorPattern) {
+  const tokens = {};
+  for (const match of css.matchAll(new RegExp(`${selectorPattern}\\s*\\{([^}]*)\\}`, 'gi'))) {
+    for (const declaration of match[1].matchAll(/(--[\w-]+)\s*:\s*([^;}]*)/g)) {
+      tokens[declaration[1]] = declaration[2].trim();
+    }
+  }
+  return tokens;
+}
+
+function withoutMediaRules(css) {
+  let result = '';
+  let cursor = 0;
+  while (true) {
+    const start = css.indexOf('@media', cursor);
+    if (start < 0) return result + css.slice(cursor);
+    result += css.slice(cursor, start);
+    const opening = css.indexOf('{', start);
+    if (opening < 0) throw new Error('Unterminated reference media rule');
+    let depth = 1;
+    let index = opening + 1;
+    while (index < css.length && depth > 0) {
+      if (css[index] === '{') depth += 1;
+      if (css[index] === '}') depth -= 1;
+      index += 1;
+    }
+    if (depth !== 0) throw new Error('Unterminated reference media block');
+    cursor = index;
+  }
+}
+
+function mediaRules(css) {
+  const rules = [];
+  const marker = /@media\s*\(\s*max-width\s*:\s*(\d+)px\s*\)\s*\{/g;
+  for (let match = marker.exec(css); match; match = marker.exec(css)) {
+    let depth = 1;
+    let index = marker.lastIndex;
+    while (index < css.length && depth > 0) {
+      if (css[index] === '{') depth += 1;
+      if (css[index] === '}') depth -= 1;
+      index += 1;
+    }
+    if (depth !== 0) throw new Error('Unterminated reference media block');
+    rules.push({ width: Number(match[1]), body: css.slice(marker.lastIndex, index - 1) });
+    marker.lastIndex = index;
+  }
+  return rules;
+}
+
+function finalCustomProperty(css, selector, property) {
+  let value;
+  for (const match of css.matchAll(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`, 'g'))) {
+    const declaration = match[1].match(new RegExp(`${property}\s*:\s*([^;}]*)`));
+    if (declaration) value = declaration[1].trim();
+  }
+  if (!value) throw new Error(`Missing shell property ${property} for ${selector}`);
+  return value;
+}
+
+const pixels = (value, name) => {
+  const match = value.match(/^(\d+)px$/);
+  if (!match) throw new Error(`Expected pixel shell value for ${name}, received ${value}`);
+  return Number(match[1]);
+};
+
+export function extractGodModeShellContract(html) {
+  const css = styleText(html);
+  const baseCss = withoutMediaRules(css);
+  const light = customProperties(baseCss, ':root');
+  const dark = {
+    ...customProperties(baseCss, String.raw`\[data-theme=['"]dark['"]\]`),
+    ...customProperties(baseCss, String.raw`\.dark`),
+  };
+  const regionPatterns = {
+    rail: /<aside\s+class="os-rail"/g,
+    navigator: /<aside\s+class="navigator"/g,
+    topbar: /<header\s+class="topbar"/g,
+    canvas: /<main\s+class="main"/g,
+    inspector: /<aside\s+class="inspector"/g,
+  };
+  const regions = Object.entries(regionPatterns).map(([name, pattern]) => {
+    const matches = [...html.matchAll(pattern)];
+    if (matches.length !== 1) throw new Error(`Expected one reference shell region ${name}, received ${matches.length}`);
+    return [name, matches[0].index];
+  }).sort((left, right) => left[1] - right[1]).map(([name]) => name);
+  const breakpoints = [...new Set(mediaRules(css)
+    .filter(({ body }) => /(?:\.app|\.navigator|\.topbar|\.main|\.inspector|--rail|--nav|--inspector|--top)/.test(body))
+    .map(({ width }) => width))].sort((left, right) => left - right);
+
+  return {
+    schemaVersion: 1,
+    sourcePath: referencePath().replaceAll('\\', '/'),
+    sourceSha256: createHash('sha256').update(html).digest('hex'),
+    referenceToolCount: 47,
+    regionOrder: regions,
+    regionSelectors: {
+      rail: '.os-rail',
+      navigator: '.navigator',
+      topbar: '.topbar',
+      canvas: '.main',
+      inspector: '.inspector',
+    },
+    geometry: {
+      rail: pixels(light['--rail'], '--rail'),
+      railExpanded: pixels(finalCustomProperty(css, '.app.rail-expanded', '--rail'), '.app.rail-expanded --rail'),
+      navigator: pixels(light['--nav'], '--nav'),
+      navigatorCompact: pixels(finalCustomProperty(css, '.app.nav-compact', '--nav'), '.app.nav-compact --nav'),
+      inspector: pixels(light['--inspector'], '--inspector'),
+      topbar: pixels(light['--top'], '--top'),
+    },
+    breakpoints,
+    themes: { light, dark },
+    referenceDarkTheme: Object.keys(dark).length > 0,
+  };
+}
+
+export const serializeGodModeReference = (reference) => `${JSON.stringify(reference, null, 2)}\n`;
+export const serializeGodModeShellContract = (contract) => `${JSON.stringify(contract, null, 2)}\n`;
+
+async function writeAtomic(targetPath, bytes) {
+  const target = resolve(targetPath);
   const temporary = `${target}.tmp`;
-  const html = await readFile(referencePath(), 'utf8');
-  const bytes = serializeGodModeReference(extractGodModeReference(html));
   await mkdir(dirname(target), { recursive: true });
   await writeFile(temporary, bytes, 'utf8');
   await rename(temporary, target);
+  return target;
+}
+
+export async function writeGodModeReference(outputPath = DEFAULT_OUTPUT) {
+  const html = await readFile(referencePath(), 'utf8');
+  const bytes = serializeGodModeReference(extractGodModeReference(html));
+  const target = await writeAtomic(outputPath, bytes);
+  return { target, bytes };
+}
+
+export async function writeGodModeShellContract(outputPath = DEFAULT_SHELL_OUTPUT) {
+  const html = await readFile(referencePath(), 'utf8');
+  const bytes = serializeGodModeShellContract(extractGodModeShellContract(html));
+  const target = await writeAtomic(outputPath, bytes);
   return { target, bytes };
 }
 
@@ -190,17 +324,38 @@ async function checkGodModeReference(outputPath = DEFAULT_OUTPUT) {
   return target;
 }
 
+async function checkGodModeShellContract(outputPath = DEFAULT_SHELL_OUTPUT) {
+  const target = resolve(outputPath);
+  const html = await readFile(referencePath(), 'utf8');
+  const expected = serializeGodModeShellContract(extractGodModeShellContract(html));
+  let actual;
+  try {
+    await access(target);
+    actual = await readFile(target, 'utf8');
+  } catch {
+    throw new Error(`Generated shell contract is missing: ${target}`);
+  }
+  if (actual !== expected) throw new Error(`Generated shell contract is stale: ${target}`);
+  return target;
+}
+
 async function main() {
   const check = process.argv.includes('--check');
   const outputArgument = process.argv.find((argument) => argument.startsWith('--output='));
   const outputPath = outputArgument ? outputArgument.slice('--output='.length) : DEFAULT_OUTPUT;
+  const shellOutputArgument = process.argv.find((argument) => argument.startsWith('--shell-output='));
+  const shellOutputPath = shellOutputArgument ? shellOutputArgument.slice('--shell-output='.length) : DEFAULT_SHELL_OUTPUT;
   if (check) {
     const target = await checkGodModeReference(outputPath);
+    const shellTarget = await checkGodModeShellContract(shellOutputPath);
     console.log(`God Mode reference is current: ${target}`);
+    console.log(`God Mode shell contract is current: ${shellTarget}`);
     return;
   }
   const { target } = await writeGodModeReference(outputPath);
+  const { target: shellTarget } = await writeGodModeShellContract(shellOutputPath);
   console.log(`Generated God Mode reference: ${target}`);
+  console.log(`Generated God Mode shell contract: ${shellTarget}`);
 }
 
 const isMain = process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
@@ -208,7 +363,10 @@ if (isMain) {
   main().catch(async (error) => {
     const outputArgument = process.argv.find((argument) => argument.startsWith('--output='));
     const outputPath = resolve(outputArgument ? outputArgument.slice('--output='.length) : DEFAULT_OUTPUT);
+    const shellOutputArgument = process.argv.find((argument) => argument.startsWith('--shell-output='));
+    const shellOutputPath = resolve(shellOutputArgument ? shellOutputArgument.slice('--shell-output='.length) : DEFAULT_SHELL_OUTPUT);
     await unlink(`${outputPath}.tmp`).catch(() => undefined);
+    await unlink(`${shellOutputPath}.tmp`).catch(() => undefined);
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   });
