@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-27
 
-**Status:** Approved design sections; written-spec review pending
+**Status:** Approved; Release 1 locally implemented and verified; Release 2 execution in progress
 
 **Target:** `E:\axis-1\architex-production`
 
@@ -67,6 +67,12 @@ Each tool owns only its domain navigation, controls, records, dialogs, workflow 
 - Production rendering never imports domain record constants.
 
 ## Delivery decomposition
+
+### Implementation evidence — 2026-08-27
+
+Release 1 now has deterministic reference artifacts for the 47-tool registry, role/stage navigation, shell regions, geometry, breakpoints, and tokens. The runtime registry and navigation consume those artifacts. Local gates passed: reference drift checks, 14 focused unit/contract tests, TypeScript typecheck, Next.js production build, and six authenticated Playwright shell journeys across desktop, tablet, 700px, and mobile widths.
+
+This evidence is local only. It does not certify a remote deployment, remote MariaDB state, all 47 tool workspaces, or SpecForge completion. Release 2 follows `docs/superpowers/plans/2026-08-27-specforge-reference-parity.md` and requires separate deployment evidence after its local gates pass.
 
 ### Release 1: Reference contracts and shared shell
 
