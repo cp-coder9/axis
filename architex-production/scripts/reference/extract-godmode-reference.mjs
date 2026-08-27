@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 const DEFAULT_REFERENCE = 'E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html';
 const DEFAULT_OUTPUT = 'generated/godmode-reference.json';
 const DEFAULT_SHELL_OUTPUT = 'generated/godmode-shell-contract.json';
+const DEFAULT_SPECFORGE_OUTPUT = 'generated/specforge-reference-contract.json';
 
 export const referencePath = () => resolve(process.env.ARCHITEX_GODMODE_REFERENCE ?? DEFAULT_REFERENCE);
 
@@ -163,6 +164,70 @@ export function extractGodModeReference(html) {
   };
 }
 
+function embeddedSpecForgeSource(html) {
+  const sources = JSON.parse(extractBalancedAssignment(html, 'const SOURCES='));
+  if (typeof sources.specforge !== 'string' || !sources.specforge) {
+    throw new Error('Reference SOURCES.specforge payload is missing');
+  }
+  const decoded = Buffer.from(sources.specforge, 'base64').toString('utf8');
+  if (!decoded.includes('function renderCurrentView')) {
+    throw new Error('Decoded SpecForge source does not contain its view dispatcher');
+  }
+  return decoded;
+}
+
+function specForgeRendererMap(source) {
+  const match = source.match(/function renderCurrentView\(v\)\s*\{\s*const map=\{([^}]*)\}/);
+  if (!match) throw new Error('SpecForge view renderer map is missing');
+  return Object.fromEntries(match[1].split(',').map((entry) => {
+    const pair = entry.trim().match(/^([a-z][a-z0-9]*):([A-Za-z][A-Za-z0-9]*)$/);
+    if (!pair) throw new Error(`Invalid SpecForge renderer entry: ${entry}`);
+    return [pair[1], pair[2]];
+  }));
+}
+
+function specForgeProcurementPipeline(source) {
+  const match = source.match(/function renderProcurement\(\)\s*\{[\s\S]*?const cols=(\[[^;]+\]);/);
+  if (!match) throw new Error('SpecForge procurement pipeline is missing');
+  const columns = parseLiteral(match[1]);
+  if (!Array.isArray(columns) || columns.some((column) => typeof column !== 'string')) {
+    throw new Error('Invalid SpecForge procurement pipeline');
+  }
+  return columns;
+}
+
+export function extractSpecForgeReferenceContract(html) {
+  const reference = extractGodModeReference(html);
+  const source = embeddedSpecForgeSource(html);
+  const renderers = specForgeRendererMap(source);
+  const tabs = reference.tools.specforge.tabs;
+  const views = tabs.map((tab) => {
+    const id = String(tab.arg ?? tab.id ?? '');
+    const renderer = renderers[id];
+    if (!renderer) throw new Error(`SpecForge tab ${id} has no renderer`);
+    if (!new RegExp(`function\\s+${renderer}\\s*\\(`).test(source)) {
+      throw new Error(`SpecForge renderer ${renderer} is not defined`);
+    }
+    return {
+      id,
+      label: String(tab.label ?? ''),
+      renderer,
+      icon: String(tab.icon ?? ''),
+    };
+  });
+  if (views.length !== 14 || Object.keys(renderers).length !== 14) {
+    throw new Error(`Expected 14 SpecForge views, received ${views.length}`);
+  }
+  return {
+    schemaVersion: 1,
+    sourcePath: reference.sourcePath,
+    sourceSha256: reference.sourceSha256,
+    embeddedSourceSha256: createHash('sha256').update(source).digest('hex'),
+    views,
+    procurementPipeline: specForgeProcurementPipeline(source),
+  };
+}
+
 function styleText(html) {
   return [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]).join('\n');
 }
@@ -285,6 +350,7 @@ export function extractGodModeShellContract(html) {
 
 export const serializeGodModeReference = (reference) => `${JSON.stringify(reference, null, 2)}\n`;
 export const serializeGodModeShellContract = (contract) => `${JSON.stringify(contract, null, 2)}\n`;
+export const serializeSpecForgeReferenceContract = (contract) => `${JSON.stringify(contract, null, 2)}\n`;
 
 async function writeAtomic(targetPath, bytes) {
   const target = resolve(targetPath);
@@ -305,6 +371,13 @@ export async function writeGodModeReference(outputPath = DEFAULT_OUTPUT) {
 export async function writeGodModeShellContract(outputPath = DEFAULT_SHELL_OUTPUT) {
   const html = await readFile(referencePath(), 'utf8');
   const bytes = serializeGodModeShellContract(extractGodModeShellContract(html));
+  const target = await writeAtomic(outputPath, bytes);
+  return { target, bytes };
+}
+
+export async function writeSpecForgeReferenceContract(outputPath = DEFAULT_SPECFORGE_OUTPUT) {
+  const html = await readFile(referencePath(), 'utf8');
+  const bytes = serializeSpecForgeReferenceContract(extractSpecForgeReferenceContract(html));
   const target = await writeAtomic(outputPath, bytes);
   return { target, bytes };
 }
@@ -339,23 +412,44 @@ async function checkGodModeShellContract(outputPath = DEFAULT_SHELL_OUTPUT) {
   return target;
 }
 
+async function checkSpecForgeReferenceContract(outputPath = DEFAULT_SPECFORGE_OUTPUT) {
+  const target = resolve(outputPath);
+  const html = await readFile(referencePath(), 'utf8');
+  const expected = serializeSpecForgeReferenceContract(extractSpecForgeReferenceContract(html));
+  let actual;
+  try {
+    await access(target);
+    actual = await readFile(target, 'utf8');
+  } catch {
+    throw new Error(`Generated SpecForge contract is missing: ${target}`);
+  }
+  if (actual !== expected) throw new Error(`Generated SpecForge contract is stale: ${target}`);
+  return target;
+}
+
 async function main() {
   const check = process.argv.includes('--check');
   const outputArgument = process.argv.find((argument) => argument.startsWith('--output='));
   const outputPath = outputArgument ? outputArgument.slice('--output='.length) : DEFAULT_OUTPUT;
   const shellOutputArgument = process.argv.find((argument) => argument.startsWith('--shell-output='));
   const shellOutputPath = shellOutputArgument ? shellOutputArgument.slice('--shell-output='.length) : DEFAULT_SHELL_OUTPUT;
+  const specForgeOutputArgument = process.argv.find((argument) => argument.startsWith('--specforge-output='));
+  const specForgeOutputPath = specForgeOutputArgument ? specForgeOutputArgument.slice('--specforge-output='.length) : DEFAULT_SPECFORGE_OUTPUT;
   if (check) {
     const target = await checkGodModeReference(outputPath);
     const shellTarget = await checkGodModeShellContract(shellOutputPath);
+    const specForgeTarget = await checkSpecForgeReferenceContract(specForgeOutputPath);
     console.log(`God Mode reference is current: ${target}`);
     console.log(`God Mode shell contract is current: ${shellTarget}`);
+    console.log(`SpecForge reference contract is current: ${specForgeTarget}`);
     return;
   }
   const { target } = await writeGodModeReference(outputPath);
   const { target: shellTarget } = await writeGodModeShellContract(shellOutputPath);
+  const { target: specForgeTarget } = await writeSpecForgeReferenceContract(specForgeOutputPath);
   console.log(`Generated God Mode reference: ${target}`);
   console.log(`Generated God Mode shell contract: ${shellTarget}`);
+  console.log(`Generated SpecForge reference contract: ${specForgeTarget}`);
 }
 
 const isMain = process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
@@ -365,8 +459,11 @@ if (isMain) {
     const outputPath = resolve(outputArgument ? outputArgument.slice('--output='.length) : DEFAULT_OUTPUT);
     const shellOutputArgument = process.argv.find((argument) => argument.startsWith('--shell-output='));
     const shellOutputPath = resolve(shellOutputArgument ? shellOutputArgument.slice('--shell-output='.length) : DEFAULT_SHELL_OUTPUT);
+    const specForgeOutputArgument = process.argv.find((argument) => argument.startsWith('--specforge-output='));
+    const specForgeOutputPath = resolve(specForgeOutputArgument ? specForgeOutputArgument.slice('--specforge-output='.length) : DEFAULT_SPECFORGE_OUTPUT);
     await unlink(`${outputPath}.tmp`).catch(() => undefined);
     await unlink(`${shellOutputPath}.tmp`).catch(() => undefined);
+    await unlink(`${specForgeOutputPath}.tmp`).catch(() => undefined);
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   });

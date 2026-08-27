@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "sourcePath": "E:/Downloads/architex_datum_os_integrated_modules_v8_engineering_godmode.html",
+  "sourceSha256": "7dbfafdcfa52644fd32fb7cb7d73891b78593ca0287c089240db4439e0fa97bf",
+  "embeddedSourceSha256": "58fbfb3290163a30c39f37629f06fc3aa8a4698f2bcae480d01649e6eac0a65e",
+  "views": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "renderer": "renderOverview",
+      "icon": ""
+    },
+    {
+      "id": "pictorial",
+      "label": "Pictorial Board",
+      "renderer": "renderPictorial",
+      "icon": ""
+    },
+    {
+      "id": "sections",
+      "label": "Sections",
+      "renderer": "renderSections",
+      "icon": ""
+    },
+    {
+      "id": "products",
+      "label": "Products",
+      "renderer": "renderProducts",
+      "icon": ""
+    },
+    {
+      "id": "docpreview",
+      "label": "Document Preview",
+      "renderer": "renderDocPreview",
+      "icon": ""
+    },
+    {
+      "id": "approvals",
+      "label": "Approvals",
+      "renderer": "renderApprovals",
+      "icon": ""
+    },
+    {
+      "id": "budget",
+      "label": "Budget & Risk",
+      "renderer": "renderBudget",
+      "icon": ""
+    },
+    {
+      "id": "bomboq",
+      "label": "BoM / BoQ",
+      "renderer": "renderBomBoq",
+      "icon": ""
+    },
+    {
+      "id": "planning",
+      "label": "Planning",
+      "renderer": "renderPlanning",
+      "icon": ""
+    },
+    {
+      "id": "procurement",
+      "label": "Procurement",
+      "renderer": "renderProcurement",
+      "icon": ""
+    },
+    {
+      "id": "issue",
+      "label": "Issue & Distribute",
+      "renderer": "renderIssue",
+      "icon": ""
+    },
+    {
+      "id": "drawings",
+      "label": "Drawing Intelligence",
+      "renderer": "renderDrawings",
+      "icon": ""
+    },
+    {
+      "id": "closeout",
+      "label": "Closeout",
+      "renderer": "renderCloseout",
+      "icon": ""
+    },
+    {
+      "id": "integration",
+      "label": "Integration",
+      "renderer": "renderIntegration",
+      "icon": ""
+    }
+  ],
+  "procurementPipeline": [
+    "RFQ Pending",
+    "Quoted",
+    "PO Raised",
+    "Ordered",
+    "In Transit",
+    "Delivered",
+    "Installed"
+  ]
+}
