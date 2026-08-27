@@ -13,7 +13,7 @@ import { SpecForgeModule } from '@/components/modules/SpecForgeModule';
 
 const actions = {
   reload: vi.fn(), setDraft: vi.fn(), clearDrafts: vi.fn(), createWorkspace: vi.fn(), createSection: vi.fn(), createItem: vi.fn(),
-  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestSource: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
+  updateItem: vi.fn(), duplicateItem: vi.fn(), transitionProcurement: vi.fn(), requestSource: vi.fn(), requestApproval: vi.fn(), decideApproval: vi.fn(), confirmResponsibility: vi.fn(), validateIssue: vi.fn(), issue: vi.fn(), listJobs: vi.fn(), requestDrawingScan: vi.fn(),
 };
 
 const workspace: SpecForgeAggregate = {
@@ -22,7 +22,7 @@ const workspace: SpecForgeAggregate = {
   budgetReviewedAt: '2026-08-26T10:00:00Z',
   sections: [{ id: 'section-1', code: '12', title: 'Finishes', discipline: 'Architecture', ownerRole: 'architect', reviewerRole: 'bep', status: 'approved', lockVersion: 1 }],
   items: [{ id: 'item-1', sectionId: 'section-1', code: 'FIN-001', title: 'Warm limestone porcelain tile', room: 'Lobby', packageName: 'Tiling', description: 'Rectified wall tile', imageUrl: null, supplier: 'Tile Co', model: 'L600', finish: 'Warm limestone', dimensions: '600x1200', budgetAllowance: 100_000, estimatedCost: 112_000, leadTimeDays: 60, clientDecision: true, ownerRole: 'architect', reviewerRole: 'bep', approverRole: 'client', status: 'approved', sourceRevision: 'P06', supersededBy: null, lockVersion: 1 }],
-  approvals: [], drawingFindings: [], issues: [], commands: [],
+  approvals: [], responsibilityConfirmations: [{ id: 'confirmation-1', revision: 'P06', professionalRole: 'architect', statementText: 'I confirm this specification was prepared with reasonable care and skill.', confirmedBy: 'user-architect', confirmedAt: '2026-08-27T10:00:00Z' }], drawingFindings: [], issues: [], commands: [],
 };
 
 afterEach(cleanup);
@@ -204,5 +204,13 @@ describe('SpecForge V8 workspace', () => {
     render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="procurement" />);
     fireEvent.click(screen.getByRole('button', { name: 'Send RFQ for Warm limestone porcelain tile' }));
     await waitFor(() => expect(actions.transitionProcurement).toHaveBeenCalledWith('item-1', 'quoted', 1));
+  });
+
+  it('persists professional responsibility before issue readiness', async () => {
+    actions.confirmResponsibility.mockResolvedValue({ id: 'confirmation-1' });
+    useSpecForgeWorkspace.mockReturnValue({ status: 'ready', workspace: { ...workspace, responsibilityConfirmations: [] }, message: null, retryable: false, drafts: {}, actions });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" activeTabKey="approvals" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm and sign professional responsibility' }));
+    await waitFor(() => expect(actions.confirmResponsibility).toHaveBeenCalledTimes(1));
   });
 });

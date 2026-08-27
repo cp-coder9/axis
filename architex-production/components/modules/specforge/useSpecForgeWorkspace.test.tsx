@@ -55,7 +55,7 @@ describe('SpecForge workspace state', () => {
     const workspace = {
       id: 'workspace-1', organizationId: 'org-1', projectId: 'project-1', projectName: 'Project One', profile: 'Architectural', stage: 'Design',
       revision: 'P03', issueStatus: 'draft', lockVersion: 4, budgetReviewedAt: '2026-08-27T00:00:00Z',
-      sections: [], items: [], approvals: [], drawingFindings: [], issues: [], commands: [],
+      sections: [], items: [], approvals: [], responsibilityConfirmations: [], drawingFindings: [], issues: [], commands: [],
     } satisfies SpecForgeAggregate;
     const issued = {
       issue: { id: 'issue-1', revision: 'P03', title: 'Specification issue P03', audience: 'Project team', status: 'issued', snapshotHash: 'hash', issuedAt: '2026-08-27T01:00:00Z' },

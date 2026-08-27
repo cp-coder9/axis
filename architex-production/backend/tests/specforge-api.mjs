@@ -225,12 +225,20 @@ try {
   }, { 'Idempotency-Key': 'client-approval-v1' });
   assert.equal(approvalRequest.status, 201);
   const blockedValidation = await request('POST', `/projects/${projectId}/specforge/issues/validate`, identities.architect, {});
-  assert.deepEqual(blockedValidation.body, { ready: false, codes: ['APPROVALS_PENDING'] });
+  assert.deepEqual(blockedValidation.body, { ready: false, codes: ['APPROVALS_PENDING', 'RESPONSIBILITY_PENDING'] });
   const approvalDecision = await request('POST', `/projects/${projectId}/specforge/approvals/${approvalRequest.body.approval.id}/decision`, identities.client, {
     decision: 'approved', decision_note: 'Approved for tender issue',
   }, { 'Idempotency-Key': 'client-approval-decision-v1' });
   assert.equal(approvalDecision.status, 201);
   assert.equal(approvalDecision.body.approval.status, 'approved');
+  const responsibilityBlocked = await request('POST', `/projects/${projectId}/specforge/issues/validate`, identities.architect, {});
+  assert.deepEqual(responsibilityBlocked.body, { ready: false, codes: ['RESPONSIBILITY_PENDING'] });
+  const responsibility = await request('POST', `/projects/${projectId}/specforge/responsibility-confirmations`, identities.architect, {}, { 'Idempotency-Key': 'responsibility-p06-v1' });
+  assert.equal(responsibility.status, 201);
+  assert.equal(responsibility.body.confirmation.revision, 'P06');
+  const responsibilityReplay = await request('POST', `/projects/${projectId}/specforge/responsibility-confirmations`, identities.architect, {}, { 'Idempotency-Key': 'responsibility-p06-v1' });
+  assert.equal(responsibilityReplay.status, 200);
+  assert.equal(responsibilityReplay.body.idempotent, true);
 
   const updated = await request('PATCH', `/projects/${projectId}/specforge/items/${clientItem.body.item.id}`, identities.architect, { title: 'Client tile revised' }, { 'If-Match': '1' });
   assert.equal(updated.status, 200);
@@ -272,6 +280,7 @@ try {
   assert.equal(conflictingReplay.status, 409);
 
   const snapshotsBeforeSuccessor = issueSnapshots(issued.body.issue.id);
+  assert(snapshotsBeforeSuccessor.some(row => row.source_type === 'responsibility'));
   const issuedHashBeforeSuccessor = issued.body.issue.snapshot_hash;
   const successor = await request('PATCH', `/projects/${projectId}/specforge/items/${clientItem.body.item.id}`, identities.architect, { title: 'Client tile P07 draft' }, { 'If-Match': '2' });
   assert.equal(successor.status, 200, JSON.stringify(successor.body));

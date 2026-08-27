@@ -11,6 +11,7 @@ import type {
   SpecForgeItem,
   SpecForgeProcurementResult,
   SpecForgeProcurementTarget,
+  SpecForgeResponsibilityConfirmation,
   SpecForgeSection,
 } from '@/lib/specforge/types';
 import type { RoleKey, StageKey } from '@/lib/types';
@@ -89,6 +90,10 @@ function mapCommand(row: ApiRecord): SpecForgeCommand {
   };
 }
 
+function mapResponsibility(row: ApiRecord): SpecForgeResponsibilityConfirmation {
+  return { id: stringValue(row.id), revision: stringValue(row.revision), professionalRole: stringValue(row.professional_role) as RoleKey, statementText: stringValue(row.statement_text), confirmedBy: stringValue(row.confirmed_by), confirmedAt: stringValue(row.confirmed_at) };
+}
+
 function mapDownstreamJob(row: ApiRecord): SpecForgeDownstreamJob {
   return {
     id: stringValue(row.id), jobType: stringValue(row.job_type), status: stringValue(row.status) as SpecForgeDownstreamJob['status'],
@@ -105,6 +110,7 @@ export function mapSpecForgeAggregate(row: ApiRecord): SpecForgeAggregate {
     sections: Array.isArray(row.sections) ? row.sections.map(value => mapSection(value as ApiRecord)) : [],
     items: Array.isArray(row.items) ? row.items.map(value => mapItem(value as ApiRecord)) : [],
     approvals: Array.isArray(row.approvals) ? row.approvals.map(value => mapApproval(value as ApiRecord)) : [],
+    responsibilityConfirmations: Array.isArray(row.responsibility_confirmations) ? row.responsibility_confirmations.map(value => mapResponsibility(value as ApiRecord)) : [],
     drawingFindings: Array.isArray(row.drawing_findings) ? row.drawing_findings.map(value => mapFinding(value as ApiRecord)) : [],
     issues: Array.isArray(row.issues) ? row.issues.map(value => mapIssue(value as ApiRecord)) : [],
     commands: Array.isArray(row.commands) ? row.commands.map(value => mapCommand(value as ApiRecord)) : [],
@@ -187,6 +193,10 @@ export const specForgeApi = {
   requestSource: async (projectId: string, sourceMethod: SpecForgeSourceMethod, sourceReference: string | null = null, idempotencyKey = commandKey()): Promise<SpecForgeSourceRequestResult> => {
     const result = await request<{ request: ApiRecord; idempotent: boolean }>(`/projects/${encodeURIComponent(projectId)}/specforge/source-requests`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ source_method: sourceMethod, source_reference: sourceReference }) });
     return { id: stringValue(result.request.id), sourceMethod: stringValue(result.request.source_method) as SpecForgeSourceMethod, status: 'integration_required', message: stringValue(result.request.message), idempotent: Boolean(result.idempotent) };
+  },
+  confirmResponsibility: async (projectId: string, idempotencyKey = commandKey()): Promise<SpecForgeResponsibilityConfirmation> => {
+    const result = await request<{ confirmation: ApiRecord }>(`/projects/${encodeURIComponent(projectId)}/specforge/responsibility-confirmations`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' });
+    return mapResponsibility(result.confirmation);
   },
   requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/approvals`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json({ approval_type: input.approvalType, requested_role: input.requestedRole, requested_user_id: input.requestedUserId ?? null, due_at: input.dueAt ?? null }) }),

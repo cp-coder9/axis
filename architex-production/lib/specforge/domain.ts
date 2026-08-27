@@ -7,6 +7,7 @@ import type {
 export type IssueBlockerCode =
   | 'SECTIONS_UNAPPROVED'
   | 'APPROVALS_PENDING'
+  | 'RESPONSIBILITY_PENDING'
   | 'BUDGET_REVIEW_PENDING'
   | 'STALE_SOURCE'
   | 'CRITICAL_DRAWING_FINDING';
@@ -53,6 +54,7 @@ export function validateIssueReadiness(workspace: SpecForgeAggregate): { ready: 
   const codes = new Set<IssueBlockerCode>();
   if (workspace.sections.some(section => !['approved', 'issued'].includes(section.status))) codes.add('SECTIONS_UNAPPROVED');
   if (workspace.approvals.some(approval => approval.status === 'pending')) codes.add('APPROVALS_PENDING');
+  if (!workspace.responsibilityConfirmations.some(confirmation => confirmation.revision === workspace.revision)) codes.add('RESPONSIBILITY_PENDING');
   if (!workspace.budgetReviewedAt) codes.add('BUDGET_REVIEW_PENDING');
   if (workspace.items.some(item => item.supersededBy !== null)) codes.add('STALE_SOURCE');
   if (workspace.drawingFindings.some(finding => finding.severity === 'critical' && finding.status !== 'resolved')) codes.add('CRITICAL_DRAWING_FINDING');

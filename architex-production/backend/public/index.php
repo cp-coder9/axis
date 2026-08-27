@@ -1770,6 +1770,16 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/so
     } catch (Throwable $error) { specforge_error($error); }
 }
 
+if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/responsibility-confirmations$#', $path, $m)) {
+    specforge_permission('decide'); $body = json_body();
+    if ($body !== []) json_response(['error' => 'Professional responsibility confirmation does not accept caller-supplied fields.'], 422);
+    try {
+        $result = specforge_repository()->confirmResponsibility(current_identity(), $m[2], idempotency_key());
+        if ($result['idempotent']) header('X-Idempotent-Replay: true');
+        json_response(['confirmation' => $result['record'], 'idempotent' => $result['idempotent']], $result['idempotent'] ? 200 : 201);
+    } catch (Throwable $error) { specforge_error($error); }
+}
+
 if ($method === 'POST' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/items/([^/]+)/approvals$#', $path, $m)) {
     specforge_permission('edit'); $body = json_body(); $errors = [];
     foreach (array_keys($body) as $field) if (!in_array($field, ['approval_type','requested_role','requested_user_id','due_at'], true)) $errors[$field] = 'Unexpected field.';

@@ -41,7 +41,7 @@ function aggregate(overrides: Partial<SpecForgeAggregate> = {}): SpecForgeAggreg
     items,
     approvals: [{ id: 'approval-1', itemId: 'client-decision', approvalType: 'client_decision', requestedRole: 'client', requestedUserId: null, status: 'approved', decisionNote: null, dueAt: null }],
     drawingFindings: [{ id: 'finding-1', itemId: 'issued-item', drawingRevisionId: 'drawing-1', severity: 'medium', finding: 'Coordinate finish extent', status: 'open' }],
-    issues: [], commands: [],
+    responsibilityConfirmations: [{ id: 'responsibility-1', revision: 'P06', professionalRole: 'architect', statementText: 'Confirmed', confirmedBy: 'architect-1', confirmedAt: '2026-08-27T10:00:00Z' }], issues: [], commands: [],
     ...overrides,
   };
 }

@@ -77,6 +77,15 @@ export interface SpecForgeApproval {
   dueAt: string | null;
 }
 
+export interface SpecForgeResponsibilityConfirmation {
+  id: string;
+  revision: string;
+  professionalRole: RoleKey;
+  statementText: string;
+  confirmedBy: string;
+  confirmedAt: string;
+}
+
 export interface SpecForgeDrawingFinding {
   id: string;
   itemId: string | null;
@@ -156,6 +165,7 @@ export interface SpecForgeAggregate {
   sections: SpecForgeSection[];
   items: SpecForgeItem[];
   approvals: SpecForgeApproval[];
+  responsibilityConfirmations: SpecForgeResponsibilityConfirmation[];
   drawingFindings: SpecForgeDrawingFinding[];
   issues: SpecForgeIssue[];
   commands: SpecForgeCommand[];

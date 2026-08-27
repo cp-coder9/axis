@@ -140,6 +140,7 @@ test('uses real client authentication and exposes only client-decision records',
   await expect(specforge.getByRole('button', { name: 'Add specification' })).toHaveCount(0);
   await specforge.getByRole('button', { name: 'Approvals', exact: true }).click();
   const approve = specforge.getByRole('button', { name: 'Approve' });
+  await expect.poll(async () => await approve.count() + await specforge.getByText('approved', { exact: true }).count()).toBeGreaterThan(0);
   if (await approve.count()) {
     const approvalRequest = page.waitForResponse(response => response.url().includes('/specforge/approvals/') && response.request().method() === 'POST');
     const approvalReload = waitForApprovalStatus(page, 'approved');
@@ -184,6 +185,7 @@ test('validates, issues, reloads and reports persisted downstream states', async
   let specforge = page.getByLabel('SpecForge specification workspace');
   await specforge.getByRole('button', { name: 'Approvals', exact: true }).click();
   const approve = specforge.getByRole('button', { name: 'Approve' });
+  await expect.poll(async () => await approve.count() + await specforge.getByText('approved', { exact: true }).count()).toBeGreaterThan(0);
   if (await approve.count()) {
     const approvalRequest = page.waitForResponse(response => response.url().includes('/specforge/approvals/') && response.request().method() === 'POST');
     const approvalReload = waitForApprovalStatus(page, 'approved');
@@ -199,12 +201,20 @@ test('validates, issues, reloads and reports persisted downstream states', async
   await expect(page.getByLabel('Email address')).toBeVisible();
 
   const runtime = await login(page, 'architect');
-  const architectWorkspaceRequest = page.waitForResponse(response => /\/projects\/[^/]+\/specforge$/.test(new URL(response.url()).pathname) && response.request().method() === 'GET');
+  const architectWorkspaceRequest = waitForApprovalStatus(page, 'approved');
   await openSpecForge(page);
   const architectWorkspaceResponse = await architectWorkspaceRequest;
   expect(architectWorkspaceResponse.status()).toBe(200);
   expect((await architectWorkspaceResponse.json()).workspace.approvals[0].status).toBe('approved');
   specforge = page.getByLabel('SpecForge specification workspace');
+  await specforge.getByRole('button', { name: 'Approvals', exact: true }).click();
+  const confirmResponsibility = specforge.getByRole('button', { name: 'Confirm and sign professional responsibility' });
+  if (await confirmResponsibility.count()) {
+    const confirmationRequest = page.waitForResponse(response => response.url().includes('/responsibility-confirmations') && response.request().method() === 'POST');
+    await confirmResponsibility.click();
+    expect((await confirmationRequest).status()).toBe(201);
+    await expect(specforge.getByRole('heading', { name: /Confirmed for P\d+/ })).toBeVisible();
+  }
   await specforge.getByRole('button', { name: 'Issue & Distribute' }).click();
   await expect(specforge.getByRole('heading', { name: 'Issue register' })).toBeVisible();
   const validationRequest = page.waitForResponse(response => response.url().includes('/specforge/issues/validate') && response.request().method() === 'POST');

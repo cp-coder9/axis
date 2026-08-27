@@ -22,13 +22,14 @@ interface Props {
   onDuplicate: (itemId: string) => Promise<unknown>;
   onTransitionProcurement: (itemId: string, targetStatus: SpecForgeProcurementTarget, expectedVersion: number) => Promise<unknown>;
   onDecide: (approvalId: string, decision: 'approved' | 'rejected') => Promise<unknown>;
+  onConfirmResponsibility: () => Promise<unknown>;
   onValidateIssue: () => Promise<{ ready: boolean; codes: string[] }>;
   onIssue: (input: { title: string; audience: string }) => Promise<SpecForgeIssueResult>;
   onListJobs: (issueId: string) => Promise<SpecForgeDownstreamJob[]>;
   onDrawingScan: (drawingRevisionId: string) => Promise<unknown>;
 }
 
-export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onTransitionProcurement, onDecide, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
+export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCreateSection, onDuplicate, onTransitionProcurement, onDecide, onConfirmResponsibility, onValidateIssue, onIssue, onListJobs, onDrawingScan }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [drawingRevision, setDrawingRevision] = useState('');
   const [query, setQuery] = useState('');
@@ -39,6 +40,7 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
   const [sectionSaving, setSectionSaving] = useState(false);
   const [procurementBusy, setProcurementBusy] = useState<string | null>(null);
   const [procurementMessage, setProcurementMessage] = useState<string | null>(null);
+  const [responsibilityBusy, setResponsibilityBusy] = useState(false);
   const budget = summarizeSpecBudget(workspace.items);
   const rooms = [...new Set(workspace.items.map(item => item.room))].sort();
   const packages = [...new Set(workspace.items.map(item => item.packageName))].sort();
@@ -70,7 +72,11 @@ export function SpecForgeRecords({ tab, workspace, role, canEdit, canIssue, onCr
 
   if (tab === 'docpreview') return <div data-tool-tab={tab} className="specforge-document-layout"><Surface as="article" level="raised" className="specforge-document"><header><code>{workspace.projectId} · {workspace.revision}</code><h2>Project Works Specification</h2><p>{workspace.projectName} · {workspace.profile}</p></header>{workspace.sections.map(section => <section key={section.id}><span>Section {section.code}</span><h3>{section.title}</h3>{workspace.items.filter(item => item.sectionId === section.id).map(item => <div key={item.id}><h4>{item.code} · {item.title}</h4><p>{item.description}</p><small>Source {item.sourceRevision} · {item.packageName}</small></div>)}</section>)}</Surface><Surface level="inset" className="specforge-document-controls"><span className="specforge-kicker">Live preview</span><h3>Generated from persisted records</h3><p>This preview contains the records visible to your authenticated project role. Issue creates an immutable snapshot.</p><dl><div><dt>Revision</dt><dd>{workspace.revision}</dd></div><div><dt>Sections</dt><dd>{workspace.sections.length}</dd></div><div><dt>Items</dt><dd>{workspace.items.length}</dd></div></dl></Surface></div>;
 
-  if (tab === 'approvals') return <div data-tool-tab={tab} className="specforge-approval-grid">{workspace.approvals.map(approval => <Surface as="article" level="raised" key={approval.id}><div><code>{approval.approvalType}</code>{status(approval.status)}</div><h2>{workspace.items.find(item => item.id === approval.itemId)?.title ?? 'Scoped specification decision'}</h2><p>Requested from {approval.requestedRole.replaceAll('_',' ')}{approval.dueAt ? ` · due ${approval.dueAt}` : ''}</p>{approval.status === 'pending' && (role === approval.requestedRole || role === 'platform_admin') && <footer><Button size="sm" onClick={() => void onDecide(approval.id, 'approved')}>Approve</Button><Button size="sm" variant="danger" onClick={() => void onDecide(approval.id, 'rejected')}>Reject</Button></footer>}</Surface>)}{workspace.approvals.length === 0 && <Empty title="No approval requests" detail="Approval decisions will appear here after an authorized professional requests them." />}</div>;
+  if (tab === 'approvals') {
+    const confirmation = workspace.responsibilityConfirmations.find(item => item.revision === workspace.revision);
+    const confirm = async () => { setResponsibilityBusy(true); try { await onConfirmResponsibility(); } finally { setResponsibilityBusy(false); } };
+    return <section data-tool-tab={tab} className="specforge-approval-view"><div className="specforge-approval-grid">{workspace.approvals.map(approval => <Surface as="article" level="raised" key={approval.id}><div><code>{approval.approvalType}</code>{status(approval.status)}</div><h2>{workspace.items.find(item => item.id === approval.itemId)?.title ?? 'Scoped specification decision'}</h2><p>Requested from {approval.requestedRole.replaceAll('_',' ')}{approval.dueAt ? ` · due ${approval.dueAt}` : ''}</p>{approval.status === 'pending' && (role === approval.requestedRole || role === 'platform_admin') && <footer><Button size="sm" onClick={() => void onDecide(approval.id, 'approved')}>Approve</Button><Button size="sm" variant="danger" onClick={() => void onDecide(approval.id, 'rejected')}>Reject</Button></footer>}</Surface>)}{workspace.approvals.length === 0 && <Empty title="No approval requests" detail="Approval decisions will appear here after an authorized professional requests them." />}</div>{['architect','bep','platform_admin'].includes(role) && <Surface level="inset" className="specforge-responsibility"><div><span className="specforge-kicker">Professional responsibility</span><h2>{confirmation ? `Confirmed for ${workspace.revision}` : `Confirmation required for ${workspace.revision}`}</h2><p>{confirmation?.statementText ?? 'I confirm this specification was prepared with reasonable care and skill.'}</p></div>{confirmation ? status('completed') : <Button type="button" busy={responsibilityBusy} aria-label="Confirm and sign professional responsibility" onClick={() => void confirm()}>Confirm &amp; sign</Button>}</Surface>}</section>;
+  }
 
   if (tab === 'budget') return <div data-tool-tab={tab} className="specforge-budget"><div className="specforge-metrics"><Surface level="raised"><span>Allowance</span><strong>{money(budget.allowance)}</strong></Surface><Surface level="raised"><span>Estimate</span><strong>{money(budget.estimate)}</strong></Surface><Surface level="raised"><span>Variance</span><strong>{money(budget.delta)}</strong></Surface><Surface level="raised"><span>Cost risks</span><strong>{budget.overBudgetItemIds.length}</strong></Surface></div><Surface level="raised" className="specforge-table-panel"><div className="specforge-panel__head"><div><span className="specforge-kicker">QS review</span><h2>Allowance variance</h2></div><span>{workspace.budgetReviewedAt ? `Reviewed ${workspace.budgetReviewedAt}` : 'Review pending'}</span></div>{workspace.items.map(item => <div className="specforge-cost-row" key={item.id}><div><code>{item.code}</code><strong>{item.title}</strong></div><span>{money(item.budgetAllowance)}</span><span>{money(item.estimatedCost)}</span><b className={item.estimatedCost > item.budgetAllowance ? 'is-risk' : ''}>{money(item.estimatedCost - item.budgetAllowance)}</b></div>)}</Surface></div>;
 

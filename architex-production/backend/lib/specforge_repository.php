@@ -91,6 +91,27 @@ final class MariaDbSpecForgeRepository
         });
     }
 
+    /** @return array{record:array<string,mixed>,idempotent:bool} */
+    public function confirmResponsibility(array $identity, string $projectId, string $idempotencyKey): array
+    {
+        $workspace = $this->workspaceForCapability($identity, $projectId, 'decide');
+        if (!in_array($identity['role'], ['architect','bep','platform_admin'], true)) throw new SpecForgeAuthorizationError('professional_role', 'decide');
+        $statement = 'I confirm this specification was prepared with reasonable care and skill.';
+        $body = ['revision' => $workspace['revision'], 'statement_text' => $statement];
+        return $this->command($identity, 'responsibility.confirm', $workspace['id'], $workspace['revision'], $idempotencyKey, $body, function () use ($identity, $projectId, $workspace, $statement): array {
+            $existing = $this->pdo->prepare('SELECT * FROM specforge_responsibility_confirmations WHERE organization_id=? AND workspace_id=? AND revision=? AND professional_role=?');
+            $existing->execute([$identity['org'], $workspace['id'], $workspace['revision'], $identity['role']]);
+            $record = $existing->fetch();
+            if (!$record) {
+                $id = $this->uuid();
+                $this->pdo->prepare('INSERT INTO specforge_responsibility_confirmations (id,organization_id,workspace_id,revision,professional_role,statement_text,confirmed_by) VALUES (?,?,?,?,?,?,?)')->execute([$id, $identity['org'], $workspace['id'], $workspace['revision'], $identity['role'], $statement, $identity['sub']]);
+                $record = $this->findRow('specforge_responsibility_confirmations', $identity['org'], $id);
+                $this->audit($identity, 'specforge.responsibility.confirmed', 'specforge_responsibility', $id, null, $record + ['project_id' => $projectId]);
+            }
+            return $record;
+        });
+    }
+
     /** @return array<string,mixed> */
     public function updateWorkspace(array $identity, string $projectId, array $patch, int $expectedVersion): array
     {
@@ -465,7 +486,7 @@ final class MariaDbSpecForgeRepository
     /** @return array<string,mixed> */
     private function findRow(string $table, string $organizationId, string $id, bool $lock = false): array
     {
-        $allowed = ['specforge_workspaces','specforge_sections','specforge_items','specforge_approvals','specforge_issues'];
+        $allowed = ['specforge_workspaces','specforge_sections','specforge_items','specforge_approvals','specforge_responsibility_confirmations','specforge_issues'];
         if (!in_array($table, $allowed, true)) throw new LogicException('Unsupported SpecForge table.');
         $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE organization_id=? AND id=?" . ($lock ? ' FOR UPDATE' : ''));
         $stmt->execute([$organizationId, $id]);
@@ -498,6 +519,7 @@ final class MariaDbSpecForgeRepository
         $workspace['items'] = $visibleItems;
         $workspace['sections'] = $sections;
         $workspace['approvals'] = $approvals;
+        $workspace['responsibility_confirmations'] = $this->rows('specforge_responsibility_confirmations', $organizationId, $workspaceId);
         $workspace['drawing_findings'] = $findings;
         $workspace['issues'] = $this->rows('specforge_issues', $organizationId, $workspaceId);
         $workspace['commands'] = $this->rows('specforge_commands', $organizationId, $workspaceId, 'created_at DESC');
@@ -507,9 +529,13 @@ final class MariaDbSpecForgeRepository
     /** @return list<array<string,mixed>> */
     private function rows(string $table, string $organizationId, string $workspaceId, ?string $order = null): array
     {
-        $allowed = ['specforge_sections','specforge_items','specforge_approvals','specforge_drawing_findings','specforge_issues','specforge_commands'];
+        $allowed = ['specforge_sections','specforge_items','specforge_approvals','specforge_responsibility_confirmations','specforge_drawing_findings','specforge_issues','specforge_commands'];
         if (!in_array($table, $allowed, true)) throw new LogicException('Unsupported SpecForge table.');
-        $order ??= $table === 'specforge_approvals' ? 'requested_at ASC, id ASC' : 'created_at ASC, id ASC';
+        $order ??= match ($table) {
+            'specforge_approvals' => 'requested_at ASC, id ASC',
+            'specforge_responsibility_confirmations' => 'confirmed_at ASC, id ASC',
+            default => 'created_at ASC, id ASC',
+        };
         $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE organization_id=? AND workspace_id=? ORDER BY {$order}");
         $stmt->execute([$organizationId, $workspaceId]);
         return $stmt->fetchAll();
@@ -558,6 +584,7 @@ final class MariaDbSpecForgeRepository
         $codes = [];
         if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_sections WHERE organization_id=? AND workspace_id=? AND status NOT IN ("approved","issued")', [$organizationId, $workspaceId]) > 0) $codes[] = 'SECTIONS_UNAPPROVED';
         if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_approvals WHERE organization_id=? AND workspace_id=? AND status="pending"', [$organizationId, $workspaceId]) > 0) $codes[] = 'APPROVALS_PENDING';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_responsibility_confirmations c INNER JOIN specforge_workspaces w ON w.id=c.workspace_id AND w.organization_id=c.organization_id WHERE c.organization_id=? AND c.workspace_id=? AND c.revision=w.revision', [$organizationId, $workspaceId]) === 0) $codes[] = 'RESPONSIBILITY_PENDING';
         if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_workspaces WHERE organization_id=? AND id=? AND budget_reviewed_at IS NULL', [$organizationId, $workspaceId]) > 0) $codes[] = 'BUDGET_REVIEW_PENDING';
         if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_items WHERE organization_id=? AND workspace_id=? AND superseded_by IS NOT NULL', [$organizationId, $workspaceId]) > 0) $codes[] = 'STALE_SOURCE';
         if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_drawing_findings WHERE organization_id=? AND workspace_id=? AND severity="critical" AND status<>"resolved"', [$organizationId, $workspaceId]) > 0) $codes[] = 'CRITICAL_DRAWING_FINDING';
@@ -593,6 +620,7 @@ final class MariaDbSpecForgeRepository
             'items' => array_map([$this, 'hydrateItem'], $this->rows('specforge_items', $organizationId, $workspaceId)),
             'links' => $this->snapshotRows('specforge_item_links', $organizationId, $workspaceId),
             'approvals' => $this->rows('specforge_approvals', $organizationId, $workspaceId),
+            'responsibility' => $this->rows('specforge_responsibility_confirmations', $organizationId, $workspaceId),
             'distribution' => [['id' => 'distribution', 'workspace_id' => $workspaceId]],
         ];
     }
