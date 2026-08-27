@@ -1,4 +1,5 @@
 import { ProjectEntity, RoleKey, RoleProfile, StageKey, ToolDefinition, MeetingItem, MeetingOutcome, MeetingTranscriptSegment, MeetingMinuteItem, MeetingAgendaItem, FeedbackRecord } from './types';
+import { createReferenceToolDefinitions } from './reference/godmode-reference';
 
 export const INITIAL_PROJECT: ProjectEntity = {
   id: 'proj-faerie-glen',
@@ -391,7 +392,7 @@ export const ROLE_TOOL_MAP: Record<RoleKey, string[]> = {
   ]
 };
 
-export const ALL_TOOLS: Record<string, ToolDefinition> = {
+const PRODUCTION_TOOL_METADATA: Record<string, ToolDefinition> = {
   // 12 FLAGSHIP LIVE MODULES
   meetings: {
     id: 'meetings',
@@ -1264,6 +1265,10 @@ export const ALL_TOOLS: Record<string, ToolDefinition> = {
     ]
   }
 };
+
+export const ALL_TOOLS: Record<string, ToolDefinition> = createReferenceToolDefinitions(
+  Object.fromEntries(Object.entries(PRODUCTION_TOOL_METADATA).map(([id, tool]) => [id, tool.version])),
+);
 
 export const INITIAL_MEETING_DATA = {
   lifecycle: ['Draft', 'Scheduled', 'Lobby open', 'Live', 'Processing', 'Review required', 'Published'],
