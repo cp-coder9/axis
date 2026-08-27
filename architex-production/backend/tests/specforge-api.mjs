@@ -5,14 +5,26 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { dirname, resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { createServer } from 'node:net';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const origin = 'http://127.0.0.1:8092';
+const port = await new Promise((resolvePort, reject) => {
+  const probe = createServer();
+  probe.unref();
+  probe.on('error', reject);
+  probe.listen(0, '127.0.0.1', () => {
+    const address = probe.address();
+    if (!address || typeof address === 'string') { probe.close(); reject(new Error('Could not allocate an isolated API port')); return; }
+    probe.close(error => error ? reject(error) : resolvePort(address.port));
+  });
+});
+const origin = `http://127.0.0.1:${port}`;
 const secret = 'specforge-isolated-api-test-secret';
-const database = process.env.SPECFORGE_TEST_DB ?? 'architex_specforge_api_test';
+const database = process.env.SPECFORGE_TEST_DB;
 const projectId = 'proj-camps-bay';
 
-assert.match(database, /^[A-Za-z0-9_]+_test$/, 'SpecForge API tests require an isolated schema ending in _test');
+assert.ok(database, 'SPECFORGE_TEST_DB must be supplied by the disposable test harness');
+assert.match(database, /^architex_specforge_[0-9]+_[a-f0-9]{12}_test$/, 'SpecForge API tests require a unique disposable schema');
 assert(!readFileSync(resolve(root, 'backend/public/index.php'), 'utf8').includes('/specforge/seed'), 'the API must not expose a SpecForge seed route');
 
 const databaseEnv = {
@@ -20,7 +32,7 @@ const databaseEnv = {
   APP_ENV: 'test',
   ARCHITEX_DATA_MODE: 'prototype',
   ARCHITEX_ENABLE_DEMO_SEED: '1',
-  DB_HOST: 'localhost',
+  DB_HOST: process.env.SPECFORGE_TEST_DB_HOST ?? 'localhost',
   DB_NAME: database,
   DB_USER: process.env.SPECFORGE_TEST_DB_USER ?? 'root',
   DB_PASS: process.env.SPECFORGE_TEST_DB_PASS ?? '',
@@ -34,6 +46,13 @@ function specForgeSeedCount() {
   const result = runPhp(['-r', '$c=require "backend/config.php"; $d=$c["database"]; $p=new PDO("mysql:host={$d[\'host\']};dbname={$d[\'name\']};charset=utf8mb4",$d["user"],$d["pass"]); echo $p->query("SELECT COUNT(*) FROM specforge_items WHERE workspace_id=\'specforge-workspace-faerie-glen\'")->fetchColumn();']);
   assert.equal(result.status, 0, result.stderr);
   return Number(result.stdout.trim());
+}
+
+function issueSnapshots(issueId) {
+  const code = '$c=require "backend/config.php"; $d=$c["database"]; $p=new PDO("mysql:host={$d[\'host\']};dbname={$d[\'name\']};charset=utf8mb4",$d["user"],$d["pass"]); $s=$p->prepare("SELECT source_type,source_id,snapshot_json FROM specforge_issue_items WHERE organization_id=? AND issue_id=? ORDER BY ordinal,id"); $s->execute(["org-demo",$argv[1]]); echo json_encode($s->fetchAll(PDO::FETCH_ASSOC), JSON_THROW_ON_ERROR);';
+  const result = runPhp(['-r', code, issueId]);
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout);
 }
 
 const productionSeed = runPhp(['backend/database/seed.php'], { ...databaseEnv, APP_ENV: 'production', ARCHITEX_DATA_MODE: 'production' });
@@ -78,7 +97,21 @@ async function request(method, path, identity, body, extraHeaders = {}) {
   return { status: response.status, body: payload, headers: response.headers };
 }
 
-const server = spawn('php', ['-S', '127.0.0.1:8092', 'backend/public/index.php'], {
+async function authRequest(path, body, cookie = '') {
+  const response = await fetch(`${origin}/api/v1${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Connection: 'close',
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const payload = await response.json();
+  return { status: response.status, body: payload, headers: response.headers };
+}
+
+const server = spawn('php', ['-S', `127.0.0.1:${port}`, 'backend/public/index.php'], {
   cwd: root,
   env: {
     ...process.env,
@@ -94,10 +127,30 @@ let serverErrors = '';
 server.stderr.on('data', chunk => { serverErrors += chunk.toString(); });
 
 try {
+  let serverReady = false;
   for (let attempt = 0; attempt < 60; attempt++) {
-    try { if ((await fetch(`${origin}/api/v1/health`)).status) break; } catch {}
+    try { if ((await fetch(`${origin}/api/v1/health`)).status) { serverReady = true; break; } } catch {}
+    if (server.exitCode !== null) break;
     await delay(100);
   }
+  assert.equal(serverReady, true, `isolated API server did not start on ${origin}: ${serverErrors}`);
+
+  const supplierLogin = await authRequest('/auth/login', {
+    email: 'supplier@architex-os.local',
+    password: 'demo-user-demo-supplier',
+  });
+  assert.equal(supplierLogin.status, 200, JSON.stringify(supplierLogin.body));
+  const supplierCookie = supplierLogin.headers.get('set-cookie')?.split(';', 1)[0] ?? '';
+  assert.match(supplierCookie, /^architex_refresh=/, 'supplier login must establish a refresh session');
+  const seededSupplierView = await request('GET', '/projects/proj-faerie-glen/specforge', supplierLogin.body.access_token);
+  assert.equal(seededSupplierView.status, 200, JSON.stringify(seededSupplierView.body));
+  assert.deepEqual(seededSupplierView.body.workspace.items.map(item => item.title), ['Issued porcelain floor tile']);
+
+  const supplierRefresh = await authRequest('/auth/refresh', undefined, supplierCookie);
+  assert.equal(supplierRefresh.status, 200, JSON.stringify(supplierRefresh.body));
+  const refreshedSupplierView = await request('GET', '/projects/proj-faerie-glen/specforge', supplierRefresh.body.access_token);
+  assert.equal(refreshedSupplierView.status, 200, JSON.stringify(refreshedSupplierView.body));
+  assert.deepEqual(refreshedSupplierView.body.workspace.items.map(item => item.title), ['Issued porcelain floor tile']);
 
   const empty = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
   assert.equal(empty.status, 200);
@@ -189,6 +242,25 @@ try {
   const conflictingReplay = await request('POST', `/projects/${projectId}/specforge/issues`, identities.architect, { ...issueBody, audience: 'Contractor' }, { 'Idempotency-Key': 'issue-p06-v1' });
   assert.equal(conflictingReplay.status, 409);
 
+  const snapshotsBeforeSuccessor = issueSnapshots(issued.body.issue.id);
+  const issuedHashBeforeSuccessor = issued.body.issue.snapshot_hash;
+  const successor = await request('PATCH', `/projects/${projectId}/specforge/items/${clientItem.body.item.id}`, identities.architect, { title: 'Client tile P07 draft' }, { 'If-Match': '2' });
+  assert.equal(successor.status, 200, JSON.stringify(successor.body));
+  assert.equal(successor.body.successor_created, true);
+  assert.equal(successor.body.source_item_id, clientItem.body.item.id);
+  assert.notEqual(successor.body.item.id, clientItem.body.item.id);
+  assert.equal(successor.body.item.status, 'draft');
+  assert.equal(successor.body.item.source_revision, 'P07');
+  const staleIssuedEdit = await request('PATCH', `/projects/${projectId}/specforge/items/${clientItem.body.item.id}`, identities.architect, { title: 'Stale issued overwrite' }, { 'If-Match': '2' });
+  assert.equal(staleIssuedEdit.status, 409);
+  const successorReload = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
+  const issuedSource = successorReload.body.workspace.items.find(item => item.id === clientItem.body.item.id);
+  assert.equal(issuedSource.title, 'Client tile revised');
+  assert.equal(issuedSource.superseded_by, successor.body.item.id);
+  assert.equal(successorReload.body.workspace.items.find(item => item.id === successor.body.item.id).title, 'Client tile P07 draft');
+  assert.deepEqual(issueSnapshots(issued.body.issue.id), snapshotsBeforeSuccessor);
+  assert.equal(successorReload.body.workspace.issues.find(issue => issue.id === issued.body.issue.id).snapshot_hash, issuedHashBeforeSuccessor);
+
   const drawingScan = await request('POST', `/projects/${projectId}/specforge/drawing-scans`, identities.architect, { drawing_revision_id: 'drawing-revision-p06' }, { 'Idempotency-Key': 'drawing-scan-p06-v1' });
   assert.equal(drawingScan.status, 202);
   assert.equal(drawingScan.body.job.job_type, 'ai_drawing_scan');
@@ -198,18 +270,26 @@ try {
   const jobs = await request('GET', `/projects/${projectId}/specforge/jobs?issue_id=${issued.body.issue.id}`, identities.architect);
   assert.equal(jobs.status, 200);
   assert.equal(jobs.body.jobs.length, 7);
+  if (!jobs.body.jobs.every(job => job.status === 'integration_required')) {
+    console.error(JSON.stringify({ worker: { stdout: worker.stdout, stderr: worker.stderr }, jobs: jobs.body.jobs }, null, 2));
+  }
   assert(jobs.body.jobs.every(job => job.status === 'integration_required'));
   assert(jobs.body.jobs.every(job => typeof job.last_error === 'string' && job.last_error.includes('not configured')));
   const clientJobs = await request('GET', `/projects/${projectId}/specforge/jobs?issue_id=${issued.body.issue.id}`, identities.client);
   assert.equal(clientJobs.status, 403, 'downstream operational jobs require issue capability');
 
   const reload = await request('GET', `/projects/${projectId}/specforge`, identities.architect);
-  assert.equal(reload.body.workspace.items.length, 4);
+  assert.equal(reload.body.workspace.items.length, 5);
   assert.equal(reload.body.workspace.issues.length, 1);
 
   const audit = await request('GET', `/projects/${projectId}/specforge/audit`, identities.architect);
   assert.equal(audit.status, 200);
   assert(audit.body.events.some(event => event.action_key === 'specforge.issue.created'));
+  const denial = audit.body.events.find(event => event.action_key === 'specforge.authorization.denied' && event.actor_user_id === 'user-demo-bep');
+  assert.equal(denial.after.project_id, projectId);
+  assert.equal(denial.after.capability, 'issue');
+  assert.equal(denial.after.reason, 'capability');
+  assert.equal(JSON.stringify(denial.after).includes(clientItem.body.item.id), false);
 
   console.log('SpecForge authenticated API contract passed.');
 } finally {

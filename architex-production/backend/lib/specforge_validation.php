@@ -2,11 +2,21 @@
 declare(strict_types=1);
 
 if (!class_exists('SpecForgeRepositoryError')) {
-    final class SpecForgeRepositoryError extends RuntimeException
+    class SpecForgeRepositoryError extends RuntimeException
     {
         public function __construct(public readonly int $httpStatus, string $message)
         {
             parent::__construct($message);
+        }
+    }
+}
+
+if (!class_exists('SpecForgeAuthorizationError')) {
+    final class SpecForgeAuthorizationError extends SpecForgeRepositoryError
+    {
+        public function __construct(public readonly string $reason, public readonly string $capability)
+        {
+            parent::__construct(403, 'SpecForge access is not available for this project scope.');
         }
     }
 }
@@ -64,40 +74,40 @@ function specforge_require_capability(array $identity, string $capability, ?arra
     $identityOrganization = (string) ($identity['org'] ?? '');
     $recordOrganization = (string) ($record['organization_id'] ?? $identityOrganization);
     if ($identityOrganization === '' || $recordOrganization !== $identityOrganization) {
-        throw new SpecForgeRepositoryError(403, 'SpecForge access denied.');
+        throw new SpecForgeAuthorizationError('organization', $capability);
     }
 
     $recordProject = isset($record['project_id']) ? (string) $record['project_id'] : null;
     $projects = array_map('strval', is_array($identity['projects'] ?? null) ? $identity['projects'] : []);
     if ($recordProject !== null && !in_array('*', $projects, true) && !in_array($recordProject, $projects, true)) {
-        throw new SpecForgeRepositoryError(403, 'SpecForge project access denied.');
+        throw new SpecForgeAuthorizationError('membership', $capability);
     }
     if (!in_array($capability, $capabilities, true)) {
-        throw new SpecForgeRepositoryError(403, 'SpecForge capability denied.');
+        throw new SpecForgeAuthorizationError('capability', $capability);
     }
     if ($record === null) return;
 
     if (in_array($role, ['client', 'developer'], true) && array_key_exists('client_decision', $record) && !((bool) $record['client_decision'])) {
-        throw new SpecForgeRepositoryError(403, 'SpecForge client-decision scope denied.');
+        throw new SpecForgeAuthorizationError('record_scope', $capability);
     }
     if (in_array($role, SPECFORGE_ASSIGNED_ROLES, true) && (array_key_exists('owner_role', $record) || array_key_exists('reviewer_role', $record) || array_key_exists('approver_role', $record))) {
         $assignedRoles = [$record['owner_role'] ?? null, $record['reviewer_role'] ?? null, $record['approver_role'] ?? null];
         if (!in_array($role, $assignedRoles, true)) {
-            throw new SpecForgeRepositoryError(403, 'SpecForge assignment scope denied.');
+            throw new SpecForgeAuthorizationError('assignment', $capability);
         }
     }
     if (in_array($role, SPECFORGE_PACKAGE_ROLES, true) && array_key_exists('package_name', $record)) {
         $packages = array_map('strval', is_array($identity['package_names'] ?? null) ? $identity['package_names'] : []);
         if (!in_array((string) ($record['package_name'] ?? ''), $packages, true)) {
-            throw new SpecForgeRepositoryError(403, 'SpecForge package scope denied.');
+            throw new SpecForgeAuthorizationError('assignment', $capability);
         }
         if ($capability === 'view' && !in_array((string) ($record['status'] ?? ''), SPECFORGE_ISSUED_STATUSES, true)) {
-            throw new SpecForgeRepositoryError(403, 'SpecForge issued-scope access denied.');
+            throw new SpecForgeAuthorizationError('record_state', $capability);
         }
     }
     if (in_array($role, ['contractor', 'site_manager'], true) && $capability === 'view' && array_key_exists('status', $record)
         && !in_array((string) ($record['status'] ?? ''), SPECFORGE_ISSUED_STATUSES, true)) {
-        throw new SpecForgeRepositoryError(403, 'SpecForge issued-scope access denied.');
+        throw new SpecForgeAuthorizationError('record_state', $capability);
     }
 }
 

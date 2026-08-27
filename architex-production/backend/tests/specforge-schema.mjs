@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 
 const migrationUrl = new URL('../database/migrations/014_specforge_core.sql', import.meta.url);
 const sql = await readFile(migrationUrl, 'utf8');
+const repositoryUrl = new URL('../lib/specforge_repository.php', import.meta.url);
+const repository = await readFile(repositoryUrl, 'utf8');
 
 const requiredTables = [
   'specforge_workspaces',
@@ -27,5 +29,11 @@ assert.match(sql, /INSERT[\s\S]+INTO\s+role_permissions[\s\S]+ON DUPLICATE KEY U
 for (const capability of ['view', 'edit', 'review_budget', 'decide', 'issue', 'drawing_request', 'site_update', 'govern']) {
   assert.match(sql, new RegExp(`'specforge'\\s*,\\s*'${capability}'`, 'i'));
 }
+
+assert.match(repository, /private function rows\(string \$table, string \$organizationId, string \$workspaceId/);
+assert.match(repository, /WHERE organization_id=\? AND workspace_id=\? ORDER BY \{\$order\}/);
+assert.match(repository, /private function issueReadiness\(string \$organizationId, string \$workspaceId\)/);
+assert.match(repository, /private function snapshot\(string \$organizationId, string \$workspaceId\)/);
+assert.match(repository, /private function snapshotRows\(string \$table, string \$organizationId, string \$workspaceId\)/);
 
 console.log('SpecForge migration contract passed.');

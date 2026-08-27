@@ -52,11 +52,12 @@ $roles = [
 ];
 
 $users = [
-    'user-demo-architect' => ['Justin Kruger', 'justin@architex-os.local', 'architect'],
-    'user-demo-bep' => ['BEP Coordinator', 'bep@architex-os.local', 'bep'],
-    'user-demo-client' => ['Evergreen Holdings Rep', 'client@architex-os.local', 'client'],
-    'user-demo-town-planner' => ['Town Planner', 'planner@architex-os.local', 'town_planner'],
-    'user-demo-energy-professional' => ['Energy Professional', 'energy@architex-os.local', 'energy_professional'],
+    'user-demo-architect' => ['Justin Kruger', 'justin@architex-os.local', 'architect', null],
+    'user-demo-bep' => ['BEP Coordinator', 'bep@architex-os.local', 'bep', null],
+    'user-demo-client' => ['Evergreen Holdings Rep', 'client@architex-os.local', 'client', null],
+    'user-demo-town-planner' => ['Town Planner', 'planner@architex-os.local', 'town_planner', null],
+    'user-demo-energy-professional' => ['Energy Professional', 'energy@architex-os.local', 'energy_professional', null],
+    'user-demo-supplier' => ['Tiling Supplier', 'supplier@architex-os.local', 'supplier', ['package_names' => ['Tiling']]],
 ];
 
 $projects = [
@@ -117,15 +118,15 @@ try {
 
     $section = 'users';
     // Users
-    $insUser = $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status) VALUES (?, ?, ?, ?, ?, ?)');
-    foreach ($users as $id => [$name, $email, $roleKey]) {
-        $insUser->execute([$id, ORG_ID, $name, $email, password_hash('demo-' . $id, PASSWORD_DEFAULT), 'active']);
+    $insUser = $pdo->prepare('INSERT INTO users (id, organization_id, name, email, password_hash, status, profile_json) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    foreach ($users as $id => [$name, $email, $roleKey, $profile]) {
+        $insUser->execute([$id, ORG_ID, $name, $email, password_hash('demo-' . $id, PASSWORD_DEFAULT), 'active', $profile === null ? null : json_encode($profile, JSON_UNESCAPED_SLASHES)]);
     }
 
     $section = 'user_roles';
     // User-role grants
     $insUserRole = $pdo->prepare('INSERT INTO user_roles (user_id, role_key, project_id) VALUES (?, ?, ?)');
-    foreach ($users as $id => [$name, $email, $roleKey]) {
+    foreach ($users as $id => [$name, $email, $roleKey, $profile]) {
         $insUserRole->execute([$id, $roleKey, null]);
     }
 
@@ -256,6 +257,7 @@ try {
         ['specforge-item-wall-tile', 'specforge-section-finishes', 'FIN-WT-001', 'Large format porcelain wall tile', 'Main Lobby', 'Tiling', 'Rectified porcelain wall tile installed to the approved setting-out drawings.', 'Local tile supplier', '600x1200 matte porcelain', 'Warm limestone', '600 x 1200mm', 115000, 128500, 21, 1, 'needs_decision', 'client'],
         ['specforge-item-acoustic-panel', 'specforge-section-joinery', 'JNR-AP-001', 'Acoustic oak wall panel', 'Boardroom', 'Joinery', 'Factory-finished acoustic timber wall panel on a coordinated subframe.', null, null, 'Natural oak', 'Module to shop drawing', 95000, 93000, 56, 0, 'approved', 'architect'],
         ['specforge-item-door-hardware', 'specforge-section-joinery', 'JNR-DH-001', 'Commercial door hardware set', 'Common areas', 'Ironmongery', 'Coordinated door hardware set subject to fire and accessibility schedules.', null, null, 'Brushed stainless steel', 'Schedule based', 78000, 78000, 42, 0, 'issued', 'architect'],
+        ['specforge-item-floor-tile', 'specforge-section-finishes', 'FIN-FT-002', 'Issued porcelain floor tile', 'Main Lobby', 'Tiling', 'Issued porcelain floor tile selected for the lobby floor finish.', 'Local tile supplier', '600x600 porcelain', 'Warm limestone', '600 x 600mm', 86000, 84000, 21, 0, 'issued', 'architect'],
     ];
     $insSpecItem = $pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,budget_allowance,estimated_cost,lead_time_days,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE section_id=VALUES(section_id),title=VALUES(title),room=VALUES(room),package_name=VALUES(package_name),description=VALUES(description),supplier=VALUES(supplier),model=VALUES(model),finish=VALUES(finish),dimensions=VALUES(dimensions),budget_allowance=VALUES(budget_allowance),estimated_cost=VALUES(estimated_cost),lead_time_days=VALUES(lead_time_days),client_decision=VALUES(client_decision),owner_role=VALUES(owner_role),reviewer_role=VALUES(reviewer_role),approver_role=VALUES(approver_role),status=VALUES(status),source_revision=VALUES(source_revision),updated_by=VALUES(updated_by)');
     foreach ($specItems as [$id, $sectionId, $code, $title, $room, $packageName, $description, $supplier, $model, $finish, $dimensions, $allowance, $estimate, $leadDays, $clientDecision, $status, $approverRole]) {

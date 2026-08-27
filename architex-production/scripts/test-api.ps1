@@ -44,7 +44,7 @@ function Invoke-PdoAdmin([string]$Php, [string]$Sql) {
     $env:ARCHITEX_HARNESS_HOST = $DbHost
     $env:ARCHITEX_HARNESS_USER = $DbUser
     $env:ARCHITEX_HARNESS_PASS = $DbPass
-    & $Php -r 'try { $pdo = new PDO("mysql:host=" . getenv("ARCHITEX_HARNESS_HOST") . ";charset=utf8mb4", getenv("ARCHITEX_HARNESS_USER"), getenv("ARCHITEX_HARNESS_PASS"), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); $pdo->exec(getenv("ARCHITEX_HARNESS_SQL")); } catch (Throwable $error) { fwrite(STDERR, $error->getMessage()); exit(1); }'
+    & $Php (Join-Path $PSScriptRoot 'test-db-admin.php')
     if ($LASTEXITCODE -ne 0) { Fail 'database administrative operation failed' }
 }
 function Write-Lease([string]$Path, [string]$Schema) {

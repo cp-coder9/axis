@@ -33,13 +33,14 @@ describe('SpecForge API client', () => {
   it('adds concurrency and idempotency headers to mutations', async () => {
     authenticatedFetch
       .mockResolvedValueOnce(response({ item: { id: 'item-1' } }, 201))
-      .mockResolvedValueOnce(response({ item: { id: 'item-1' } }));
+      .mockResolvedValueOnce(response({ item: { id: 'item-2', section_id: 'section-1', code: 'FIN-001', title: 'Tile revised', status: 'draft', source_revision: 'P07', lock_version: 1 }, successor_created: true, source_item_id: 'item-1' }));
 
     await specForgeApi.createItem('project-1', { title: 'Tile' } as never, 'create-key');
-    await specForgeApi.updateItem('project-1', 'item-1', { title: 'Tile revised' }, 4);
+    const update = await specForgeApi.updateItem('project-1', 'item-1', { title: 'Tile revised' }, 4);
 
     expect(new Headers(authenticatedFetch.mock.calls[0][1].headers).get('Idempotency-Key')).toBe('create-key');
     expect(new Headers(authenticatedFetch.mock.calls[1][1].headers).get('If-Match')).toBe('4');
+    expect(update).toMatchObject({ successorCreated: true, sourceItemId: 'item-1', item: { id: 'item-2', sourceRevision: 'P07' } });
   });
 
   it('returns an explicit empty workspace and preserves structured API failures', async () => {

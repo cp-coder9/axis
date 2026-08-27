@@ -9,7 +9,7 @@ import {
   type CreateSpecForgeSectionInput,
   type CreateSpecForgeWorkspaceInput,
 } from '@/lib/specforge/api';
-import type { SpecForgeAggregate } from '@/lib/specforge/types';
+import type { SpecForgeAggregate, SpecForgeIssueResult } from '@/lib/specforge/types';
 
 export type SpecForgeViewStatus = 'loading' | 'empty' | 'ready' | 'forbidden' | 'conflict' | 'error';
 
@@ -25,6 +25,7 @@ export type SpecForgeWorkspaceAction =
   | { type: 'loading' }
   | { type: 'loaded'; workspace: SpecForgeAggregate | null }
   | { type: 'failure'; error: unknown }
+  | { type: 'issued'; result: SpecForgeIssueResult }
   | { type: 'draft'; key: string; value: unknown }
   | { type: 'clear-drafts' };
 
@@ -46,6 +47,19 @@ export function specForgeWorkspaceReducer(state: SpecForgeWorkspaceState, action
     case 'loading': return { ...state, status: 'loading', message: null, retryable: false };
     case 'loaded': return { status: action.workspace ? 'ready' : 'empty', workspace: action.workspace, message: null, retryable: false, drafts: {} };
     case 'failure': return { ...stateFromSpecForgeError(action.error, state.workspace), drafts: state.drafts };
+    case 'issued': {
+      if (!state.workspace) return state;
+      const revisionNumber = Number.parseInt(action.result.issue.revision.slice(1), 10);
+      const nextRevision = Number.isFinite(revisionNumber) ? `P${String(revisionNumber + 1).padStart(2, '0')}` : state.workspace.revision;
+      const issues = state.workspace.issues.some(issue => issue.id === action.result.issue.id)
+        ? state.workspace.issues
+        : [...state.workspace.issues, action.result.issue];
+      return {
+        ...state,
+        status: 'ready',
+        workspace: { ...state.workspace, revision: nextRevision, issueStatus: 'issued', lockVersion: state.workspace.lockVersion + 1, issues },
+      };
+    }
     case 'draft': return { ...state, drafts: { ...state.drafts, [action.key]: action.value } };
     case 'clear-drafts': return { ...state, drafts: {} };
   }
@@ -93,7 +107,17 @@ export function useSpecForgeWorkspace(projectId: string | null, enabled = true) 
     decideApproval: (approvalId: string, decision: 'approved' | 'rejected', note: string | null) => projectId ? mutate(() => specForgeApi.decideApproval(projectId, approvalId, decision, note)) : Promise.reject(new Error('Project context is required.')),
     validateIssue: () => projectId ? specForgeApi.validateIssue(projectId) : Promise.reject(new Error('Project context is required.')),
     listJobs: (issueId: string) => projectId ? specForgeApi.listJobs(projectId, issueId) : Promise.reject(new Error('Project context is required.')),
-    issue: (input: { title: string; audience: string }) => projectId ? mutate(() => specForgeApi.issue(projectId, input)) : Promise.reject(new Error('Project context is required.')),
+    issue: async (input: { title: string; audience: string }) => {
+      if (!projectId) throw new Error('Project context is required.');
+      try {
+        const result = await specForgeApi.issue(projectId, input);
+        dispatch({ type: 'issued', result });
+        return result;
+      } catch (error) {
+        dispatch({ type: 'failure', error });
+        throw error;
+      }
+    },
     requestDrawingScan: (drawingRevisionId: string) => projectId ? mutate(() => specForgeApi.requestDrawingScan(projectId, { drawingRevisionId })) : Promise.reject(new Error('Project context is required.')),
   }), [mutate, projectId, reload]);
 

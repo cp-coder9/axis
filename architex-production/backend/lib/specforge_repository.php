@@ -148,8 +148,8 @@ final class MariaDbSpecForgeRepository
         if ($approval['workspace_id'] !== $workspace['id']) throw new SpecForgeRepositoryError(404, 'Specification approval not found.');
         $item = $this->findRow('specforge_items', $identity['org'], $approval['item_id']);
         specforge_require_capability($identity, 'decide', $this->scopeRecord($identity, $projectId, $item));
-        if ($approval['requested_user_id'] !== null && $approval['requested_user_id'] !== $identity['sub']) throw new SpecForgeRepositoryError(403, 'Approval is assigned to another user.');
-        if ($approval['requested_user_id'] === null && $approval['requested_role'] !== $identity['role'] && $identity['role'] !== 'platform_admin') throw new SpecForgeRepositoryError(403, 'Approval is assigned to another role.');
+        if ($approval['requested_user_id'] !== null && $approval['requested_user_id'] !== $identity['sub']) throw new SpecForgeAuthorizationError('assignment', 'decide');
+        if ($approval['requested_user_id'] === null && $approval['requested_role'] !== $identity['role'] && $identity['role'] !== 'platform_admin') throw new SpecForgeAuthorizationError('assignment', 'decide');
         return $this->command($identity, 'approval.decision', $workspace['id'], $approvalId, $idempotencyKey, $body, function () use ($identity, $projectId, $approval, $body): array {
             if ($approval['status'] !== 'pending') throw new SpecForgeRepositoryError(409, 'Approval has already been decided.');
             $statement = $this->pdo->prepare('UPDATE specforge_approvals SET status=?,decision_note=?,decided_at=?,decided_by=?,lock_version=lock_version+1 WHERE id=? AND organization_id=? AND status="pending"');
@@ -161,7 +161,7 @@ final class MariaDbSpecForgeRepository
         });
     }
 
-    /** @return array<string,mixed> */
+    /** @return array{item:array<string,mixed>,successor_created:bool,source_item_id:string} */
     public function updateItem(array $identity, string $projectId, string $itemId, array $patch, int $expectedVersion): array
     {
         $workspace = $this->workspaceForCapability($identity, $projectId, 'edit');
@@ -174,6 +174,25 @@ final class MariaDbSpecForgeRepository
             $mutable = ['section_id','code','title','room','package_name','description','supplier','model','finish','dimensions','image_url','budget_allowance','estimated_cost','lead_time_days','client_decision','owner_role','reviewer_role','approver_role','status','source_revision','superseded_by'];
             $changes = array_intersect_key($patch, array_flip($mutable));
             if (!$changes) throw new SpecForgeRepositoryError(422, 'No mutable specification item fields supplied.');
+            if ($this->itemWasIssued($identity['org'], $workspace['id'], $itemId)) {
+                if ($item['superseded_by'] !== null) throw new SpecForgeRepositoryError(409, 'Issued specification item already has a draft successor.');
+                $successor = array_replace($item, $changes);
+                $successor['id'] = $this->uuid();
+                $successor['status'] = 'draft';
+                $successor['source_revision'] = $workspace['revision'];
+                $successor['superseded_by'] = null;
+                $successor['lock_version'] = 1;
+                $this->pdo->prepare('INSERT INTO specforge_items (id,organization_id,workspace_id,section_id,code,title,room,package_name,description,supplier,model,finish,dimensions,image_url,budget_allowance,estimated_cost,lead_time_days,client_decision,owner_role,reviewer_role,approver_role,status,source_revision,superseded_by,created_by,updated_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
+                    $successor['id'], $identity['org'], $workspace['id'], $successor['section_id'], $successor['code'], $successor['title'], $successor['room'], $successor['package_name'], $successor['description'], $successor['supplier'], $successor['model'], $successor['finish'], $successor['dimensions'], $successor['image_url'], $successor['budget_allowance'], $successor['estimated_cost'], $successor['lead_time_days'], $successor['client_decision'] ? 1 : 0, $successor['owner_role'], $successor['reviewer_role'], $successor['approver_role'], 'draft', $workspace['revision'], null, $identity['sub'], $identity['sub'],
+                ]);
+                $sourceUpdate = $this->pdo->prepare('UPDATE specforge_items SET superseded_by=?,updated_by=?,lock_version=lock_version+1 WHERE id=? AND organization_id=? AND workspace_id=? AND lock_version=? AND superseded_by IS NULL');
+                $sourceUpdate->execute([$successor['id'], $identity['sub'], $itemId, $identity['org'], $workspace['id'], $expectedVersion]);
+                if ($sourceUpdate->rowCount() !== 1) throw new SpecForgeRepositoryError(409, 'Stale specification item version.');
+                $created = $this->hydrateItem($this->findRow('specforge_items', $identity['org'], $successor['id']));
+                $this->audit($identity, 'specforge.item.successor_created', 'specforge_item', $successor['id'], $this->hydrateItem($item), $created + ['project_id' => $projectId, 'source_item_id' => $itemId]);
+                $this->pdo->commit();
+                return ['item' => $created, 'successor_created' => true, 'source_item_id' => $itemId];
+            }
             $sets = [];
             $values = [];
             foreach ($changes as $field => $value) { $sets[] = "`{$field}`=?"; $values[] = $field === 'client_decision' ? ($value ? 1 : 0) : $value; }
@@ -186,7 +205,7 @@ final class MariaDbSpecForgeRepository
             $updated = $this->hydrateItem($this->findRow('specforge_items', $identity['org'], $itemId));
             $this->audit($identity, 'specforge.item.updated', 'specforge_item', $itemId, $this->hydrateItem($item), $updated + ['project_id' => $projectId]);
             $this->pdo->commit();
-            return $updated;
+            return ['item' => $updated, 'successor_created' => false, 'source_item_id' => $itemId];
         } catch (Throwable $error) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $error;
@@ -197,7 +216,7 @@ final class MariaDbSpecForgeRepository
     public function validateIssue(array $identity, string $projectId): array
     {
         $workspace = $this->workspaceForCapability($identity, $projectId, 'view');
-        return $this->issueReadiness($workspace['id']);
+        return $this->issueReadiness($identity['org'], $workspace['id']);
     }
 
     /** @return list<array<string,mixed>> */
@@ -244,9 +263,9 @@ final class MariaDbSpecForgeRepository
         $workspace = $this->workspaceForCapability($identity, $projectId, 'issue');
         return $this->command($identity, 'issue.create', $workspace['id'], null, $idempotencyKey, $body, function () use ($identity, $projectId, $body, $workspace): array {
             $locked = $this->workspaceById($identity['org'], $workspace['id'], true);
-            $readiness = $this->issueReadiness($locked['id']);
+            $readiness = $this->issueReadiness($identity['org'], $locked['id']);
             if (!$readiness['ready']) throw new SpecForgeRepositoryError(409, 'Specification is not ready to issue: ' . implode(', ', $readiness['codes']));
-            $snapshot = $this->snapshot($locked['id']);
+            $snapshot = $this->snapshot($identity['org'], $locked['id']);
             $snapshotJson = $this->encode($snapshot);
             $issueId = $this->uuid();
             $now = gmdate('Y-m-d H:i:s');
@@ -408,16 +427,17 @@ final class MariaDbSpecForgeRepository
     {
         $workspaceId = $workspace['id'];
         $projectId = $workspace['project_id'];
-        $items = array_map([$this, 'hydrateItem'], $this->rows('specforge_items', $workspaceId));
+        $organizationId = $identity['org'];
+        $items = array_map([$this, 'hydrateItem'], $this->rows('specforge_items', $organizationId, $workspaceId));
         $visibleItems = array_values(array_filter($items, fn (array $item): bool => $this->can($identity, 'view', $this->scopeRecord($identity, $projectId, $item))));
         $visibleItemIds = array_column($visibleItems, 'id');
         $visibleSectionIds = array_unique(array_column($visibleItems, 'section_id'));
         $role = $identity['role'] ?? '';
         $restricted = in_array($role, ['client','developer','engineer','energy_professional','fire_engineer','contractor','subcontractor','supplier','site_manager'], true);
-        $sections = $this->rows('specforge_sections', $workspaceId);
+        $sections = $this->rows('specforge_sections', $organizationId, $workspaceId);
         if ($restricted) $sections = array_values(array_filter($sections, fn (array $section): bool => in_array($section['id'], $visibleSectionIds, true)));
-        $approvals = $this->rows('specforge_approvals', $workspaceId);
-        $findings = $this->rows('specforge_drawing_findings', $workspaceId);
+        $approvals = $this->rows('specforge_approvals', $organizationId, $workspaceId);
+        $findings = $this->rows('specforge_drawing_findings', $organizationId, $workspaceId);
         if ($restricted) {
             $approvals = array_values(array_filter($approvals, fn (array $row): bool => in_array($row['item_id'], $visibleItemIds, true)));
             $findings = array_values(array_filter($findings, fn (array $row): bool => $row['item_id'] === null || in_array($row['item_id'], $visibleItemIds, true)));
@@ -427,19 +447,19 @@ final class MariaDbSpecForgeRepository
         $workspace['sections'] = $sections;
         $workspace['approvals'] = $approvals;
         $workspace['drawing_findings'] = $findings;
-        $workspace['issues'] = $this->rows('specforge_issues', $workspaceId);
-        $workspace['commands'] = $this->rows('specforge_commands', $workspaceId, 'created_at DESC');
+        $workspace['issues'] = $this->rows('specforge_issues', $organizationId, $workspaceId);
+        $workspace['commands'] = $this->rows('specforge_commands', $organizationId, $workspaceId, 'created_at DESC');
         return $workspace;
     }
 
     /** @return list<array<string,mixed>> */
-    private function rows(string $table, string $workspaceId, ?string $order = null): array
+    private function rows(string $table, string $organizationId, string $workspaceId, ?string $order = null): array
     {
         $allowed = ['specforge_sections','specforge_items','specforge_approvals','specforge_drawing_findings','specforge_issues','specforge_commands'];
         if (!in_array($table, $allowed, true)) throw new LogicException('Unsupported SpecForge table.');
         $order ??= $table === 'specforge_approvals' ? 'requested_at ASC, id ASC' : 'created_at ASC, id ASC';
-        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE workspace_id=? ORDER BY {$order}");
-        $stmt->execute([$workspaceId]);
+        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE organization_id=? AND workspace_id=? ORDER BY {$order}");
+        $stmt->execute([$organizationId, $workspaceId]);
         return $stmt->fetchAll();
     }
 
@@ -473,21 +493,29 @@ final class MariaDbSpecForgeRepository
         catch (SpecForgeRepositoryError) { return false; }
     }
 
+    private function itemWasIssued(string $organizationId, string $workspaceId, string $itemId): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM specforge_issue_items ii INNER JOIN specforge_issues i ON i.id=ii.issue_id AND i.organization_id=ii.organization_id WHERE ii.organization_id=? AND i.workspace_id=? AND ii.source_type="item" AND ii.source_id=? LIMIT 1');
+        $stmt->execute([$organizationId, $workspaceId, $itemId]);
+        return $stmt->fetchColumn() !== false;
+    }
+
     /** @return array{ready:bool,codes:list<string>} */
-    private function issueReadiness(string $workspaceId): array
+    private function issueReadiness(string $organizationId, string $workspaceId): array
     {
         $codes = [];
-        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_sections WHERE workspace_id=? AND status NOT IN ("approved","issued")', $workspaceId) > 0) $codes[] = 'SECTIONS_UNAPPROVED';
-        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_approvals WHERE workspace_id=? AND status="pending"', $workspaceId) > 0) $codes[] = 'APPROVALS_PENDING';
-        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_workspaces WHERE id=? AND budget_reviewed_at IS NULL', $workspaceId) > 0) $codes[] = 'BUDGET_REVIEW_PENDING';
-        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_items WHERE workspace_id=? AND superseded_by IS NOT NULL', $workspaceId) > 0) $codes[] = 'STALE_SOURCE';
-        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_drawing_findings WHERE workspace_id=? AND severity="critical" AND status<>"resolved"', $workspaceId) > 0) $codes[] = 'CRITICAL_DRAWING_FINDING';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_sections WHERE organization_id=? AND workspace_id=? AND status NOT IN ("approved","issued")', [$organizationId, $workspaceId]) > 0) $codes[] = 'SECTIONS_UNAPPROVED';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_approvals WHERE organization_id=? AND workspace_id=? AND status="pending"', [$organizationId, $workspaceId]) > 0) $codes[] = 'APPROVALS_PENDING';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_workspaces WHERE organization_id=? AND id=? AND budget_reviewed_at IS NULL', [$organizationId, $workspaceId]) > 0) $codes[] = 'BUDGET_REVIEW_PENDING';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_items WHERE organization_id=? AND workspace_id=? AND superseded_by IS NOT NULL', [$organizationId, $workspaceId]) > 0) $codes[] = 'STALE_SOURCE';
+        if ((int) $this->scalar('SELECT COUNT(*) FROM specforge_drawing_findings WHERE organization_id=? AND workspace_id=? AND severity="critical" AND status<>"resolved"', [$organizationId, $workspaceId]) > 0) $codes[] = 'CRITICAL_DRAWING_FINDING';
         return ['ready' => $codes === [], 'codes' => $codes];
     }
 
-    private function scalar(string $sql, string $workspaceId): mixed
+    /** @param list<mixed> $values */
+    private function scalar(string $sql, array $values): mixed
     {
-        $stmt = $this->pdo->prepare($sql); $stmt->execute([$workspaceId]); return $stmt->fetchColumn();
+        $stmt = $this->pdo->prepare($sql); $stmt->execute($values); return $stmt->fetchColumn();
     }
 
     /** @return array<string,mixed> */
@@ -506,22 +534,22 @@ final class MariaDbSpecForgeRepository
     }
 
     /** @return array<string,list<array<string,mixed>>> */
-    private function snapshot(string $workspaceId): array
+    private function snapshot(string $organizationId, string $workspaceId): array
     {
         return [
-            'sections' => $this->rows('specforge_sections', $workspaceId),
-            'items' => array_map([$this, 'hydrateItem'], $this->rows('specforge_items', $workspaceId)),
-            'links' => $this->snapshotRows('specforge_item_links', $workspaceId),
-            'approvals' => $this->rows('specforge_approvals', $workspaceId),
+            'sections' => $this->rows('specforge_sections', $organizationId, $workspaceId),
+            'items' => array_map([$this, 'hydrateItem'], $this->rows('specforge_items', $organizationId, $workspaceId)),
+            'links' => $this->snapshotRows('specforge_item_links', $organizationId, $workspaceId),
+            'approvals' => $this->rows('specforge_approvals', $organizationId, $workspaceId),
             'distribution' => [['id' => 'distribution', 'workspace_id' => $workspaceId]],
         ];
     }
 
     /** @return list<array<string,mixed>> */
-    private function snapshotRows(string $table, string $workspaceId): array
+    private function snapshotRows(string $table, string $organizationId, string $workspaceId): array
     {
         if ($table !== 'specforge_item_links') throw new LogicException('Unsupported snapshot table.');
-        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE workspace_id=? ORDER BY created_at ASC,id ASC"); $stmt->execute([$workspaceId]); return $stmt->fetchAll();
+        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE organization_id=? AND workspace_id=? ORDER BY created_at ASC,id ASC"); $stmt->execute([$organizationId, $workspaceId]); return $stmt->fetchAll();
     }
 
     private function nextRevision(string $revision): string

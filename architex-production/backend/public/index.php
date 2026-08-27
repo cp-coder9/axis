@@ -147,6 +147,22 @@ function issue_jwt(array $claims, int $ttlSeconds, string $type): string {
     return $header . '.' . $payload . '.' . $signature;
 }
 
+/** Extract a stable, bounded supplier/subcontractor package scope from a persisted profile. */
+function auth_package_names_from_profile(mixed $profileJson): array {
+    if (!is_string($profileJson) || trim($profileJson) === '') return [];
+    $profile = json_decode($profileJson, true);
+    if (!is_array($profile) || !is_array($profile['package_names'] ?? null)) return [];
+    $names = [];
+    foreach ($profile['package_names'] as $name) {
+        if (!is_string($name)) continue;
+        $name = trim($name);
+        if ($name === '' || strlen($name) > 120) continue;
+        $names[$name] = true;
+        if (count($names) >= 50) break;
+    }
+    return array_keys($names);
+}
+
 function current_identity(): array {
     static $identity = null;
     if ($identity !== null) return $identity;
@@ -667,7 +683,7 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/login$#', $path)) {
     $health = db_health();
     if ($health === null) json_response(['error' => 'User store unavailable (MariaDB unreachable)'], 503);
     $pdo = db();
-    $stmt = $pdo->prepare('SELECT id, organization_id, name, email, password_hash, status FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT id, organization_id, name, email, password_hash, status, profile_json FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if (!$user || $user['status'] !== 'active' || !password_verify($password, $user['password_hash'])) {
@@ -677,7 +693,7 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/login$#', $path)) {
     $roleStmt->execute([$user['id']]);
     $role = $roleStmt->fetchColumn();
     if (!$role) json_response(['error' => 'User has no assigned role'], 403);
-    $claims = ['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*']];
+    $claims = ['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*'], 'package_names' => auth_package_names_from_profile($user['profile_json'] ?? null)];
     $refreshToken = auth_new_opaque_token();
     $sessionId = auth_id('session');
     $pdo->prepare('INSERT INTO auth_sessions (id, user_id, token_hash, expires_at, created_ip, user_agent) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY), ?, ?)')
@@ -706,7 +722,7 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/refresh$#', $path)) {
     $pdo = db();
     try {
         $pdo->beginTransaction();
-        $stmt = $pdo->prepare('SELECT s.id AS session_id, s.expires_at, s.revoked_at, u.id, u.organization_id, u.status FROM auth_sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? FOR UPDATE');
+        $stmt = $pdo->prepare('SELECT s.id AS session_id, s.expires_at, s.revoked_at, u.id, u.organization_id, u.status, u.profile_json FROM auth_sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? FOR UPDATE');
         $stmt->execute([auth_token_hash($token)]);
         $user = $stmt->fetch();
         if (!$user || $user['revoked_at'] !== null || strtotime($user['expires_at'] . ' UTC') <= time() || $user['status'] !== 'active') {
@@ -731,7 +747,7 @@ if ($method === 'POST' && preg_match('#^/(api/)?v1/auth/refresh$#', $path)) {
         $pdo->commit();
         auth_set_refresh_cookie($replacementToken);
         json_response([
-            'access_token' => issue_jwt(['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*']], 3600, 'access'),
+            'access_token' => issue_jwt(['sub' => $user['id'], 'role' => $role, 'org' => $user['organization_id'], 'projects' => ['*'], 'package_names' => auth_package_names_from_profile($user['profile_json'] ?? null)], 3600, 'access'),
             'token_type' => 'Bearer',
             'expires_in' => 3600,
         ]);
@@ -1572,6 +1588,12 @@ function specforge_repository(): MariaDbSpecForgeRepository
 
 function specforge_error(Throwable $error): never
 {
+    global $specforgeRequestedCapability, $specforgeRequestedProjectId;
+    if ($error instanceof SpecForgeAuthorizationError) {
+        specforge_record_denial(current_identity(), $specforgeRequestedProjectId, $error->capability, $error->reason);
+    } elseif ($error instanceof SpecForgeRepositoryError && in_array($error->httpStatus, [403, 404], true)) {
+        specforge_record_denial(current_identity(), $specforgeRequestedProjectId, $specforgeRequestedCapability ?? 'view', $error->httpStatus === 404 ? 'not_found' : 'capability');
+    }
     if ($error instanceof SpecForgeRepositoryError) json_response(['error' => $error->getMessage()], $error->httpStatus);
     error_log('SpecForge failure: ' . $error->getMessage());
     json_response(['error' => 'SpecForge store unavailable'], 503);
@@ -1579,7 +1601,30 @@ function specforge_error(Throwable $error): never
 
 function specforge_permission(string $capability): void
 {
-    require_permission('specforge.' . $capability);
+    global $path, $specforgeRequestedCapability, $specforgeRequestedProjectId;
+    $specforgeRequestedCapability = $capability;
+    $specforgeRequestedProjectId = null;
+    if (preg_match('#/projects/([^/]+)/specforge(?:/|$)#', $path, $match)) $specforgeRequestedProjectId = $match[1];
+    $identity = current_identity();
+    $permission = 'specforge.' . $capability;
+    $granted = permissions_for_role($identity['role']);
+    if (!in_array('*', $granted, true) && !in_array($permission, $granted, true)) {
+        specforge_record_denial($identity, $specforgeRequestedProjectId, $capability, 'capability');
+        json_response(['error' => 'SpecForge access is not available for this project scope.'], 403);
+    }
+}
+
+function specforge_record_denial(array $identity, ?string $projectId, string $capability, string $reason): void
+{
+    if (($identity['org'] ?? '') === '' || ($identity['sub'] ?? '') === '') return;
+    try {
+        $payload = ['project_id' => $projectId, 'capability' => $capability, 'reason' => $reason];
+        db()->prepare('INSERT INTO audit_log (organization_id,actor_user_id,entity_type,entity_id,action_key,after_json) VALUES (?,?,?,?,?,?)')->execute([
+            $identity['org'], $identity['sub'], 'specforge_authorization', $projectId ?? 'unknown', 'specforge.authorization.denied', json_encode($payload, JSON_THROW_ON_ERROR),
+        ]);
+    } catch (Throwable $auditError) {
+        error_log('SpecForge denial audit failed: ' . $auditError->getMessage());
+    }
 }
 
 /** @return array<string,string> */
@@ -1684,8 +1729,9 @@ if ($method === 'PATCH' && preg_match('#^/(api/)?v1/projects/([^/]+)/specforge/i
     specforge_permission('edit'); $body = json_body(); $errors = specforge_validate_item_payload($body, true);
     if ($errors) json_response(['error' => 'Invalid specification item patch', 'field_errors' => $errors], 422);
     try {
-        $item = specforge_repository()->updateItem(current_identity(), $m[2], $m[3], $body, if_match_version());
-        header('ETag: "' . $item['lock_version'] . '"'); json_response(['item' => $item]);
+        $result = specforge_repository()->updateItem(current_identity(), $m[2], $m[3], $body, if_match_version());
+        header('ETag: "' . $result['item']['lock_version'] . '"');
+        json_response(['item' => $result['item'], 'successor_created' => $result['successor_created'], 'source_item_id' => $result['source_item_id']]);
     } catch (Throwable $error) { specforge_error($error); }
 }
 

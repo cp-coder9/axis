@@ -122,6 +122,11 @@ export type CreateSpecForgeSectionInput = Omit<SpecForgeSection, 'id' | 'lockVer
 };
 
 export type CreateSpecForgeItemInput = Omit<SpecForgeItem, 'id' | 'lockVersion'>;
+export type UpdateSpecForgeItemResult = {
+  item: SpecForgeItem;
+  successorCreated: boolean;
+  sourceItemId: string;
+};
 export type SpecForgeIssueReadiness = { ready: boolean; codes: string[] };
 
 const commandKey = (): string => globalThis.crypto?.randomUUID?.() ?? `specforge-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -165,8 +170,10 @@ export const specForgeApi = {
     request(`/projects/${encodeURIComponent(projectId)}/specforge/sections/${encodeURIComponent(sectionId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(sectionBody(patch as CreateSpecForgeSectionInput)) }),
   createItem: (projectId: string, input: CreateSpecForgeItemInput, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: json(itemBody(input)) }),
-  updateItem: (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number) =>
-    request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) }),
+  updateItem: async (projectId: string, itemId: string, patch: Partial<CreateSpecForgeItemInput>, lockVersion: number): Promise<UpdateSpecForgeItemResult> => {
+    const result = await request<{ item: ApiRecord; successor_created: boolean; source_item_id: string }>(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'If-Match': String(lockVersion) }, body: json(itemBody(patch)) });
+    return { item: mapItem(result.item), successorCreated: result.successor_created, sourceItemId: result.source_item_id };
+  },
   duplicateItem: (projectId: string, itemId: string, idempotencyKey = commandKey()) =>
     request(`/projects/${encodeURIComponent(projectId)}/specforge/items/${encodeURIComponent(itemId)}/duplicate`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: '{}' }),
   requestApproval: (projectId: string, itemId: string, input: { approvalType: string; requestedRole: RoleKey; requestedUserId?: string | null; dueAt?: string | null }, idempotencyKey = commandKey()) =>

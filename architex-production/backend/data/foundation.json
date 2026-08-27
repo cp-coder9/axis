@@ -447,6 +447,328 @@
                 "version": 3,
                 "status": "published"
             }
+        },
+        {
+            "id": "audit-11d831729ad9",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T00:42:23+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-ff48a1b7925d",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T00:42:25+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-7ca51ba52b91",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T01:59:40+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-9db6cd474724",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T01:59:42+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-9240c98fb286",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:00:38+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-4ee836c96e77",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:00:46+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-3a31b0620e6a",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:21:07+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-9fc33b4cc3a2",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:21:35+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-16bfd7481f9c",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:23:06+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-e41dc912ee19",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T02:23:37+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-c42e3216bc81",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T03:19:47+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-4397de6d2684",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T03:20:26+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-5416804bbf31",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T03:25:11+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-146ef19dd426",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T03:25:43+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-303b8d98483c",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T09:39:08+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-d42ee68edc0f",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T09:45:38+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-8bd752357904",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T10:04:03+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-3920099d8170",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:01:25+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-cfb7d690b837",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:27:56+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-2eda26711b60",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:33:13+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-475893921522",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:47:16+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-e2ba3e80da82",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:47:50+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
+        },
+        {
+            "id": "audit-3ffbe72ff0a5",
+            "actor": "user-demo-architect",
+            "organization": "org-demo",
+            "role": "architect",
+            "action": "passport.viewed",
+            "entity_type": "project_passport",
+            "entity_id": "proj-faerie-glen",
+            "at": "2026-08-24T11:54:41+00:00",
+            "details": {
+                "version": 3,
+                "status": "published"
+            }
         }
     ],
     "meetings": {

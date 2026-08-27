@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const specForgeApi = vi.hoisted(() => ({
@@ -14,6 +14,7 @@ vi.mock('@/lib/specforge/api', async importOriginal => {
 });
 
 import { SpecForgeApiError } from '@/lib/specforge/api';
+import type { SpecForgeAggregate, SpecForgeIssueResult } from '@/lib/specforge/types';
 import {
   initialSpecForgeWorkspaceState,
   specForgeWorkspaceReducer,
@@ -48,5 +49,29 @@ describe('SpecForge workspace state', () => {
   it('loads through the authenticated API without accepting caller identity', async () => {
     renderHook(() => useSpecForgeWorkspace('project-1'));
     await waitFor(() => expect(specForgeApi.get).toHaveBeenCalledWith('project-1'));
+  });
+
+  it('keeps a successful issue and its downstream result mounted without an eager reload', async () => {
+    const workspace = {
+      id: 'workspace-1', organizationId: 'org-1', projectId: 'project-1', projectName: 'Project One', profile: 'Architectural', stage: 'Design',
+      revision: 'P03', issueStatus: 'draft', lockVersion: 4, budgetReviewedAt: '2026-08-27T00:00:00Z',
+      sections: [], items: [], approvals: [], drawingFindings: [], issues: [], commands: [],
+    } satisfies SpecForgeAggregate;
+    const issued = {
+      issue: { id: 'issue-1', revision: 'P03', title: 'Specification issue P03', audience: 'Project team', status: 'issued', snapshotHash: 'hash', issuedAt: '2026-08-27T01:00:00Z' },
+      downstream: [{ id: 'job-1', jobType: 'specforge.messaging', status: 'pending', lastError: null }],
+      idempotent: false,
+    } satisfies SpecForgeIssueResult;
+    specForgeApi.get.mockResolvedValue(workspace);
+    specForgeApi.issue.mockResolvedValue(issued);
+    const { result } = renderHook(() => useSpecForgeWorkspace('project-1'));
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    specForgeApi.get.mockClear();
+
+    await act(async () => { await result.current.actions.issue({ title: issued.issue.title, audience: issued.issue.audience }); });
+
+    expect(specForgeApi.get).not.toHaveBeenCalled();
+    expect(result.current.workspace?.issues).toEqual([issued.issue]);
+    expect(result.current.workspace?.revision).toBe('P04');
   });
 });

@@ -102,6 +102,29 @@ describe('SpecForge V8 workspace', () => {
     expect(screen.getByRole('button', { name: 'Add specification' })).toBeTruthy();
   });
 
+  it.each([
+    ['Paste supplier URL', 'Supplier catalogue integration is required'],
+    ['Upload product image', 'Product image intelligence integration is required'],
+    ['Search practice library', 'Practice library integration is required'],
+  ] as const)('reports an honest unavailable source for %s', (button, expected) => {
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add specification' }));
+    fireEvent.click(screen.getByRole('button', { name: button }));
+    expect(screen.getByRole('status').textContent).toContain(expected);
+    expect(actions.createItem).not.toHaveBeenCalled();
+  });
+
+  it('submits a real drawing scan request from Smart Add', async () => {
+    actions.requestDrawingScan.mockResolvedValue({ id: 'job-1' });
+    render(<SpecForgeModule activeProject={ALL_PROJECTS[0]} currentRole="architect" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add specification' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Read project drawings' }));
+    fireEvent.change(screen.getByLabelText('Drawing revision'), { target: { value: 'drawing-rev-42' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Request drawing scan' }));
+    await waitFor(() => expect(actions.requestDrawingScan).toHaveBeenCalledWith('drawing-rev-42'));
+    expect(screen.getByRole('status').textContent).toContain('Drawing scan queued');
+  });
+
   it('lists exact issue blockers and reports only real downstream job states', async () => {
     const blockedWorkspace: SpecForgeAggregate = {
       ...workspace,
