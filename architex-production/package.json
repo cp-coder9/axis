@@ -42,6 +42,7 @@
     "test:e2e:v8-wave-5": "playwright test e2e/v8-wave-5.spec.ts --project=chromium",
     "test:e2e:v8-waves": "playwright test e2e/v8-wave-1.spec.ts e2e/v8-wave-2.spec.ts e2e/v8-wave-3.spec.ts e2e/v8-wave-4.spec.ts e2e/v8-wave-5.spec.ts --project=chromium",
     "test:e2e:v8-migration": "playwright test e2e/v8-workflow-parity.spec.ts e2e/v8-shell-visual.spec.ts e2e/v8-wave-1.spec.ts e2e/v8-wave-2.spec.ts e2e/v8-wave-3.spec.ts e2e/v8-wave-4.spec.ts e2e/v8-wave-5.spec.ts --project=chromium",
+    "test:e2e:reference-shell": "playwright test e2e/v8-reference-shell-parity.spec.ts --project=chromium --workers=1",
     "reference:generate": "node scripts/reference/extract-godmode-reference.mjs",
     "reference:check": "node scripts/reference/extract-godmode-reference.mjs --check",
     "test:reference": "node scripts/reference/extract-godmode-reference.test.mjs",
